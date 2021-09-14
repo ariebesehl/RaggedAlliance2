@@ -1,0 +1,33 @@
+
+#include "description.hpp"
+
+author = CRA_AUTHOR;
+dev = CRA_AUTHOR;
+onLoadName = CRA_NAME;
+onLoadMission = CRA_NAMEFULL;
+briefingName = CRA_NAMEFULL;
+overviewText = CRA_NAMEFULL;
+
+disabledAI = 1;
+enableDebugConsole = 1;
+respawn = 3; // "BASE"
+respawnDelay = 1; // don't touch
+respawnDialog = 0; // don't show scoreboard at death
+
+ReviveMode = 1;                         //0: disabled, 1: enabled, 2: controlled by player attributes
+ReviveUnconsciousStateMode = 0;         //0: basic, 1: advanced, 2: realistic
+ReviveRequiredTrait = 0;                //0: none, 1: medic trait is required
+ReviveRequiredItems = 2;                //0: none, 1: medkit, 2: medkit or first aid kit
+ReviveRequiredItemsFakConsumed = 1;     //0: first aid kit is not consumed upon revive, 1: first aid kit is consumed
+ReviveDelay = 6;                        //time needed to revive someone (in secs)
+ReviveMedicSpeedMultiplier = 2;         //speed multiplier for revive performed by medic
+ReviveForceRespawnDelay = 3;            //time needed to perform force respawn (in secs)
+ReviveBleedOutDelay = 120;              //unconscious state duration (in secs)
+
+corpseManagerMode = 0;
+wreckManagerMode = 0;
+joinUnassigned = 1;
+saving = 0;
+
+#include "CQM\CQM__Param.hpp"
+#include "CQM\CQM__Res.hpp"
