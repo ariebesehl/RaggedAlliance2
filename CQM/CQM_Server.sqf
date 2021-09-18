@@ -49,8 +49,12 @@ CQM_Loop_6 = {
 CQM_Loop_7 = {
 };
 CQM_Night = {
-	call CRA_Night;
 };
 CQM_Day = {
-	call CRA_Day;
+};
+CQM_LightsOn = {
+	call CRA_LightsOn;
+};
+CQM_LightsOff = {
+	call CRA_LightsOff;
 };

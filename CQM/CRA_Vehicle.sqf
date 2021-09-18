@@ -13,7 +13,11 @@ gRA_VehicleArmed = missionNamespace getVariable ["gRA_VehicleArmed", []];
 gRA_VehicleUnarmed = missionNamespace getVariable ["gRA_VehicleUnarmed", [[[],[],[],[]],[[],[],[],[]],[[],[],[],[]],[[],[],[],[]]]];
 gRA_Vehicles = [];
 
+gRA_StaticTypes = missionNamespace getVariable ["gRA_StaticTypes", [[],[],[],[]]];
+gRA_Statics = missionNamespace getVariable ["gRA_Statics", []];
+
 gRA_DepotTypes = missionNamespace getVariable ["gRA_DepotTypes", []];
+gRA_DepotData = missionNamespace getVariable ["gRA_DepotData", []];
 gRA_Depots = missionNamespace getVariable ["gRA_Depots", []];
 gRA_DepotEnter = missionNamespace getVariable ["gRA_DepotEnter", 800];
 gRA_DepotLeave = missionNamespace getVariable ["gRA_DepotLeave", 800 + CRA_TRIGGER_HYSTERESIS];
@@ -104,7 +108,6 @@ CRA_VehicleThaw = {
 	_vehicle
 };
 CRA_VehicleHibernate = {
-	private _type = typeOf _this;
 	private _depot = _this getVariable [CRA_VAR_VEHICLE_DEPOT, locationNull];
 	private _group = _this getVariable [CRA_VAR_VEHICLE_GROUP, grpNull];
 	private _touched = _this getVariable [CRA_VAR_VEHICLE_TOUCHED, false];
@@ -114,7 +117,8 @@ CRA_VehicleHibernate = {
 	private _vecInit = _this getVariable [CRA_VAR_VEHICLE_VEC_INIT, [[],0]];
 	private _allowAbandon = _this getVariable [CRA_VAR_VEHICLE_ALLOW_ABANDON, true];
 	private _allowHibernate = _this getVariable [CRA_VAR_VEHICLE_ALLOW_HIBERNATE, true];
-	private _vec = [_this call CRQ_Pos2D, getDir _this];
+	private _type = typeOf _this;
+	private _vec = [getPosATL _this, getDir _this];
 	private _inventory = _this call CRQ_InventoryBox;
 	private _damage = damage _this;
 	[[_depot, _group, _touched, _timeLast, _vecLast, _timeInit, _vecInit, _allowAbandon, _allowHibernate],[_type, _vec, _inventory, _damage]]
@@ -137,7 +141,8 @@ CRA_VehicleLogPos = {
 };
 CRA_VehicleAbandon = {
 	private _touched = false;
-	private _lastUsed = nil;
+	//private _lastUsed = nil;
+	private _lastUsed = -1;
 	private _lastPos = [];
 	private _allowAbandon = false;
 	if (_this isEqualType objNull) then {
@@ -277,77 +282,114 @@ CRA_VehicleRegister = {
 	};
 	(gRA_VehicleTypes#_type) pushBack _index;
 };
+CRA_StaticRegister = {
+	params ["_type","_side","_quality","_index"];
+	if (_quality < 0) then {_quality = 0;};
+	private _level = floor (_quality * gRA_ItemLevels);
+	if (_level >= gRA_ItemLevels) then {_level = gRA_ItemLevels - 1;};
+	for [{private _i = 0}, {_i < gRA_ItemLevels}, {_i = _i + 1}] do {
+		if (_level >= (gRA_ItemLevelBounds#_i#0) && _level <= (gRA_ItemLevelBounds#_i#1)) then {
+			(gRA_Statics#_i#_type#_side) pushBack _index;
+		};
+	};
+	(gRA_StaticTypes#_type) pushBack _index;
+};
+gRA_VehicleTemp = missionNamespace getVariable ["gRA_VehicleTemp", []];
 CRA_VehicleInit = {
-	for [{private _i = 0}, {_i < gRA_ItemLevels}, {_i = _i + 1}] do {gRA_VehicleArmed pushBack [[[],[],[],[]],[[],[],[],[]],[[],[],[],[]],[[],[],[],[]]];};
+	for [{private _i = 0}, {_i < gRA_ItemLevels}, {_i = _i + 1}] do {
+		gRA_VehicleArmed pushBack [[[],[],[],[]],[[],[],[],[]],[[],[],[],[]],[[],[],[],[]]];
+		gRA_Statics pushBack [[[],[],[],[]],[[],[],[],[]],[[],[],[],[]],[[],[],[],[]]];
+	};
 	{
 		private _name = configName _x;
-		private _type = switch (true) do {case (_name isKindOf "car"): {CRA_VEHICLE_CAR}; case (_name isKindOf "plane"): {CRA_VEHICLE_PLANE}; case (_name isKindOf "ship"): {CRA_VEHICLE_BOAT}; case (_name isKindOf "helicopter"): {CRA_VEHICLE_HELI}; default {-1};};
+		private _type = switch (true) do {case (_name isKindOf "car"): {CRA_VEHICLE_CAR}; case (_name isKindOf "plane"): {CRA_VEHICLE_PLANE}; case (_name isKindOf "ship"): {CRA_VEHICLE_BOAT}; case (_name isKindOf "helicopter"): {CRA_VEHICLE_HELI}; case (_name isKindOf "StaticWeapon"): {CRA_VEHICLE_STATIC}; default {-1};};
 		if (_type != -1) then {
 			if (getNumber (_x >> "isUAV") != 0) exitWith {};
-			
 			private _side = switch (getNumber (_x >> "side")) do {case 0: {CRQ_SIDE_OPFOR}; case 1: {CRQ_SIDE_BLUFOR}; case 2: {CRQ_SIDE_IDFOR}; case 3: {CRQ_SIDE_CIVFOR}; default {CRQ_SIDE_UNKNOWN};};
 			if (_side == CRQ_SIDE_UNKNOWN) exitWith {};
 			if (CRA_VEHICLES_EXCLUDE find _name != -1) exitWith {};
+			//if (_type == CRA_VEHICLE_STATIC) exitWith {}; // TODO implement statics
 			
 			private _vehicleSeats = _name call CRA_VehicleSeats;
-			private _weapons = []; // TODO pylons, artillery  !isNull (_x >> "Components" >> "TransportPylonsComponent")
+			if (_type == CRA_VEHICLE_STATIC && {(_vehicleSeats#1#1) == 0}) exitWith {};
+			//private _weapons = []; // TODO pylons, artillery  !isNull (_x >> "Components" >> "TransportPylonsComponent")
 			private _lethal = 0;
-			{
-				private _weapon = ((gCQ_CfgWeapons >> _x) call CRA_ItemWeaponAnalysis);
-				if ((_weapon#1#1) > _lethal) then {_lethal = _weapon#1#1;};
-			} forEach (_vehicleSeats#0);
-			
-			private _armor = getNumber (_x >> "armor");
-			private _fuel = getNumber (_x >> "transportFuel") > 0;
-			private _supply = getNumber (_x >> "transportAmmo") > 0;
-			private _repair = getNumber (_x >> "transportRepair") > 0;
-			private _medical = getNumber (_x >> "attendant") > 0;
-			private _armed = _lethal > 0;
-			
-			private _capabilities = [_fuel, _supply, _repair, _medical, _armed] call CRQ_ByteEncode;
-			
-			private _factorLoad = (sqrt (getNumber (_x >> "maximumLoad"))) / 20;
-			private _inventory = [[],[],[],[]];
-			private _containers = [];
-			if (_factorLoad > 0) then {
-				private _itemFA = [];
-				private _itemMK = [];
-				private _itemTK = [];
-				private _factorMedkit = if (_medical) then {_factorLoad} else {0};
-				private _factorToolkit = if (_repair) then {_factorLoad} else {0};
-				{_itemFA pushBack (_x * (_factorLoad + 2 * _factorMedkit));} forEach CRA_VEHICLE_INVENTORY_FIRSTAID;
-				{_itemMK pushBack (_x * _factorMedkit);} forEach CRA_VEHICLE_INVENTORY_MEDKIT;
-				{_itemTK pushBack (_x * _factorToolkit);} forEach CRA_VEHICLE_INVENTORY_TOOLKIT;
-				(_inventory#0) pushBack [[CRA_INDEX_FIRSTAIDKIT], _itemFA];
-				if (_factorMedkit > 0) then {(_inventory#0) pushBack [[CRA_INDEX_MEDIKIT], _itemMK];};
-				if (_factorToolkit > 0) then {(_inventory#0) pushBack [[CRA_INDEX_TOOLKIT], _itemTK];};
-				if (_type == CRA_VEHICLE_PLANE || _type == CRA_VEHICLE_HELI) then {
-					private _itemPC = [];
-					{_itemPC pushBack (_x * _factorLoad);} forEach CRA_VEHICLE_INVENTORY_PARACHUTE;
-					(_inventory#3) pushBack [[CRA_INDEX_PARACHUTE], _itemPC];
-				};
-			};
-			private _quality = 0.00;
-			if (_armed) then {
-				private _base = switch (_type) do {
-					case CRA_VEHICLE_CAR: {
-						switch (true) do {
-							case (_armor <= 100): {CRA_VEHICLE_QUALITY_CAR};
-							case (_armor > 100 && _armor <= 250): {CRA_VEHICLE_QUALITY_MRAP};
-							case (_armor > 250): {CRA_VEHICLE_QUALITY_APC};
-							default {CRA_VEHICLE_QUALITY};
-						};
+			if (_type != CRA_VEHICLE_STATIC) then {
+				{
+					private _weapon = ((gCQ_CfgWeapons >> _x) call CRA_ItemWeaponAnalysis);
+					if ((_weapon#1#1) > _lethal) then {_lethal = _weapon#1#1;};
+				} forEach (_vehicleSeats#0);
+				
+				private _armor = getNumber (_x >> "armor");
+				private _fuel = getNumber (_x >> "transportFuel") > 0;
+				private _supply = getNumber (_x >> "transportAmmo") > 0;
+				private _repair = getNumber (_x >> "transportRepair") > 0;
+				private _medical = getNumber (_x >> "attendant") > 0;
+				private _armed = _lethal > 0;
+				
+				private _capabilities = [_fuel, _supply, _repair, _medical, _armed] call CRQ_ByteEncode;
+				
+				private _factorLoad = (sqrt (getNumber (_x >> "maximumLoad"))) / 20;
+				private _inventory = [[],[],[],[]];
+				private _containers = [];
+				if (_factorLoad > 0) then {
+					private _itemFA = [];
+					private _itemMK = [];
+					private _itemTK = [];
+					private _factorMedkit = if (_medical) then {_factorLoad} else {0};
+					private _factorToolkit = if (_repair) then {_factorLoad} else {0};
+					{_itemFA pushBack (_x * (_factorLoad + 2 * _factorMedkit));} forEach CRA_VEHICLE_INVENTORY_FIRSTAID;
+					{_itemMK pushBack (_x * _factorMedkit);} forEach CRA_VEHICLE_INVENTORY_MEDKIT;
+					{_itemTK pushBack (_x * _factorToolkit);} forEach CRA_VEHICLE_INVENTORY_TOOLKIT;
+					(_inventory#0) pushBack [[CRA_INDEX_FIRSTAIDKIT], _itemFA];
+					if (_factorMedkit > 0) then {(_inventory#0) pushBack [[CRA_INDEX_MEDIKIT], _itemMK];};
+					if (_factorToolkit > 0) then {(_inventory#0) pushBack [[CRA_INDEX_TOOLKIT], _itemTK];};
+					if (_type == CRA_VEHICLE_PLANE || _type == CRA_VEHICLE_HELI) then {
+						private _itemPC = [];
+						{_itemPC pushBack (_x * _factorLoad);} forEach CRA_VEHICLE_INVENTORY_PARACHUTE;
+						(_inventory#3) pushBack [[CRA_INDEX_PARACHUTE], _itemPC];
 					};
-					case CRA_VEHICLE_PLANE: {CRA_VEHICLE_QUALITY_PLANE};
-					case CRA_VEHICLE_BOAT: {CRA_VEHICLE_QUALITY_BOAT};
-					case CRA_VEHICLE_HELI: {CRA_VEHICLE_QUALITY_HELI};
-					default {CRA_VEHICLE_QUALITY};
 				};
-				private _factors = [_lethal, _armor];
-				_quality = [_base, _factors] call CRA_ItemQuality;
+				private _quality = 0.00;
+				if (_armed) then {
+					private _base = switch (_type) do {
+						case CRA_VEHICLE_CAR: {
+							switch (true) do {
+								case (_armor <= 100): {CRA_VEHICLE_QUALITY_CAR};
+								case (_armor > 100 && _armor <= 250): {CRA_VEHICLE_QUALITY_MRAP};
+								case (_armor > 250): {CRA_VEHICLE_QUALITY_APC};
+								default {CRA_VEHICLE_QUALITY};
+							};
+						};
+						case CRA_VEHICLE_PLANE: {CRA_VEHICLE_QUALITY_PLANE};
+						case CRA_VEHICLE_BOAT: {CRA_VEHICLE_QUALITY_BOAT};
+						case CRA_VEHICLE_HELI: {CRA_VEHICLE_QUALITY_HELI};
+						default {CRA_VEHICLE_QUALITY};
+					};
+					private _factors = [_lethal, _armor];
+					_quality = [_base, _factors] call CRA_ItemQuality;
+				};
+				private _index = [[_name, _name call CRQ_ClassSize, _name call CRQ_ClassCenter],[_type, _side, _quality, _capabilities, _vehicleSeats#1],_inventory] call CRA_VehicleAdd;
+				[_type, _side, _quality, _index] call CRA_VehicleRegister;
+			} else {
+				private _size = _name call CRQ_ClassSize;
+				{
+					private _weapon = ((gCQ_CfgWeapons >> _x) call CRA_ItemWeaponAnalysis);
+					if ((_weapon#1#1) > _lethal) then {_lethal = _weapon#1#1;};
+					_type = switch (_weapon#1#0) do {
+						default {-1};
+						case CRA_INDEX_VWEAPON_LMG;
+						case CRA_INDEX_VWEAPON_MMG;
+						case CRA_INDEX_VWEAPON_HMG;
+						case CRA_INDEX_VWEAPON_GMG: {if ((_size#1#2) > 3) then {CRA_STATIC_MG_HIGH} else {CRA_STATIC_MG_LOW};};
+						case CRA_INDEX_VWEAPON_CAN: {CRA_STATIC_MORTAR};
+						case CRA_INDEX_VWEAPON_RPG_AA;
+						case CRA_INDEX_VWEAPON_RPG_AT: {CRA_STATIC_RPG};
+					};
+				} forEach (_vehicleSeats#0);
+				private _index = [[_name, _size, _name call CRQ_ClassCenter],[_type, _side, _lethal, 0, _vehicleSeats#1],[]] call CRA_VehicleAdd;
+				[_type, _side, _lethal, _index] call CRA_StaticRegister;
 			};
-			private _index = [[_name, _name call CRQ_ClassSize, _name call CRQ_ClassCenter],[_type, _side, _quality,_capabilities,_vehicleSeats#1],_inventory] call CRA_VehicleAdd;
-			[_type, _side, _quality, _index] call CRA_VehicleRegister;
 		};
 	} forEach ("getNumber (_x >> 'scope') == 2" configClasses gCQ_CfgVehicles);
 };
@@ -518,7 +560,7 @@ CRA_DepotCustomCreate = {
 	private _depotVehicles = [objNull, _depotVec, _depotBounds] call CRA_DepotAnalysis;
 	private _props = [_depotVec, _propSources] call CRQ_PropRasterize;
 	private _clutter = [_depotPos, _depotRadius] call CRQ_WorldClutter;
-	[-1, _depotType, _depotVec#0, CRQ_SIDE_CIVFOR, _clutter, _props, [_depotVehicles]] call CRA_DepotCreate;
+	[-1, _depotType, _depotVec#0, CRQ_SIDE_CIVFOR, _clutter, _props, [_depotVehicles]]
 };
 
 CRA_DepotBounds = {
@@ -546,6 +588,10 @@ CRA_DepotBounds = {
 	[_model, _type, _size, _rasterized]
 };
 CRA_DepotInit = {
+	{_x call CRA_DepotCreate;} forEach gRA_DepotData;
+	gRA_DepotData = nil;
+};
+CRA_DepotGenerate = {
 
 	{gRA_DepotTypes pushBack (_x call CRA_DepotBounds);} forEach CRA_DEPOT_TYPES;
 	
@@ -580,10 +626,13 @@ CRA_DepotInit = {
 	private _index = 0;
 	{
 		private _type = _forEachIndex;
-		{[_index, _type, _x#0, CRQ_SIDE_CIVFOR, [], [], _x#2] call CRA_DepotCreate; _index  = _index + 1;} forEach _x;
+		{
+			gRA_DepotData pushBack [_index, _type, _x#0, CRQ_SIDE_CIVFOR, [], [], _x#2];
+			_index  = _index + 1;
+		} forEach _x;
 	} forEach _depotGroups;
 	
-	{_x call CRA_DepotCustomCreate;} forEach CRA_DEPOT_CUSTOM;
+	{gRA_DepotData pushBack (_x call CRA_DepotCustomCreate);} forEach CRA_DEPOT_CUSTOM;
 };
 CRA_DepotCreate = {
 	params ["_index", "_type", "_pos", "_owner", "_clutter", "_props", "_spawn"];
@@ -610,18 +659,12 @@ CRA_DepotSave = {
 	profileNamespace setVariable [CRA_VAR_CACHE_DEPOT_TYPES, gRA_DepotTypes];
 	private _data = [];
 	{
-		private _index = _x getVariable [CRA_VAR_DEPOT_INDEX, -1];
-		private _type = _x getVariable [CRA_VAR_DEPOT_TYPE, -1];
-		private _pos = _x getVariable [CRA_VAR_DEPOT_POS, -1];
-		private _owner = _x getVariable [CRA_VAR_DEPOT_OWNER, -1];
-		private _clutter = [];
-		{_clutter pushBack (netId _x);} forEach (_x getVariable [CRA_VAR_DEPOT_CLUTTER, []]);
-		private _props = _x getVariable [CRA_VAR_DEPOT_PROPS, []];
-		private _spawn = _x getVariable [CRA_VAR_DEPOT_SPAWN, []];
-		private _depot = [_index, _type, _pos, _owner, _clutter, _props, _spawn];
-		_data pushBack _depot;
-		_this = [_this, _depot] call CRQ_CRC;
-	} forEach gRA_Depots;
+		private _copy = +_x;
+		_copy set [4, []];
+		{(_copy#4) pushBack (netId _x);} forEach (_x#4);
+		_data pushBack _copy;
+		_this = [_this, _copy] call CRQ_CRC;
+	} forEach gRA_DepotData;
 	profileNamespace setVariable [CRA_VAR_CACHE_DEPOT_DATA, _data];
 	_this
 };
@@ -633,17 +676,11 @@ CRA_DepotLoad = {
 		private _copy = +_x;
 		_copy set [4, []];
 		{(_copy#4) pushBack (objectFromNetId _x);} forEach (_x#4);
-		_copy call CRA_DepotCreate;
+		gRA_DepotData pushBack _copy;
 	} forEach (profileNamespace getVariable [CRA_VAR_CACHE_DEPOT_DATA, []]);
 	_this
 };
 CRA_DepotReset = {
-	gRA_VehicleIndexCounter = -1;
-	gRA_VehicleIndex = [];
-	gRA_VehicleTypes = [[],[],[],[]];
-	gRA_VehicleArmed = [];
-	gRA_VehicleUnarmed = [[[],[],[],[]],[[],[],[],[]],[[],[],[],[]],[[],[],[],[]]];
 	gRA_DepotTypes = [];
-	{deleteLocation _x;} forEach gRA_Depots;
-	gRA_Depots = [];
+	gRA_DepotData = [];
 };

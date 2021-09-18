@@ -17,11 +17,12 @@ gMS_TimeStartMinute = ["CRQ_MissionTimeStartMinute", 37] call BIS_fnc_getParamVa
 gCS_CorpseDecay = ["CRQ_CorpseDecay", 600] call BIS_fnc_getParamValue;
 gCS_WreckDecay = ["CRQ_WreckDecay", 600] call BIS_fnc_getParamValue;
 
-gCS_Player = missionNamespace getVariable ["gCS_Player", []];
+gCS_PlayerResolve = [];
 gT_Timing = missionNamespace getVariable ["gT_Timing", []];
 
 gT_Now = 0;
 gT_Daytime = 0;
+gT_Lights = false;
 gMS_Start = missionNamespace getVariable ["gMS_Start", 0];
 gCS_Broadcast = [0,-2] select isDedicated;
 gCS_Action = [];
@@ -54,10 +55,7 @@ CRQ_ActionSynchronize = {
 	{[_this, _x] call CRQ_ActionBroadcast;} forEach gCS_Action;
 };
 CRQ_ClientConnect = {
-	params ["_id", "_uid", "_name", "_jip", "_owner", "_idstr"];
-	_this remoteExec ["CRQ_LocalClientConnect", _owner];
-	if (_jip) then {_owner spawn CRQ_ActionSynchronize;};
-	_this call CQM_ClientConnect;
+	gCS_PlayerResolve pushBack [_this spawn CRQ_ClientResolve, gT_Now, _this];
 };
 CRQ_ClientDisconnect = {
 	//params ["_id", "_uid", "_name", "_jip", "_owner", "_idstr"];
@@ -67,18 +65,46 @@ CRQ_ClientHandleDisconnect = {
 	//params ["_unit", "_id", "_uid", "_name"];
 	_this call CQM_ClientHandleDisconnect;
 };
+CRQ_ClientResolve = {
+	params ["_id", "_uid", "_name", "_jip", "_owner", "_idstr"];
+	private _unit = objNull;
+	while {true} do {
+		private _players = allPlayers;
+		private _index = _players findIf {owner _x isEqualTo _owner};
+		if (_index != -1) exitWith {_unit = _players#_index;};
+		sleep CRQ_PLAYER_RESOLVE_RESOLUTION;
+	};
+	_this remoteExec ["CRQ_LocalClientConnect", _owner];
+	[_unit, false] call CRQ_ClientSpawn;
+	if (_jip) then {_owner spawn CRQ_ActionSynchronize;};
+	_this call CQM_ClientConnect;
+};
 CRQ_ClientSpawn = {
 	params ["_unit","_isRespawn"];
-	private _target = owner _unit;
-	remoteExec ["CRQ_LocalPlayerTraits", _target];
 	_this call CQM_ClientSpawn;
-	_unit setVariable ["respawn", true, _target];
+	remoteExec ["CRQ_LocalClientSpawnResolve", owner _unit];
 };
 CRQ_ClientRespawn = {
-	params ["_entity", "_corpse"];
+	params ["_unit", "_corpse"];
+	[_unit, true] call CRQ_ClientSpawn;
 	_corpse setVehicleVarName "";
 	_corpse call CRQ_CorpseRegister;
-	[_entity, true] call CRQ_ClientSpawn;
+};
+CRQ_ClientLoop = {
+	private _remove = [];
+	{
+		if ((_x#0) isEqualTo scriptNull) then {
+			_remove pushBack _forEachIndex;
+		} else {
+			if ((gT_Now - (_x#1)) > CRQ_PLAYER_RESOLVE_TIMEOUT) then {
+				terminate (_x#0);
+				// TODO resolve this
+				_remove pushBack _forEachIndex;
+			};
+		};
+	} forEach gCS_PlayerResolve;
+	reverse _remove;
+	{gCS_PlayerResolve deleteAt _x;} forEach _remove;
 };
 CRQ_CorpseInit = {
 	gCS_CorpseGroup = CRQ_SIDE_CIVFOR call CRQ_GroupCreate;
@@ -87,21 +113,6 @@ CRQ_CorpseInit = {
 CRQ_CorpseRegister = {
 	if (group _this isNotEqualTo grpNull) then {[_this] join gCS_CorpseGroup;};
 	gCS_Corpse pushBack [_this, gT_Now, false];
-};
-CRQ_WreckRegister = {
-	gCS_Wreck pushBack [_this, gT_Now, false];
-};
-CRQ_WreckLoop = {
-	private _remove = [];
-	{
-		_x params ["_wreck", "_timeDeath", "_hidden"];
-		if ((gT_Now - _timeDeath) >= gCS_WreckDecay) then {
-			_wreck call CRQ_VehicleDelete;
-			_remove pushBack _forEachIndex;
-		};
-	} forEach gCS_Wreck;
-	reverse _remove;
-	{gCS_Wreck deleteAt _x;} forEach _remove;
 };
 CRQ_CorpseLoop = {
 	private _remove = [];
@@ -119,8 +130,25 @@ CRQ_CorpseLoop = {
 	reverse _remove;
 	{gCS_Corpse deleteAt _x;} forEach _remove;
 };
+CRQ_WreckRegister = {
+	gCS_Wreck pushBack [_this, gT_Now, false];
+};
+CRQ_WreckLoop = {
+	private _remove = [];
+	{
+		_x params ["_wreck", "_timeDeath", "_hidden"];
+		if ((gT_Now - _timeDeath) >= gCS_WreckDecay) then {
+			_wreck call CRQ_VehicleDelete;
+			_remove pushBack _forEachIndex;
+		};
+	} forEach gCS_Wreck;
+	reverse _remove;
+	{gCS_Wreck deleteAt _x;} forEach _remove;
+};
 CRQ_ClientInit = {
 	// TODO remove AI players if not explicitly disabled in description.ext
+	//private _slots = playableSlotsNumber _x;
+	//for [{private _i = 0}, {_i < _slots} , {_i = _i + 1}] do {};
 };
 CRQ_MissionTime = {
 	params ["_hour", "_minute"];
@@ -145,10 +173,24 @@ CRQ_MissionTime = {
 	};
 	(_hour + (_minute / 60))
 };
+CRQ_DayLoop = {
+	private _dayTime = dayTime;
+	if (_dayTime >= CRQ_TIME_NIGHT_MIN && gT_Daytime < CRQ_TIME_NIGHT_MIN) then {call CQM_Night;};
+	if (_dayTime > CRQ_TIME_NIGHT_MAX && gT_Daytime <= CRQ_TIME_NIGHT_MAX) then {call CQM_Day;};
+	gT_Daytime = _dayTime;
+};
+CRQ_LightsLoop = {
+	private _lights = call CRQ_Lights;
+	if (gT_Lights) then {
+		if (!_lights) then {gT_Lights = _lights; call CQM_LightsOff;};
+	} else {
+		if (_lights) then {gT_Lights = _lights; call CQM_LightsOn;};
+	};
+};
 CRQ_InitPre = {
 	gMS_Start = [gMS_TimeStartHour, gMS_TimeStartMinute] call CRQ_MissionTime;
 	skipTime (gMS_Start - dayTime);
-	{gT_Timing pushBack [_x, CRQ_LOOP_TIMER_INIT#_forEachIndex];} forEach CRQ_LOOP_TIMER_DELAY;
+	{gT_Timing pushBack [_x#0, _x#1];} forEach CRQ_LOOP_TIMER;
 	call CRQ_ClientInit;
 	call CQM_InitPre;
 };
@@ -162,11 +204,15 @@ CRQ_Main = {
 	sleep 0.01;
 	call CRQ_Init;
 	gT_Daytime = dayTime;
+	gT_Lights = call CRQ_Lights;
 	while {true} do {
 		gT_Now = time;
 		{
-			if ((gT_Now - (_x#1)) >= (_x#0)) then {
-				(gT_Timing#_forEachIndex) set [1, gT_Now];
+			private _delay = _x#0;
+			private _stamp = _x#1;
+			private _elapsed = gT_Now - _stamp;
+			if (_delay <= _elapsed) then {
+				_x set [1, gT_Now - (_elapsed % _delay)];
 				switch (_forEachIndex) do {
 					case 0: { // 1s
 						call CQM_Loop_0;
@@ -189,6 +235,9 @@ CRQ_Main = {
 						call CQM_Loop_5;
 					};
 					case 6: {
+						call CRQ_ClientLoop;
+						call CRQ_LightsLoop;
+						call CRQ_DayLoop;
 						call CQM_Loop_6;
 					};
 					case 7: {
@@ -198,10 +247,6 @@ CRQ_Main = {
 				};
 			};		
 		} forEach gT_Timing;
-		private _dayTime = dayTime;
-		if (_dayTime >= CRQ_TIME_NIGHT_MIN && gT_Daytime < CRQ_TIME_NIGHT_MIN) then {call CQM_Night;};
-		if (_dayTime > CRQ_TIME_NIGHT_MAX && gT_Daytime <= CRQ_TIME_NIGHT_MAX) then {call CQM_Day;};
-		gT_Daytime = _dayTime;
 		sleep CRQ_DELAY_LOOP;
 	};
 };

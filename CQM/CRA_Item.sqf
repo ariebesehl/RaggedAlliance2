@@ -67,7 +67,7 @@ gRA_TempInventory = missionNamespace getVariable ["gRA_TempInventory", []];
 gRA_TempInventory2 = missionNamespace getVariable ["gRA_TempInventory2", []];
 gRA_TempInventory3 = missionNamespace getVariable ["gRA_TempInventory3", []];
 */
-CRA_ItemReset = {
+/*CRA_ItemReset = {
 	gRA_IdentityFaces = [];
 	gRA_IdentityVoice = [];
 	gRA_ItemIndexCounter = -1;
@@ -126,7 +126,7 @@ CRA_ItemReset = {
 	gRA_InventoryWeaponSRM = [];
 	gRA_InventoryWeaponSRSO = [];
 	gRA_InventoryWeaponUW = [];
-};
+};*/
 CRA_ItemInit = {
 	gRA_ItemLevels = 16;
 	private _indexMax = gRA_ItemLevels - 1;

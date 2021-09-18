@@ -99,7 +99,7 @@ class Params
 	class CRA_PlayerStart
 	{
 		title = "Player Start";
-		texts[] = {"Story","Random"};
+		texts[] = {"Story","Random -- NOT YET IMPLEMENTED"};
 		values[] = {0,1};
 		default = 0;
 	};

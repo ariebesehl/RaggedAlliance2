@@ -41,11 +41,18 @@
 #define CRA_VAR_LOCATION_TYPE "CRA_VAR_LOCATION_TYPE"
 #define CRA_VAR_LOCATION_STATE "CRA_VAR_LOCATION_STATE"
 #define CRA_VAR_LOCATION_VALUE "CRA_VAR_LOCATION_VALUE"
+
+#define CRA_VAR_LOCATION_ANNOUNCE "CRA_VAR_LOCATION_ANNOUNCE"
 #define CRA_VAR_LOCATION_ENGAGED "CRA_VAR_LOCATION_ENGAGED"
 #define CRA_VAR_LOCATION_CAPTURED "CRA_VAR_LOCATION_CAPTURED"
+#define CRA_VAR_LOCATION_CAPTUREABLE "CRA_VAR_LOCATION_CAPTUREABLE"
+#define CRA_VAR_LOCATION_STRENGTH "CRA_VAR_LOCATION_STRENGTH"
+
 #define CRA_VAR_LOCATION_OWNER "CRA_VAR_LOCATION_OWNER"
 #define CRA_VAR_LOCATION_OWNER_PREV "CRA_VAR_LOCATION_OWNER_PREV"
 #define CRA_VAR_LOCATION_MARKER "CRA_VAR_LOCATION_MARKER"
+#define CRA_VAR_LOCATION_MARKER_TYPES "CRA_VAR_LOCATION_MARKER_TYPES"
+#define CRA_VAR_LOCATION_MARKER_ENABLE "CRA_VAR_LOCATION_MARKER_ENABLE"
 #define CRA_VAR_LOCATION_INVENTORY "CRA_VAR_LOCATION_INVENTORY"
 #define CRA_VAR_LOCATION_BASE_CLUTTER "CRA_VAR_LOCATION_BASE_CLUTTER"
 #define CRA_VAR_LOCATION_BASE_VEC "CRA_VAR_LOCATION_BASE_VEC"
@@ -56,6 +63,9 @@
 #define CRA_VAR_LOCATION_RADIO_START "CRA_VAR_LOCATION_RADIO_START"
 #define CRA_VAR_LOCATION_RADIO_LENGTH "CRA_VAR_LOCATION_RADIO_LENGTH"
 #define CRA_VAR_LOCATION_COUNT_PERSONNEL "CRA_VAR_LOCATION_COUNT_PERSONNEL"
+#define CRA_VAR_LOCATION_COUNT_VEHICLE "CRA_VAR_LOCATION_COUNT_VEHICLE"
+#define CRA_VAR_LOCATION_DAMAGE_PERSONNEL "CRA_VAR_LOCATION_DAMAGE_PERSONNEL"
+#define CRA_VAR_LOCATION_DAMAGE_VEHICLE "CRA_VAR_LOCATION_DAMAGE_VEHICLE"
 #define CRA_VAR_LOCATION_GROUP_PERSONNEL "CRA_VAR_LOCATION_GROUP_PERSONNEL"
 #define CRA_VAR_LOCATION_UNIT_PERSONNEL "CRA_VAR_LOCATION_UNIT_PERSONNEL"
 #define CRA_VAR_LOCATION_UNIT_VEHICLE "CRA_VAR_LOCATION_UNIT_VEHICLE"
@@ -66,9 +76,11 @@
 #define CRA_VAR_LOCATION_UNIT_INST_BOX_AUX "CRA_VAR_LOCATION_UNIT_INST_BOX_AUX"
 #define CRA_VAR_LOCATION_UNIT_INST_RADIO "CRA_VAR_LOCATION_UNIT_INST_RADIO"
 #define CRA_VAR_LOCATION_UNIT_INST_FIRE "CRA_VAR_LOCATION_UNIT_INST_FIRE"
+#define CRA_VAR_LOCATION_UNIT_INST_GATE "CRA_VAR_LOCATION_UNIT_INST_GATE"
 #define CRA_VAR_LOCATION_HIBERNATE_UNITS "CRA_VAR_LOCATION_HIBERNATE_UNITS"
 #define CRA_VAR_LOCATION_HIBERNATE_GROUPS "CRA_VAR_LOCATION_HIBERNATE_GROUPS"
 #define CRA_VAR_LOCATION_HIBERNATE_VEHICLES "CRA_VAR_LOCATION_HIBERNATE_VEHICLES"
+#define CRA_VAR_LOCATION_HIBERNATE_TIME "CRA_VAR_LOCATION_HIBERNATE_TIME"
 //#define CRA_VAR_LOCATION_BASE_DEFENSE "CRA_VAR_LOCATION_BASE_DEFENSE"
 //#define CRA_VAR_LOCATION_BASE_DEPOT "CRA_VAR_LOCATION_BASE_DEPOT"
 //#define CRA_VAR_LOCATION_BASE_PATROL "CRA_VAR_LOCATION_BASE_PATROL"
@@ -144,70 +156,71 @@
 #define CRA_VAR_CACHE_DEPOT_DATA "CRA_VAR_CACHE_DEPOT_DATA"
 #define CRA_VAR_CACHE_DEPOT_TYPES "CRA_VAR_CACHE_DEPOT_TYPES"
 
-#define CRA_PRECACHED [\
-[CRA_VAR_CACHE_IDENTITY_FACES,					"gRA_IdentityFaces"],\
-[CRA_VAR_CACHE_IDENTITY_VOICE,					"gRA_IdentityVoice"],\
-[CRA_VAR_CACHE_ITEM_INDEX_COUNTER,				"gRA_ItemIndexCounter"],\
-[CRA_VAR_CACHE_ITEM_INDEX,						"gRA_ItemIndex"],\
-[CRA_VAR_CACHE_ITEM_AMMO_COUNTER,				"gRA_ItemAmmoCounter"],\
-[CRA_VAR_CACHE_ITEM_AMMO,						"gRA_ItemAmmo"],\
-[CRA_VAR_CACHE_ITEM_LEVELS,						"gRA_ItemLevels"],\
-[CRA_VAR_CACHE_ITEM_LEVELBOUNDS,				"gRA_ItemLevelBounds"],\
-[CRA_VAR_CACHE_ITEM_ATTACHMENT,					"gRA_InventoryAttachment"],\
-[CRA_VAR_CACHE_ITEM_BACKPACK_SMALL,				"gRA_InventoryBackpackSmall"],\
-[CRA_VAR_CACHE_ITEM_BACKPACK_MEDIUM,			"gRA_InventoryBackpackMedium"],\
-[CRA_VAR_CACHE_ITEM_BACKPACK_LARGE,				"gRA_InventoryBackpackLarge"],\
-[CRA_VAR_CACHE_ITEM_BACKPACK_CIVILIAN,			"gRA_InventoryBackpackCivilian"],\
-[CRA_VAR_CACHE_ITEM_BACKPACK_CIVILIAN_MEDIC,	"gRA_InventoryBackpackCivilianMedic"],\
-[CRA_VAR_CACHE_ITEM_BACKPACK_CIVILIAN_UTILITY,	"gRA_InventoryBackpackCivilianUtility"],\
-[CRA_VAR_CACHE_ITEM_HEADGEAR_HAT,				"gRA_InventoryHeadgearHat"],\
-[CRA_VAR_CACHE_ITEM_HEADGEAR_HELMET,			"gRA_InventoryHeadgearHelmet"],\
-[CRA_VAR_CACHE_ITEM_HEADGEAR_LEADER,			"gRA_InventoryHeadgearLeader"],\
-[CRA_VAR_CACHE_ITEM_HEADGEAR_CIVILIAN,			"gRA_InventoryHeadgearCivilian"],\
-[CRA_VAR_CACHE_ITEM_HEADGEAR_CIVILIAN_MEDIC,	"gRA_InventoryHeadgearCivilianMedic"],\
-[CRA_VAR_CACHE_ITEM_BACKPACK_CIVILIAN_UTILITY,	"gRA_InventoryHeadgearCivilianUtility"],\
-[CRA_VAR_CACHE_ITEM_GLASSES,					"gRA_InventoryGlasses"],\
-[CRA_VAR_CACHE_ITEM_VEST_PLAIN,					"gRA_InventoryVestPlain"],\
-[CRA_VAR_CACHE_ITEM_VEST_RIG,					"gRA_InventoryVestRig"],\
-[CRA_VAR_CACHE_ITEM_VEST_ARMOR,					"gRA_InventoryVestArmor"],\
-[CRA_VAR_CACHE_ITEM_VEST_CIVILIAN,				"gRA_InventoryVestCivilian"],\
-[CRA_VAR_CACHE_ITEM_VEST_CIVILIAN_MEDIC,		"gRA_InventoryVestCivilianMedic"],\
-[CRA_VAR_CACHE_ITEM_VEST_CIVILIAN_UTILITY,		"gRA_InventoryVestCivilianUtility"],\
-[CRA_VAR_CACHE_ITEM_THROW_UTIL,					"gRA_InventoryThrowUtil"],\
-[CRA_VAR_CACHE_ITEM_THROW_GRENADE,				"gRA_InventoryThrowGrenade"],\
-[CRA_VAR_CACHE_ITEM_FIRST_AID_KIT,				"gRA_InventoryFirstAidKit"],\
-[CRA_VAR_CACHE_ITEM_MEDIKIT,					"gRA_InventoryMedikit"],\
-[CRA_VAR_CACHE_ITEM_TOOLKIT,					"gRA_InventoryToolkit"],\
-[CRA_VAR_CACHE_ITEM_MAGAZINES,					"gRA_InventoryMagazines"],\
-[CRA_VAR_CACHE_ITEM_MINES,						"gRA_InventoryMines"],\
-[CRA_VAR_CACHE_ITEM_OPTIC,						"gRA_InventoryOptic"],\
-[CRA_VAR_CACHE_ITEM_LASER,						"gRA_InventoryLaser"],\
-[CRA_VAR_CACHE_ITEM_MUZZLE,						"gRA_InventoryMuzzle"],\
-[CRA_VAR_CACHE_ITEM_BIPOD,						"gRA_InventoryBipod"],\
-[CRA_VAR_CACHE_ITEM_PARACHUTE,					"gRA_InventoryParachute"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_ALL,					"gRA_InventoryWeaponAll"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_AA,					"gRA_InventoryWeaponAA"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_AR,					"gRA_InventoryWeaponAR"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_ARGL,				"gRA_InventoryWeaponARGL"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_ARM,					"gRA_InventoryWeaponARM"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_ARSO,				"gRA_InventoryWeaponARSO"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_ARSW,				"gRA_InventoryWeaponARSW"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_AT,					"gRA_InventoryWeaponAT"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_CAR,					"gRA_InventoryWeaponCAR"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_HG,					"gRA_InventoryWeaponHG"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_LMG,					"gRA_InventoryWeaponLMG"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_MMG,					"gRA_InventoryWeaponMMG"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_SG,					"gRA_InventoryWeaponSG"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_SMG,					"gRA_InventoryWeaponSMG"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_SRL,					"gRA_InventoryWeaponSRL"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_SRM,					"gRA_InventoryWeaponSRM"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_SRSO,				"gRA_InventoryWeaponSRSO"],\
-[CRA_VAR_CACHE_ITEM_WEAPON_UW,					"gRA_InventoryWeaponUW"],\
-[CRA_VAR_CACHE_VEHICLE_INDEX_COUNTER,			"gRA_VehicleIndexCounter"],\
-[CRA_VAR_CACHE_VEHICLE_INDEX,					"gRA_VehicleIndex"],\
-[CRA_VAR_CACHE_VEHICLE_TYPES,					"gRA_VehicleTypes"],\
-[CRA_VAR_CACHE_VEHICLE_ARMED,					"gRA_VehicleArmed"],\
-[CRA_VAR_CACHE_VEHICLE_UNARMED,					"gRA_VehicleUnarmed"]]
+#define CRA_CACHE_ITEM [\
+[CRA_VAR_CACHE_IDENTITY_FACES,					"gRA_IdentityFaces",						[]],\
+[CRA_VAR_CACHE_IDENTITY_VOICE,					"gRA_IdentityVoice",						[]],\
+[CRA_VAR_CACHE_ITEM_INDEX_COUNTER,				"gRA_ItemIndexCounter",						-1],\
+[CRA_VAR_CACHE_ITEM_INDEX,						"gRA_ItemIndex",							[]],\
+[CRA_VAR_CACHE_ITEM_AMMO_COUNTER,				"gRA_ItemAmmoCounter",						-1],\
+[CRA_VAR_CACHE_ITEM_AMMO,						"gRA_ItemAmmo",								[]],\
+[CRA_VAR_CACHE_ITEM_LEVELS,						"gRA_ItemLevels",							16],\
+[CRA_VAR_CACHE_ITEM_LEVELBOUNDS,				"gRA_ItemLevelBounds",						[]],\
+[CRA_VAR_CACHE_ITEM_ATTACHMENT,					"gRA_InventoryAttachment",					[]],\
+[CRA_VAR_CACHE_ITEM_BACKPACK_SMALL,				"gRA_InventoryBackpackSmall",				[]],\
+[CRA_VAR_CACHE_ITEM_BACKPACK_MEDIUM,			"gRA_InventoryBackpackMedium",				[]],\
+[CRA_VAR_CACHE_ITEM_BACKPACK_LARGE,				"gRA_InventoryBackpackLarge",				[]],\
+[CRA_VAR_CACHE_ITEM_BACKPACK_CIVILIAN,			"gRA_InventoryBackpackCivilian",			[]],\
+[CRA_VAR_CACHE_ITEM_BACKPACK_CIVILIAN_MEDIC,	"gRA_InventoryBackpackCivilianMedic",		[]],\
+[CRA_VAR_CACHE_ITEM_BACKPACK_CIVILIAN_UTILITY,	"gRA_InventoryBackpackCivilianUtility",		[]],\
+[CRA_VAR_CACHE_ITEM_HEADGEAR_HAT,				"gRA_InventoryHeadgearHat",					[]],\
+[CRA_VAR_CACHE_ITEM_HEADGEAR_HELMET,			"gRA_InventoryHeadgearHelmet",				[]],\
+[CRA_VAR_CACHE_ITEM_HEADGEAR_LEADER,			"gRA_InventoryHeadgearLeader",				[]],\
+[CRA_VAR_CACHE_ITEM_HEADGEAR_CIVILIAN,			"gRA_InventoryHeadgearCivilian",			[]],\
+[CRA_VAR_CACHE_ITEM_HEADGEAR_CIVILIAN_MEDIC,	"gRA_InventoryHeadgearCivilianMedic",		[]],\
+[CRA_VAR_CACHE_ITEM_HEADGEAR_CIVILIAN_UTILITY,	"gRA_InventoryHeadgearCivilianUtility",		[]],\
+[CRA_VAR_CACHE_ITEM_GLASSES,					"gRA_InventoryGlasses",						[]],\
+[CRA_VAR_CACHE_ITEM_VEST_PLAIN,					"gRA_InventoryVestPlain",					[]],\
+[CRA_VAR_CACHE_ITEM_VEST_RIG,					"gRA_InventoryVestRig",						[]],\
+[CRA_VAR_CACHE_ITEM_VEST_ARMOR,					"gRA_InventoryVestArmor",					[]],\
+[CRA_VAR_CACHE_ITEM_VEST_CIVILIAN,				"gRA_InventoryVestCivilian",				[]],\
+[CRA_VAR_CACHE_ITEM_VEST_CIVILIAN_MEDIC,		"gRA_InventoryVestCivilianMedic",			[]],\
+[CRA_VAR_CACHE_ITEM_VEST_CIVILIAN_UTILITY,		"gRA_InventoryVestCivilianUtility",			[]],\
+[CRA_VAR_CACHE_ITEM_THROW_UTIL,					"gRA_InventoryThrowUtil",					[]],\
+[CRA_VAR_CACHE_ITEM_THROW_GRENADE,				"gRA_InventoryThrowGrenade",				[]],\
+[CRA_VAR_CACHE_ITEM_FIRST_AID_KIT,				"gRA_InventoryFirstAidKit",					[]],\
+[CRA_VAR_CACHE_ITEM_MEDIKIT,					"gRA_InventoryMedikit",						[]],\
+[CRA_VAR_CACHE_ITEM_TOOLKIT,					"gRA_InventoryToolkit",						[]],\
+[CRA_VAR_CACHE_ITEM_MAGAZINES,					"gRA_InventoryMagazines",					[]],\
+[CRA_VAR_CACHE_ITEM_MINES,						"gRA_InventoryMines",						[]],\
+[CRA_VAR_CACHE_ITEM_OPTIC,						"gRA_InventoryOptic",						[]],\
+[CRA_VAR_CACHE_ITEM_LASER,						"gRA_InventoryLaser",						[]],\
+[CRA_VAR_CACHE_ITEM_MUZZLE,						"gRA_InventoryMuzzle",						[]],\
+[CRA_VAR_CACHE_ITEM_BIPOD,						"gRA_InventoryBipod",						[]],\
+[CRA_VAR_CACHE_ITEM_PARACHUTE,					"gRA_InventoryParachute",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_ALL,					"gRA_InventoryWeaponAll",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_AA,					"gRA_InventoryWeaponAA",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_AR,					"gRA_InventoryWeaponAR",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_ARGL,				"gRA_InventoryWeaponARGL",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_ARM,					"gRA_InventoryWeaponARM",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_ARSO,				"gRA_InventoryWeaponARSO",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_ARSW,				"gRA_InventoryWeaponARSW",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_AT,					"gRA_InventoryWeaponAT",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_CAR,					"gRA_InventoryWeaponCAR",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_HG,					"gRA_InventoryWeaponHG",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_LMG,					"gRA_InventoryWeaponLMG",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_MMG,					"gRA_InventoryWeaponMMG",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_SG,					"gRA_InventoryWeaponSG",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_SMG,					"gRA_InventoryWeaponSMG",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_SRL,					"gRA_InventoryWeaponSRL",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_SRM,					"gRA_InventoryWeaponSRM",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_SRSO,				"gRA_InventoryWeaponSRSO",					[]],\
+[CRA_VAR_CACHE_ITEM_WEAPON_UW,					"gRA_InventoryWeaponUW",					[]]]
+#define CRA_CACHE_VEHICLE [\
+[CRA_VAR_CACHE_VEHICLE_INDEX_COUNTER,			"gRA_VehicleIndexCounter",					-1],\
+[CRA_VAR_CACHE_VEHICLE_INDEX,					"gRA_VehicleIndex",							[]],\
+[CRA_VAR_CACHE_VEHICLE_TYPES,					"gRA_VehicleTypes",							[[],[],[],[]]],\
+[CRA_VAR_CACHE_VEHICLE_ARMED,					"gRA_VehicleArmed",							[]],\
+[CRA_VAR_CACHE_VEHICLE_UNARMED,					"gRA_VehicleUnarmed",						[[[],[],[],[]],[[],[],[],[]],[[],[],[],[]],[[],[],[],[]]]]]
 
 #define CRA_STATE_INIT 0
 #define CRA_STATE_ACTIVE 1
@@ -260,85 +273,228 @@
 #define CRA_ROLE_GUARD 0
 #define CRA_ROLE_PATROL 1
 #define CRA_ROLE_VEHICLE 2
+#define CRA_ROLE_STATIC 3
 
-#define CRA_LOCATION_BASE_TYPES ["NameCityCapital", "NameCity", "NameVillage", "NameLocal", "Airport"]
-#define CRA_LOCATION_MARKER ["b_unknown","n_unknown","o_unknown","c_unknown"]
-#define CRA_LOCATION_TYPE_BASE 0
-#define CRA_LOCATION_TYPE_ROADBLOCK 1
+#define CRA_ROLE_STRENGTH_GUARD 10
+#define CRA_ROLE_STRENGTH_PATROL 4
+
+
+#define CRA_ROADBLOCK_DENSITY 12
+#define CRA_ROADBLOCK_SCAN_ATTEMPTS 48
+#define CRA_ROADBLOCK_DISTANCE_LOCATION 250
+#define CRA_ROADBLOCK_DISTANCE_OTHER 500
+#define CRA_ROADBLOCK_SEGMENTS 4
+#define CRA_ROADBLOCK_ANGLE_MAX 10
 
 #define CRA_CIVILIAN_DESTINATION 60
 #define CRA_CIVILIAN_SPAWN_CLEARANCE 25
 #define CRA_CIVILIAN_EXTENSIONS [400,200,100,50]
 
 #define CRA_BASE_GATHER_RANGE 200
-#define CRA_BASE_ROAD_FIND 50
-#define CRA_BASE_INST_EMPTY [objNull,objNull,objNull,objNull,objNull]
-#define CRA_BASE_RADIO_TRACKS [["res\KevinManthei-LaptopTheme-3d.ogg",88,1.25,1]]
+#define CRA_BASE_ORBIT 125
+#define CRA_BASE_INST_EMPTY [objNull,objNull,objNull,objNull,objNull,objNull]
+#define CRA_BASE_RADIO_TRACKS [\
+["res\KevinManthei-Laptop-3d.ogg",87,1.25,1],\
+["res\KevinManthei-Travel1-3d.ogg",95,1.25,1],\
+["res\KevinManthei-Travel2-3d.ogg",90,1.25,1],\
+["res\KevinManthei-Travel3-3d.ogg",94,1.25,1],\
+["res\KevinManthei-Travel4-3d.ogg",92,1.25,1]]
 #define CRA_BASE_RADIO_RANGE 75
-#define CRA_BASE_RADIO_GRACE 20
+#define CRA_BASE_RADIO_GRACE 0
 
-#define CRA_BASE_PERSONNEL_CAPITAL [\
-[[CRA_ROLE_GUARD,CRA_SQUAD_TYPE_BASIC,16],[[CRQ_POS_VEC,[4.37889,1.19702]]]],\
-[[CRA_ROLE_VEHICLE,CRA_VEHICLE_CAR,3],[[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]]]],\
-[[CRA_ROLE_PATROL,CRA_SQUAD_TYPE_BASIC,3],[[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["meadow",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["houses",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["trees",125],[5,25]]]]],\
-[[CRA_ROLE_PATROL,CRA_SQUAD_TYPE_BASIC,3],[[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["trees",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["meadow",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["houses",125],[5,25]]]]]]
+#define CRA_BASE_0_1_0_DATA [25.3421]
+#define CRA_BASE_0_1_0_INST [['MapBoard_Tanoa_F',[CRQ_POS_VEC,[13.4419,250.763]],310.021],['O_CargoNet_01_ammo_F',[CRQ_POS_VEC,[6.94899,235.206]],179.42],['CargoNet_01_box_F',[CRQ_POS_VEC,[9.63127,127.154]],0],['Land_SurvivalRadio_F',[CRQ_POS_VECZ,[13.8601,219.277,0.886935]],1.62158],['Land_Campfire_F',[CRQ_POS_VEC,[11.2538,319.295]],292.075],['',[-1,[]],-1]]
+#define CRA_BASE_0_1_0_PROP [['Land_Cargo40_military_green_F',[CRQ_POS_VEC,[6.66108,265.249]],180],['TrashBagHolder_01_F',[CRQ_POS_VEC,[14.2318,217.383]],90.0226],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[10.252,218.635]],0],['Land_Camping_Light_F',[CRQ_POS_VECZ,[12.986,222.44,0.896172]],90.0226],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[17.2224,247.965,1.25099]],89.769],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[18.8686,199.256,1.25727]],2.319],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[23.6604,222.666,1.25875]],48.3619],['Land_FoodSacks_01_cargo_brown_F',[CRQ_POS_VEC,[17.5786,214.965]],0],['Land_PortableDesk_01_olive_F',[CRQ_POS_VEC,[13.0302,222.309]],90.0226],['Land_HBarrier_01_big_tower_green_F',[CRQ_POS_VEC,[15.0123,187.972]],0],['Land_CampingChair_V2_F',[CRQ_POS_VEC,[11.9757,221.051]],90.0226],['Land_CampingChair_V2_F',[CRQ_POS_VEC,[14.4324,223.591]],236.313],['Land_HBarrier_01_wall_4_green_F',[CRQ_POS_VEC,[14.1864,268.365]],275.711],['Land_HBarrier_01_wall_4_green_F',[CRQ_POS_VEC,[18.2065,231.942]],269.505],['Land_HBarrier_01_wall_4_green_F',[CRQ_POS_VEC,[15.5598,247.661]],275.16],['Land_HBarrier_01_wall_4_green_F',[CRQ_POS_VEC,[18.0917,207.062]],183.696],['Land_HBarrier_01_wall_corner_green_F',[CRQ_POS_VEC,[21.0863,220.965]],184.394],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[10.7232,318.781]],0],['Land_PortableLight_single_F',[CRQ_POS_VEC,[17.9859,341.659]],178.975],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[24.2709,320.015,1.25694]],134.84],['Land_PortableLight_single_F',[CRQ_POS_VEC,[15.3404,289.955]],91.3223],['Land_FoodSacks_01_cargo_brown_F',[CRQ_POS_VEC,[6.5677,285.666]],11.6444],['Land_FoodSacks_01_cargo_brown_F',[CRQ_POS_VEC,[4.61578,291.223]],0],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[17.9418,306.872]],268.583],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[17.9588,341.417]],0],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[16.9659,359.81]],0],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[15.1688,289.784]],90.2912],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[19.9581,328.726]],0],['Land_TentDome_F',[CRQ_POS_VEC,[7.22152,332.849]],39.3255],['Land_TentDome_F',[CRQ_POS_VEC,[14.5262,308.025]],173.665],['Land_TentDome_F',[CRQ_POS_VEC,[10.2603,297.304]],127.692],['Land_TentDome_F',[CRQ_POS_VEC,[14.9843,326.584]],247.104],['Land_WoodPile_F',[CRQ_POS_VEC,[7.90824,311.34]],77.756],['Land_CampingChair_V2_F',[CRQ_POS_VEC,[12.653,309.917]],254.04],['Land_CampingChair_V2_F',[CRQ_POS_VEC,[9.44998,308.918]],183.466],['Land_FoodContainer_01_F',[CRQ_POS_VEC,[8.93057,312.6]],292.075],['Land_HBarrier_01_wall_corner_green_F',[CRQ_POS_VEC,[21.6169,319.289]],274.707],['Land_WoodenCrate_01_stack_x5_F',[CRQ_POS_VEC,[14.4179,170.292]],180.388],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[4.52233,129.989]],0],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[12.9405,134.656]],0],['CargoNet_01_barrels_F',[CRQ_POS_VEC,[15.0364,162.094]],0],['Land_PortableLight_single_F',[CRQ_POS_VEC,[17.9298,154.924]],359.985],['Land_PortableLight_single_F',[CRQ_POS_VEC,[15.8996,104.536]],270.95],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[23.9827,137.026,1.25868]],316.815],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[15.728,104.767]],270.529],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[16.7421,165.562]],0],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[18.1003,122.81]],268.045],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[19.0033,148.498]],0],['Land_Cargo_House_V1_F',[CRQ_POS_VEC,[10.1678,114.378]],0],['Land_HBarrier_01_wall_corner_green_F',[CRQ_POS_VEC,[21.3604,135.99]],92.8695],['Land_Bodybag_01_empty_black_F',[CRQ_POS_VEC,[14.1615,57.4535]],0],['Land_WaterTank_04_F',[CRQ_POS_VEC,[14.5079,1.76474]],27.083],['Land_Bodybag_01_black_F',[CRQ_POS_VEC,[12.9347,54.0952]],0],['Land_HBarrier_01_wall_corridor_green_F',[CRQ_POS_VEC,[17.0923,15.3579]],95.7808],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[14.6383,39.3908]],0],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[9.73825,24.3277]],0],['Land_PortableLight_single_F',[CRQ_POS_VEC,[22.7803,41.633]],228.759],['Land_PortableLight_single_F',[CRQ_POS_VEC,[17.0796,63.8884]],272.649],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[19.509,19.2004,1.25017]],124.349],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[20.2594,48.6397]],268.333],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[15.3497,83.4976]],269.476],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[16.944,63.5878]],269.336],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[22.1466,39.5376]],0],['Land_CncBarrierMedium_F',[CRQ_POS_VEC,[21.7291,12.7787]],0],['Land_ClutterCutter_medium_F',[CRQ_POS_VEC,[16.9559,14.9903]],0],['Land_Medevac_house_V1_F',[CRQ_POS_VEC,[10.6111,59.3365]],179.506],['Land_ToiletBox_F',[CRQ_POS_VEC,[19.8976,41.8956]],0],['Land_HBarrier_01_wall_4_green_F',[CRQ_POS_VEC,[19.3087,29.7859]],0]]
+#define CRA_BASE_0_1_0_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VEC,[4.37889,1.47601]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,180]],[[CRQ_POS_VECZ,[15.0127,187.972,2.28]]]]]
 
-#define CRA_BASE_INST_CITY [["MapBoard_Tanoa_F",[CRQ_POS_VEC,[13.4419,250.484]],309.742],["O_CargoNet_01_ammo_F",[CRQ_POS_VEC,[6.94899,234.927]],179.141],["CargoNet_01_box_F",[CRQ_POS_VEC,[9.63127,126.875]],359.721],["Land_SurvivalRadio_F",[CRQ_POS_VECZ,[13.8601,218.998,0.886935]],1.34259],["Land_Campfire_F",[CRQ_POS_VEC,[11.2538,319.016]],291.796]]
-#define CRA_BASE_PROP_CITY [["Land_PortableDesk_01_olive_F",[CRQ_POS_VEC,[13.0302,222.03]],89.7436],["Land_PortableLight_single_F",[CRQ_POS_VECZ,[18.8686,198.977,1.25727]],2.04001],["Land_PortableLight_single_F",[CRQ_POS_VECZ,[23.6604,222.387,1.25875]],48.0829],["Land_PortableLight_single_F",[CRQ_POS_VECZ,[17.2224,247.686,1.25099]],89.49],["Land_Camping_Light_F",[CRQ_POS_VECZ,[12.986,222.161,0.896172]],89.7436],["Land_ClutterCutter_large_F",[CRQ_POS_VEC,[10.252,218.356]],359.721],["Land_HBarrier_01_big_tower_green_F",[CRQ_POS_VEC,[15.0123,187.693]],359.721],["Land_HBarrier_01_wall_corner_green_F",[CRQ_POS_VEC,[21.0863,220.686]],184.115],["Land_HBarrier_01_wall_4_green_F",[CRQ_POS_VEC,[18.0917,206.783]],183.417],["Land_HBarrier_01_wall_4_green_F",[CRQ_POS_VEC,[14.1864,268.086]],275.432],["Land_HBarrier_01_wall_4_green_F",[CRQ_POS_VEC,[18.2065,231.663]],269.226],["Land_HBarrier_01_wall_4_green_F",[CRQ_POS_VEC,[15.5598,247.382]],274.881],["Land_Cargo40_military_green_F",[CRQ_POS_VEC,[6.66108,264.97]],179.721],["TrashBagHolder_01_F",[CRQ_POS_VEC,[14.2318,217.104]],89.7436],["Land_CampingChair_V2_F",[CRQ_POS_VEC,[11.9757,220.772]],89.7436],["Land_CampingChair_V2_F",[CRQ_POS_VEC,[14.4324,223.312]],236.034],["Land_FoodSacks_01_cargo_brown_F",[CRQ_POS_VEC,[17.5786,214.686]],359.721],["Land_FoodContainer_01_F",[CRQ_POS_VEC,[8.93057,312.321]],291.796],["Land_PortableLight_single_F",[CRQ_POS_VEC,[17.9859,341.38]],178.696],["Land_PortableLight_single_F",[CRQ_POS_VEC,[15.3404,289.676]],91.0433],["Land_PortableLight_single_F",[CRQ_POS_VECZ,[24.2709,319.736,1.25694]],134.561],["Land_ClutterCutter_large_F",[CRQ_POS_VEC,[10.7232,318.502]],359.721],["Land_HBarrier_01_wall_corner_green_F",[CRQ_POS_VEC,[21.6169,319.01]],274.428],["Land_CampingChair_V2_F",[CRQ_POS_VEC,[9.44998,308.639]],183.187],["Land_CampingChair_V2_F",[CRQ_POS_VEC,[12.653,309.638]],253.761],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[17.9418,306.593]],268.304],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[16.9659,359.531]],359.721],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[17.9588,341.138]],359.721],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[15.1688,289.505]],90.0122],["Land_TentDome_F",[CRQ_POS_VEC,[14.9843,326.305]],246.825],["Land_TentDome_F",[CRQ_POS_VEC,[14.5262,307.746]],173.386],["Land_TentDome_F",[CRQ_POS_VEC,[10.2603,297.025]],127.413],["Land_TentDome_F",[CRQ_POS_VEC,[7.22152,332.57]],39.0465],["Land_WoodPile_F",[CRQ_POS_VEC,[7.90824,311.061]],77.477],["Land_HBarrier_01_line_3_green_F",[CRQ_POS_VEC,[19.9581,328.447]],359.721],["Land_FoodSacks_01_cargo_brown_F",[CRQ_POS_VEC,[4.61578,290.944]],359.721],["Land_FoodSacks_01_cargo_brown_F",[CRQ_POS_VEC,[6.5677,285.387]],11.3654],["Land_WoodenCrate_01_stack_x5_F",[CRQ_POS_VEC,[14.4179,170.013]],180.109],["Land_PortableLight_single_F",[CRQ_POS_VEC,[15.8996,104.257]],270.671],["Land_PortableLight_single_F",[CRQ_POS_VECZ,[23.9827,136.747,1.25868]],316.536],["Land_PortableLight_single_F",[CRQ_POS_VEC,[17.9298,154.645]],359.706],["Land_ClutterCutter_large_F",[CRQ_POS_VEC,[4.52233,129.71]],359.721],["Land_ClutterCutter_large_F",[CRQ_POS_VEC,[12.9405,134.377]],359.721],["Land_HBarrier_01_wall_corner_green_F",[CRQ_POS_VEC,[21.3604,135.711]],92.5905],["Land_Cargo_House_V1_F",[CRQ_POS_VEC,[10.1678,114.099]],359.721],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[18.1003,122.531]],267.766],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[15.728,104.488]],270.25],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[16.7421,165.283]],359.721],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[19.0033,148.219]],359.721],["CargoNet_01_barrels_F",[CRQ_POS_VEC,[15.0364,161.815]],359.721],["Land_WaterTank_04_F",[CRQ_POS_VEC,[14.5079,1.48575]],26.804],["Land_PortableLight_single_F",[CRQ_POS_VECZ,[19.1657,18.7874,1.25017]],124.07],["Land_PortableLight_single_F",[CRQ_POS_VEC,[22.7803,41.354]],228.48],["Land_PortableLight_single_F",[CRQ_POS_VEC,[17.0796,63.6094]],272.37],["Land_ClutterCutter_large_F",[CRQ_POS_VEC,[9.73825,24.0487]],359.721],["Land_ClutterCutter_large_F",[CRQ_POS_VEC,[14.6383,39.1118]],359.721],["Land_HBarrier_01_wall_4_green_F",[CRQ_POS_VEC,[19.3087,29.5069]],359.721],["Land_ToiletBox_F",[CRQ_POS_VEC,[19.8976,41.6165]],359.721],["Land_Medevac_house_V1_F",[CRQ_POS_VEC,[10.6111,59.0575]],179.227],["Land_HBarrier_01_wall_corridor_green_F",[CRQ_POS_VEC,[16.7528,14.8472]],95.5018],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[15.3497,83.2186]],269.197],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[16.944,63.3088]],269.057],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[20.2594,48.3607]],268.054],["Land_Bodybag_01_empty_black_F",[CRQ_POS_VEC,[14.1615,57.1745]],359.721],["Land_Bodybag_01_black_F",[CRQ_POS_VEC,[12.9347,53.8162]],359.721],["Land_HBarrier_01_line_3_green_F",[CRQ_POS_VEC,[22.1466,39.2586]],359.721],["Land_ClutterCutter_medium_F",[CRQ_POS_VEC,[16.9559,14.7113]],359.721],["Land_CncBarrierMedium_F",[CRQ_POS_VEC,[21.5174,11.6755]],359.721]]
-#define CRA_BASE_PERSONNEL_CITY [\
-[[CRA_ROLE_GUARD,CRA_SQUAD_TYPE_BASIC,10],[[CRQ_POS_VEC,[4.37889,1.19702]]]],\
-[[CRA_ROLE_VEHICLE,CRA_VEHICLE_CAR,3],[[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]]]],\
-[[CRA_ROLE_PATROL,CRA_SQUAD_TYPE_BASIC,3],[[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["meadow",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["houses",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["trees",125],[5,25]]]]],\
-[[CRA_ROLE_PATROL,CRA_SQUAD_TYPE_BASIC,3],[[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["trees",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["meadow",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["houses",125],[5,25]]]]]]
+#define CRA_BASE_0_2_0_DATA [7.91073]
+#define CRA_BASE_0_2_0_INST [['MapBoard_Tanoa_F',[CRQ_POS_VEC,[4.98828,261.211]],253.079],['O_CargoNet_01_ammo_F',[CRQ_POS_VEC,[3.28196,7.42117]],91.4229],['CargoNet_01_box_F',[CRQ_POS_VEC,[4.17634,86.8109]],273.422],['Land_SurvivalRadio_F',[CRQ_POS_VECZ,[5.57903,286.53,0.886935]],69.8653],['Land_Campfire_F',[CRQ_POS_VEC,[5.04201,171.918]],55.8046],['',[-1,[]],-1]]
+#define CRA_BASE_0_2_0_PROP [['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[0.18892,359.207]],359.773],['Land_Camping_Light_F',[CRQ_POS_VECZ,[4.64318,291.137,0.896172]],55.8046],['Land_PortableLight_double_F',[CRQ_POS_VEC,[4.50818,333.435]],181.684],['Land_PortableLight_single_F',[CRQ_POS_VEC,[5.28574,230.685]],47.6483],['Land_PortableDesk_01_olive_F',[CRQ_POS_VEC,[4.61532,291.2]],2.14993],['Land_BagFence_01_corner_green_F',[CRQ_POS_VEC,[7.04167,307.94]],274.847],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[5.79154,296.845]],272.733],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[5.2976,277.992]],227.525],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[6.32443,291.145]],270.805],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[5.92593,233.958]],48.0542],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[5.944,262.654]],269.764],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[5.06284,334.335]],181.801],['Land_PortableGenerator_01_sand_F',[CRQ_POS_VEC,[5.20226,237.763]],227.844],['Land_BagFence_01_round_green_F',[CRQ_POS_VEC,[6.36193,58.6642]],258.497],['Land_BagFence_01_round_green_F',[CRQ_POS_VEC,[5.9503,36.9162]],175.011],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[4.5666,11.1859]],180.636],['Land_PortableLight_single_F',[CRQ_POS_VEC,[4.67903,114.493]],288.163],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[4.69987,152.061]],53.5977],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[3.56702,160.101]],28.4046],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[5.46212,146.307]],327.719],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[5.29353,116.18]],290.887],['Land_Ground_sheet_folded_F',[CRQ_POS_VEC,[4.86704,140.024]],223.791],['Land_Sleeping_bag_folded_F',[CRQ_POS_VEC,[4.83531,144.236]],58.8706],['Land_CanisterFuel_F',[CRQ_POS_VEC,[5.37631,223.753]],297.755],['Land_Sleeping_bag_brown_F',[CRQ_POS_VEC,[4.11318,132.658]],123.159],['Land_BarrelEmpty_grey_F',[CRQ_POS_VEC,[4.94565,71.6879]],90.8228],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[5.36725,83.8431]],271.992],['Land_CampingChair_V1_folded_F',[CRQ_POS_VEC,[4.29264,104.905]],2.89218]]
+#define CRA_BASE_0_2_0_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VEC,[1.38367,244.389]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,40.0046]],[[CRQ_POS_VEC,[4.86903,50.0203]]]]]
 
-#define CRA_BASE_INST_VILLAGE [["MapBoard_Tanoa_F",[CRQ_POS_VEC,[4.98828,261.211]],253.079],["O_CargoNet_01_ammo_F",[CRQ_POS_VEC,[3.28196,7.42117]],91.4229],["CargoNet_01_box_F",[CRQ_POS_VEC,[4.17634,86.8109]],273.422],["Land_SurvivalRadio_F",[CRQ_POS_VECZ,[5.57903,286.53,0.886935]],69.8653],["Land_Campfire_F",[CRQ_POS_VEC,[5.04201,171.918]],55.8046]]
-#define CRA_BASE_PROP_VILLAGE [["Land_PortableLight_single_F",[CRQ_POS_VEC,[5.28574,230.685]],47.6483],["Land_PortableGenerator_01_sand_F",[CRQ_POS_VEC,[5.20226,237.763]],227.844],["Land_CampingChair_V1_F",[CRQ_POS_VEC,[5.2976,277.992]],227.525],["Land_CampingChair_V1_F",[CRQ_POS_VEC,[5.79154,296.845]],272.733],["Land_PortableDesk_01_olive_F",[CRQ_POS_VEC,[4.61532,291.2]],2.14993],["Land_PortableLight_double_F",[CRQ_POS_VEC,[4.50818,333.435]],181.684],["Land_BagFence_01_long_green_F",[CRQ_POS_VEC,[6.32443,291.145]],270.805],["Land_BagFence_01_long_green_F",[CRQ_POS_VEC,[5.944,262.654]],269.764],["Land_BagFence_01_long_green_F",[CRQ_POS_VEC,[5.06284,334.335]],181.801],["Land_BagFence_01_long_green_F",[CRQ_POS_VEC,[5.92593,233.958]],48.0542],["Land_BagFence_01_corner_green_F",[CRQ_POS_VEC,[7.04167,307.94]],274.847],["Land_ClutterCutter_large_F",[CRQ_POS_VEC,[0.18892,359.207]],359.773],["Land_Camping_Light_F",[CRQ_POS_VECZ,[4.64318,291.137,0.896172]],55.8046],["Land_BagFence_01_round_green_F",[CRQ_POS_VEC,[6.36193,58.6642]],258.497],["Land_BagFence_01_round_green_F",[CRQ_POS_VEC,[5.9503,36.9162]],175.011],["Land_BagFence_01_long_green_F",[CRQ_POS_VEC,[4.5666,11.1859]],180.636],["Land_Ground_sheet_folded_F",[CRQ_POS_VEC,[4.86704,140.024]],223.791],["Land_Sleeping_bag_brown_F",[CRQ_POS_VEC,[4.11318,132.658]],123.159],["Land_CanisterFuel_F",[CRQ_POS_VEC,[5.37631,223.753]],297.755],["Land_Sleeping_bag_folded_F",[CRQ_POS_VEC,[4.83531,144.236]],58.8706],["Land_PortableLight_single_F",[CRQ_POS_VEC,[4.67903,114.493]],288.163],["Land_CampingChair_V1_F",[CRQ_POS_VEC,[4.69987,152.061]],53.5977],["Land_CampingChair_V1_F",[CRQ_POS_VEC,[3.56702,160.101]],28.4046],["Land_BagFence_01_long_green_F",[CRQ_POS_VEC,[5.29353,116.18]],290.887],["Land_BagFence_01_long_green_F",[CRQ_POS_VEC,[5.46212,146.307]],327.719],["Land_CampingChair_V1_folded_F",[CRQ_POS_VEC,[4.29264,104.905]],2.89218],["Land_BarrelEmpty_grey_F",[CRQ_POS_VEC,[4.94565,71.6879]],90.8228],["Land_BagFence_01_long_green_F",[CRQ_POS_VEC,[5.36725,83.8431]],271.992]]
-#define CRA_BASE_PERSONNEL_VILLAGE [\
-[[CRA_ROLE_GUARD,CRA_SQUAD_TYPE_BASIC,6],[[CRQ_POS_VEC,[1.38318,244.392]]]],\
-[[CRA_ROLE_VEHICLE,CRA_VEHICLE_CAR,3],[[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]]]],\
-[[CRA_ROLE_PATROL,CRA_SQUAD_TYPE_BASIC,3],[[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["meadow",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["houses",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["trees",125],[5,25]]]]],\
-[[CRA_ROLE_PATROL,CRA_SQUAD_TYPE_BASIC,3],[[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["trees",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["meadow",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["houses",125],[5,25]]]]]]
+#define CRA_BASE_0_2_1_DATA [18.5949]
+#define CRA_BASE_0_2_1_INST [['MapBoard_Tanoa_F',[CRQ_POS_VEC,[8.27524,241.225]],268.562],['O_CargoNet_01_ammo_F',[CRQ_POS_VEC,[6.37596,269.307]],359.687],['CargoNet_01_box_F',[CRQ_POS_VEC,[9.02456,209.696]],0],['Land_FMradio_F',[CRQ_POS_VECZ,[4.47621,209.7,0.887]],275.711],['Land_FirePlace_F',[CRQ_POS_VEC,[7.46912,58.6823]],151],['',[-1,[]],-1]]
+#define CRA_BASE_0_2_1_PROP [['Land_Razorwire_F',[CRQ_POS_VEC,[13.3696,213.604]],0],['Land_Razorwire_F',[CRQ_POS_VEC,[11.1901,187.03]],0],['Land_BarrelEmpty_grey_F',[CRQ_POS_VEC,[3.83673,202.547]],0],['Land_SandbagBarricade_01_F',[CRQ_POS_VEC,[11.8759,220.892]],4.20724],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[6.0698,225.072]],181.926],['Land_Camping_Light_F',[CRQ_POS_VECZ,[4.99963,219.893,0.887078]],0],['Land_Cargo40_sand_F',[CRQ_POS_VEC,[10.8541,249.183]],270.359],['Land_BagFence_End_F',[CRQ_POS_VEC,[11.2487,214.101]],0],['Land_ChairPlastic_F',[CRQ_POS_VEC,[4.23297,232.819]],105.505],['Land_ChairPlastic_F',[CRQ_POS_VEC,[6.36226,209.443]],292.222],['Land_BagFence_Long_F',[CRQ_POS_VEC,[10.2615,204.932]],0],['Land_BagFence_Long_F',[CRQ_POS_VEC,[9.37412,187.835]],177.64],['Land_BagFence_Long_F',[CRQ_POS_VEC,[9.36112,168.979]],0],['Land_StallWater_F',[CRQ_POS_VEC,[9.86972,226.644]],179.283],['Land_TentA_F',[CRQ_POS_VEC,[7.117,170.064]],181.177],['Land_TablePlastic_01_F',[CRQ_POS_VEC,[5.00238,219.852]],0],['Land_Razorwire_F',[CRQ_POS_VEC,[12.2784,301.581]],272.387],['Land_Razorwire_F',[CRQ_POS_VEC,[10.6773,7.08731]],0],['Land_BagFence_Corner_F',[CRQ_POS_VEC,[9.67493,331.755]],269.772],['Land_SandbagBarricade_01_half_F',[CRQ_POS_VEC,[8.26955,324.141]],272.357],['Land_Cargo10_orange_F',[CRQ_POS_VEC,[6.93097,0.540894]],0],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[6.51783,313.728]],181.926],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[1.01319,300.111]],181.926],['Land_BagFence_End_F',[CRQ_POS_VEC,[12.3277,314.634]],273.284],['Land_BagFence_End_F',[CRQ_POS_VEC,[8.87272,1.09735]],0],['Land_BagFence_End_F',[CRQ_POS_VEC,[9.6707,338.035]],0],['Land_BagFence_Long_F',[CRQ_POS_VEC,[9.80034,292.791]],94.0261],['Land_BagFence_Long_F',[CRQ_POS_VEC,[9.03715,12.5479]],0],['Land_BagFence_Long_F',[CRQ_POS_VEC,[9.07971,348.501]],0],['Land_BagFence_Long_F',[CRQ_POS_VEC,[11.1241,307.203]],92.9026],['Land_ChairWood_F',[CRQ_POS_VEC,[9.44421,155.513]],289.404],['Land_BagFence_Round_F',[CRQ_POS_VEC,[10.6497,154.082]],0],['Land_cargo_house_slum_F',[CRQ_POS_VEC,[8.97997,107.352]],298.27],['Land_BagFence_Corner_F',[CRQ_POS_VEC,[10.8736,97.4515]],35.0814],['Land_Tyres_F',[CRQ_POS_VEC,[6.52806,119.71]],284.457],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[5.60654,134.661]],181.926],['Land_Razorwire_F',[CRQ_POS_VEC,[11.744,47.713]],224.467],['Land_Razorwire_F',[CRQ_POS_VEC,[12.3176,88.812]],89.1249],['Land_PaperBox_01_small_ransacked_white_IDAP_F',[CRQ_POS_VEC,[5.31927,64.3947]],192.837],['Land_ArmChair_01_F',[CRQ_POS_VEC,[7.88947,45.3159]],151],['Land_RattanChair_01_F',[CRQ_POS_VEC,[8.52953,68.536]],114.526],['Land_BagFence_Short_F',[CRQ_POS_VEC,[9.65594,41.9131]],56.3662],['Land_BagFence_Round_F',[CRQ_POS_VEC,[10.3843,70.3859]],239.434],['Land_BagFence_Round_F',[CRQ_POS_VEC,[9.92809,28.8567]],199.703],['Land_ClutterCutter_large_F',[CRQ_POS_VEC,[6.17193,48.4188]],181.926],['Land_BagFence_Long_F',[CRQ_POS_VEC,[9.73591,54.939]],43.1334],['Land_BagFence_Long_F',[CRQ_POS_VEC,[10.3089,85.8415]],266.611]]
+#define CRA_BASE_0_2_1_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VEC,[1.67136,356.919]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,0]],[[CRQ_POS_VEC,[7.32152,337.963]]]]]
 
-#define CRA_BASE_PERSONNEL_LOCALITY [\
-[[CRA_ROLE_GUARD,CRA_SQUAD_TYPE_BASIC,4],[[CRQ_POS_VEC,[1.38318,244.392]]]],\
-[[CRA_ROLE_VEHICLE,CRA_VEHICLE_CAR,3],[[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]]]],\
-[[CRA_ROLE_PATROL,CRA_SQUAD_TYPE_BASIC,3],[[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["meadow",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["houses",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["trees",125],[5,25]]]]],\
-[[CRA_ROLE_PATROL,CRA_SQUAD_TYPE_BASIC,3],[[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["trees",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["meadow",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["houses",125],[5,25]]]]]]
+#define CRA_BASE_0_5_0_DATA [42.643]
+#define CRA_BASE_0_5_0_INST [['MapBoard_Tanoa_F',[CRQ_POS_VEC,[11.2687,220.994]],133.677],['O_CargoNet_01_ammo_F',[CRQ_POS_VEC,[18.8015,298.722]],270.863],['CargoNet_01_box_F',[CRQ_POS_VEC,[15.5884,239.336]],88.3275],['',[-1,[]],-1],['Land_Campfire_F',[CRQ_POS_VEC,[13.7074,71.8239]],245.917],['Land_BarGate_01_open_F',[CRQ_POS_VEC,[0.198934,139.978]],180]]
+#define CRA_BASE_0_5_0_PROP [['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[23.3684,308.674]],0],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[30.3668,298.553]],0],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[37.9421,292.393]],0],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[21.4514,286.648]],89.0248],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[23.4945,299.489]],92.1464],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[19.892,237.798]],179.749],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[22.1545,247.448]],88.2763],['RoadBarrier_small_F',[CRQ_POS_VEC,[19.4718,161.561]],210.906],['RoadBarrier_small_F',[CRQ_POS_VEC,[21.763,197.293]],161.356],['Land_SignWarning_01_CheckpointAhead_F',[CRQ_POS_VEC,[18.6231,159.921]],22.2642],['Land_CncBarrierMedium4_F',[CRQ_POS_VEC,[8.47576,225.619]],90.3543],['Land_CncBarrierMedium4_F',[CRQ_POS_VEC,[7.12142,300.759]],89.5267],['Land_CncBarrierMedium4_F',[CRQ_POS_VEC,[12.9145,151.811]],271.291],['Land_CncBarrierMedium4_F',[CRQ_POS_VEC,[7.24952,122.934]],89.0941],['Land_CncBarrierMedium4_F',[CRQ_POS_VEC,[12.583,330.744]],90.7583],['Land_CncBarrierMedium4_F',[CRQ_POS_VEC,[8.32693,47.355]],91.3503],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[14.3074,43.8302]],358.43],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[17.9035,147.433]],178.135],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[17.4841,326.182]],0],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[17.0534,202.743]],270.823],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[16.9148,23.2598]],269.115],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[14.377,222.328]],178.135],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[12.4412,209.299,1]],315],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[12.1495,31.2062,1]],135],['Land_PortableLight_single_F',[CRQ_POS_VEC,[7.45137,121.89]],90.711],['Land_PortableLight_single_F',[CRQ_POS_VEC,[7.31537,300.257]],273.017],['Land_FoodSacks_01_cargo_brown_F',[CRQ_POS_VEC,[9.07362,122.743]],359.837],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[11.0984,237.74]],29.7018],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[15.2198,64.8276]],15.2469],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[11.977,241.346]],354.773],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[12.8667,230.003]],167.067],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[11.2302,61.078]],303.506],['Land_TentDome_F',[CRQ_POS_VEC,[13.2169,57.7449]],238.438],['Land_CampingTable_white_F',[CRQ_POS_VEC,[12.2349,234.243]],181.267],['Land_HBarrier_01_tower_green_F',[CRQ_POS_VEC,[13.6157,317.75]],180],['Land_HBarrier_01_tower_green_F',[CRQ_POS_VEC,[14.1088,139.251]],0],['Land_Cargo_House_V1_F',[CRQ_POS_VEC,[16.2405,246.311]],268.434],['RoadBarrier_small_F',[CRQ_POS_VEC,[19.1968,341.148]],17.6658],['RoadBarrier_small_F',[CRQ_POS_VEC,[21.6543,17.3988]],346.689],['Land_SignWarning_01_CheckpointAhead_F',[CRQ_POS_VEC,[18.5454,339.853]],197.353],['Land_Cargo20_grey_F',[CRQ_POS_VEC,[18.9875,112.575]],90.0265],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[30.3722,119.345]],178.135],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[23.4238,129.796]],178.135],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[22.7618,116.319]],91.1477],['Land_HBarrier_01_big_4_green_F',[CRQ_POS_VEC,[37.7862,112.997]],178.135],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[22.2002,67.8244]],268.54],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[19.9175,58.6535]],359.854],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[21.4194,106.965]],270.649],['Land_TentDome_F',[CRQ_POS_VEC,[17.6121,68.4838]],326.838],['Land_TentDome_F',[CRQ_POS_VEC,[17.3771,81.507]],26.3593],['Land_FieldToilet_F',[CRQ_POS_VEC,[21.497,126.785]],90.6654]]
+#define CRA_BASE_0_5_0_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VEC,[20.5977,269.309]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,0]],[[CRQ_POS_VECZ,[14.2674,322.47,2.78]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,180]],[[CRQ_POS_VECZ,[14.7944,143.877,2.78]]]],[[CRA_ROLE_PATROL,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VEC,[20.7541,89.7681]]]]]
 
-#define CRA_BASE_PERSONNEL_AIRPORT [\
-[[CRA_ROLE_GUARD,CRA_SQUAD_TYPE_BASIC,8],[[CRQ_POS_VEC,[1.38318,244.392]]]],\
-[[CRA_ROLE_VEHICLE,CRA_VEHICLE_CAR,3],[[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]]]],\
-[[CRA_ROLE_PATROL,CRA_SQUAD_TYPE_BASIC,3],[[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["meadow",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["houses",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["trees",125],[5,25]]]]],\
-[[CRA_ROLE_PATROL,CRA_SQUAD_TYPE_BASIC,3],[[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["trees",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["meadow",125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[["houses",125],[5,25]]]]]]
+#define CRA_BASE_0_5_1_DATA [21.7017]
+#define CRA_BASE_0_5_1_INST [['MapBoard_Tanoa_F',[CRQ_POS_VEC,[11.5595,236.878]],180.242],['O_CargoNet_01_ammo_F',[CRQ_POS_VEC,[12.3716,281.64]],270.863],['CargoNet_01_box_F',[CRQ_POS_VEC,[13.3728,247.821]],91.4161],['',[-1,[]],-1],['Land_Campfire_F',[CRQ_POS_VEC,[10.7408,78.427]],245.917],['Land_BarGate_01_open_F',[CRQ_POS_VEC,[0.198934,139.978]],180]]
+#define CRA_BASE_0_5_1_PROP [['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[17.3198,291.455]],180.553],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[20.0478,288.536]],180.553],['Land_PortableLight_single_F',[CRQ_POS_VEC,[7.30308,300.357]],273.017],['Land_PortableLight_single_F',[CRQ_POS_VEC,[7.33998,123.127]],90.711],['Land_FoodSacks_01_cargo_brown_F',[CRQ_POS_VEC,[10.7414,115.118]],269.563],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[11.3871,226.446]],178.796],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[13.2524,296]],0],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[7.20121,300.793]],89.6643],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[7.37551,123.705]],89.6643],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[12.472,30.1055]],89.6944],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[10.928,49.0166]],180.409],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[12.9501,208.608]],90.6606],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[13.3838,117.9]],179.768],['Land_BagFence_01_corner_green_F',[CRQ_POS_VEC,[15.5146,65.3958]],1.61029],['Land_BagFence_01_corner_green_F',[CRQ_POS_VEC,[15.9385,242.772]],178.781],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[9.3653,234.132]],175.215],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[12.9177,77.2203]],74.1132],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[11.2433,69.8872]],10.5919],['Land_CampingChair_V1_F',[CRQ_POS_VEC,[8.12103,247.883]],4.26913],['Land_BagBunker_01_small_green_F',[CRQ_POS_VEC,[11.0516,135.77]],0],['Land_BagBunker_01_small_green_F',[CRQ_POS_VEC,[10.6981,313.62]],180],['RoadBarrier_small_F',[CRQ_POS_VEC,[12.7321,152.074]],189.169],['RoadBarrier_small_F',[CRQ_POS_VEC,[12.4267,329.437]],17.6658],['Land_CampingTable_small_F',[CRQ_POS_VEC,[8.82615,240.471]],0],['Land_BagFence_01_short_green_F',[CRQ_POS_VEC,[14.6083,275.98]],266.517],['Land_BagFence_01_short_green_F',[CRQ_POS_VEC,[14.5455,97.977]],89.9305],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[13.8536,60.9795]],0.406952],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[6.18664,66.4618]],89.0592],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[15.4801,249.513]],90.2026],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[15.136,72.3729]],270.613],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[14.5231,83.3954]],90.813],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[8.01842,225.486]],269.166],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[15.0171,284.555]],270.551],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[7.66286,47.6652]],90.1523],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[15.0198,106.518]],270.127],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[6.27809,244.16]],90.6433],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[14.3263,238.225]],178.632],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[17.4137,113.091]],181.338],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[14.7311,260.21]],270.776],['Land_TentDome_F',[CRQ_POS_VEC,[9.92297,62.0693]],252.666],['Land_TentDome_F',[CRQ_POS_VEC,[12.8555,106.12]],71.9281],['Land_TentDome_F',[CRQ_POS_VEC,[13.3031,68.7129]],287.157],['Land_WoodPile_F',[CRQ_POS_VEC,[13.6965,82.6655]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[20.1154,109.963]],178.155]]
+#define CRA_BASE_0_5_1_PERS [[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VEC,[14.5187,268.722]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,0]],[[CRQ_POS_VEC,[10.6151,311.289]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,180]],[[CRQ_POS_VEC,[10.7994,132.517]]]],[[CRA_ROLE_PATROL,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VEC,[14.3967,91.4479]]]]]
 
-#define CRA_BASE_CAPITAL		[[[[CRQ_POS_FIND,["houses + houses"]],-2],25.3421,12],CRA_BASE_INST_CITY,CRA_BASE_PROP_CITY,CRA_BASE_PERSONNEL_CAPITAL]
-#define CRA_BASE_CITY			[[[[CRQ_POS_FIND,["houses + houses"]],-2],25.3421,6],CRA_BASE_INST_CITY,CRA_BASE_PROP_CITY,CRA_BASE_PERSONNEL_CITY]
-#define CRA_BASE_VILLAGE		[[[[CRQ_POS_FIND,["houses + meadow"]],-2],7.91073,3],CRA_BASE_INST_VILLAGE,CRA_BASE_PROP_VILLAGE,CRA_BASE_PERSONNEL_VILLAGE]
-#define CRA_BASE_LOCALITY		[[[[CRQ_POS_FIND,["houses + meadow"]],-2],7.91073,3],CRA_BASE_INST_VILLAGE,CRA_BASE_PROP_VILLAGE,CRA_BASE_PERSONNEL_LOCALITY]
-#define CRA_BASE_AIRPORT		[[[[CRQ_POS_FIND,["houses"]],-2],7.91073,6],CRA_BASE_INST_VILLAGE,CRA_BASE_PROP_VILLAGE,CRA_BASE_PERSONNEL_AIRPORT]
+// BLUE WAREHOUSE
+#define CRA_BASE_1_1_0_DATA [15.9451]
+#define CRA_BASE_1_1_0_INST [['Land_MapBoard_01_Wall_Tanoa_F',[CRQ_POS_VECZ,[5.53515,347.552,1.052]],0],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[0.958203,182.833,0.055707]],180.842],['CargoNet_01_box_F',[CRQ_POS_VECZ,[7.99974,53.6858,0.0510001]],0],['Land_PortableSpeakers_01_F',[CRQ_POS_VECZ,[2.41531,353.126,0.94]],330.012],['',[-1,[]],-1],['',[-1,[]],-1]]
+#define CRA_BASE_1_1_0_PROP [['Land_Warehouse_03_F',[CRQ_POS_REL,[0,0,0]],0],['CargoNet_01_barrels_F',[CRQ_POS_VECZ,[11.2699,245.113,0.058919]],5.47476],['Land_TankEngine_01_used_F',[CRQ_POS_VECZ,[7.26395,268.837,0.0550208]],185.057],['Land_TankTracks_01_short_F',[CRQ_POS_VECZ,[10.5086,252.655,0.0575523]],22.7664],['Land_TankTracks_01_long_F',[CRQ_POS_VECZ,[10.7962,256.966,0.0569601]],6.95786],['Land_RefuelingHose_01_F',[CRQ_POS_VECZ,[11.1504,245.247,1.11736]],160.058],['Land_Camping_Light_F',[CRQ_POS_VECZ,[3.0869,319.664,0.939834]],231.875],['Land_ToolTrolley_02_F',[CRQ_POS_VECZ,[10.9192,287.042,0.0521812]],198.936],['Land_PortableLight_double_F',[CRQ_POS_VECZ,[10.6124,294.648,0.0511408]],318.87],['Land_ToolTrolley_01_F',[CRQ_POS_VECZ,[10.6752,279.826,0.0533504]],4.41019],['Land_PortableDesk_01_olive_F',[CRQ_POS_VECZ,[2.62033,334.409,0.0528908]],182.177],['Land_DeskChair_01_olive_F',[CRQ_POS_VECZ,[2.99437,354.986,0.0523653]],11.504],['Land_DeskChair_01_olive_F',[CRQ_POS_VECZ,[2.60214,307.912,0.0535398]],187.419],['Land_EngineCrane_01_F',[CRQ_POS_VECZ,[6.96442,306.29,0.0513992]],16.2802],['Land_PortableLight_single_F',[CRQ_POS_VEC,[10.6305,118.957]],356.585],['Land_FoodSacks_01_cargo_white_idap_F',[CRQ_POS_VECZ,[4.58241,92.3328,0.0550537]],271.642],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[5.30809,127.841,2.25296]],0],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[10.5282,117.957]],1.59393],['Land_BagBunker_01_small_green_F',[CRQ_POS_VEC,[12.1575,104.1]],270.671],['Land_PortableLight_single_F',[CRQ_POS_VEC,[10.4991,62.571]],178.023],['Land_PortableLight_single_F',[CRQ_POS_VEC,[10.2994,86.9604]],268.03],['Land_FoodSacks_01_cargo_brown_F',[CRQ_POS_VECZ,[4.87818,71.0491,0.0535517]],269.007],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[10.4128,62.4773]],358.412],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[10.1472,89.9904]],268.3]]
+#define CRA_BASE_1_1_0_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[3.49436,253.763,0.0574393]]]],[[CRA_ROLE_GUARD,-0.5,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[7.00927,89.533,2.55344]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,90]],[[CRQ_POS_VEC,[11.7698,105.034]]]]]
 
-#define CRA_BASE_IMURIISLAND	[[[[CRQ_POS_REL,[0,0,0]],9],7.91073,3],CRA_BASE_INST_VILLAGE,CRA_BASE_PROP_VILLAGE,CRA_BASE_PERSONNEL_VILLAGE]
-#define CRA_BASE_KOUMAC			[[[[CRQ_POS_REL,[0,0,0]],141],7.91073,3],CRA_BASE_INST_VILLAGE,CRA_BASE_PROP_VILLAGE,CRA_BASE_PERSONNEL_VILLAGE]
-#define CRA_BASE_AIRSTRIP		[[[[CRQ_POS_REL,[0,0,0]],176],7.91073,6],CRA_BASE_INST_VILLAGE,CRA_BASE_PROP_VILLAGE,CRA_BASE_PERSONNEL_AIRPORT]
+// SCHOOL
+#define CRA_BASE_1_1_1_DATA [20.5783]
+#define CRA_BASE_1_1_1_INST [['Land_MapBoard_01_Wall_Tanoa_F',[CRQ_POS_VECZ,[4.54604,267.581,1.4319]],89.9999],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[13.8057,261.681,0.329175]],89.3158],['CargoNet_01_box_F',[CRQ_POS_VECZ,[14.311,284.835,0.329]],181.879],['',[-1,[]],-1],['',[-1,[]],-1],['',[-1,[]],-1]]
+#define CRA_BASE_1_1_1_PROP [['Land_School_01_F',[CRQ_POS_REL,[0,0,0]],0],['Land_GarbageContainer_closed_F',[CRQ_POS_VEC,[16.2154,261.356]],184.343],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[6.17387,198.295,0.233692]],179.799],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[8.07658,223.785,0.233692]],359.962],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[14.2096,245.58,0.233692]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[11.0685,237.749,0.233692]],179.671],['Land_Razorwire_F',[CRQ_POS_VEC,[16.2215,278.036]],270.733],['Land_Razorwire_F',[CRQ_POS_VEC,[12.7077,297.05]],357.979],['Land_Razorwire_F',[CRQ_POS_VEC,[6.05436,350.863]],180.313],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[9.69483,274.709,3.153]],180],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[0.795974,359.209,3.153]],180],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[6.15987,162.997,0.233692]],179.166],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[10.8569,122.6,0.233692]],179.719],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[7.94058,137.611,0.233692]],359.156],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[14.0659,114.64,0.233692]],180.634],['Land_Razorwire_F',[CRQ_POS_VEC,[8.27244,44.0853]],1.8912],['Land_Razorwire_F',[CRQ_POS_VEC,[13.718,65.2242]],357.979],['Land_Razorwire_F',[CRQ_POS_VEC,[16.1276,86.3425]],89.6905],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[9.56612,85.2275,3.153]],0]]
+#define CRA_BASE_1_1_1_PERS [[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[9.87766,276.359,0.337439]]]],[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[0.589264,8.98621,0.336439]]]],[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[9.49174,86.2068,0.338439]]]]]
 
-#define CRA_LOCATION_OVERRIDE [\
-["ImuriIsland01","","","",[1817,1058],[250,250]],\
-["Koumac01","","","",[1541,3055],[250,250]],\
-["Airstrip01","","","",[2095,3387],[250,250]]]
-#define CRA_BASE_OVERRIDE [\
-["CRA_ImuriIsland01",CRA_BASE_IMURIISLAND],\
-["CRA_Koumac01",CRA_BASE_KOUMAC],\
-["CRA_Airstrip01",CRA_BASE_AIRSTRIP]]
+// BIG BUNGALOW
+#define CRA_BASE_1_1_2_DATA [21.0511]
+#define CRA_BASE_1_1_2_INST [['Land_MapBoard_01_Wall_Tanoa_F',[CRQ_POS_VECZ,[5.07462,295.428,1.313]],90],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[10.2153,287.078,0.247]],89.742],['CargoNet_01_box_F',[CRQ_POS_VECZ,[5.37713,265.033,0.247039]],86.6535],['Land_FMradio_F',[CRQ_POS_VECZ,[11.0748,326.331,0.781]],117.66],['',[-1,[]],-1],['',[-1,[]],-1]]
+#define CRA_BASE_1_1_2_PROP [['Land_House_Big_02_F',[CRQ_POS_REL,[0,0,0]],0],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[7.78818,261.004,3.10918]],90],['Newspaper_01_F',[CRQ_POS_VECZ,[10.5385,324.346,0.780692]],189.768],['Land_PortableLight_single_F',[CRQ_POS_VEC,[11.4511,296.483]],94.6418],['Land_PortableLight_single_F',[CRQ_POS_VEC,[11.9253,321.04]],178.472],['Land_BagFence_01_corner_green_F',[CRQ_POS_VEC,[14.1156,312.022]],270.932],['Land_BagFence_01_short_green_F',[CRQ_POS_VEC,[13.3926,306.856]],269.425],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[12.6879,320.554]],181.29],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[12.1816,297.962]],272.144],['Land_BagFence_01_end_green_F',[CRQ_POS_VEC,[13.9094,315.227]],182.976],['Land_Bench_F',[CRQ_POS_VECZ,[10.5845,324.399,0.247039]],0],['Land_DrillAku_F',[CRQ_POS_VECZ,[10.1424,322.422,0.780692]],0],['Land_PortableLight_single_F',[CRQ_POS_VEC,[11.8824,150.912]],9.81311],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[12.4888,129.67,0.247039]],90.5733],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[9.93369,102.25,0.247039]],90.5733],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[12.3629,140.884,0.247039]],0.228607],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[10.8847,117.634,0.247039]],90.5733],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[9.70252,71.7524,0.247039]],271.831],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[9.77235,84.0101,0.247039]],90.5733],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[10.2192,71.4317,0.247039]],90.5733]]
+#define CRA_BASE_1_1_2_PERS [[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[7.71859,277.302,0.248439]]]],[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[8.10052,100.865,0.248478]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,135]],[[CRQ_POS_VECZ,[11.4254,135.126,0.247039]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,315]],[[CRQ_POS_VEC,[12.5651,313.11]]]]]
+
+// VILLA
+#define CRA_BASE_1_1_3_DATA [19.6804]
+#define CRA_BASE_1_1_3_INST [['MapBoard_Tanoa_F',[CRQ_POS_VECZ,[4.37275,50.7552,3.399]],294.018],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[4.48648,126.322,3.39879]],0],['CargoNet_01_box_F',[CRQ_POS_VECZ,[10.5991,87.1455,0.314368]],269.363],['',[-1,[]],-1],['',[-1,[]],-1],['',[-1,[]],-1]]
+#define CRA_BASE_1_1_3_PROP [['Land_House_Big_03_F',[CRQ_POS_REL,[0,0,0]],0],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[5.91691,158.165,3.37768]],22.1748],['Land_BagFence_01_corner_green_F',[CRQ_POS_VECZ,[5.94522,162.418,3.37769]],183.156],['Land_BagFence_01_corner_green_F',[CRQ_POS_VECZ,[12.2936,116.421,3.37769]],88.3149],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[10.9406,122.494,3.37768]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[6.76368,150.327,3.37768]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[8.59039,133.301,3.37768]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[11.2052,92.1502,3.37768]],269.173],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[11.7429,107.187,3.37768]],90.8429],['Land_PortableLight_single_F',[CRQ_POS_VEC,[7.92893,2.83975]],154.805],['Land_PortableLight_single_F',[CRQ_POS_VEC,[12.9013,74.1948]],271.543],['Land_PortableLight_single_F',[CRQ_POS_VECZ,[11.5729,60.0296,3.37768]],212.611],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[12.1187,49.8745]],0],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[13.738,65.3255]],91.1419],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[8.65841,26.0058]],0],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[7.88021,59.4752,2.95254]],270],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[8.90908,88.3245,6.04173]],0],['Land_BagFence_01_corner_green_F',[CRQ_POS_VECZ,[12.383,59.9627,3.37769]],0],['Land_BagFence_01_corner_green_F',[CRQ_POS_VECZ,[6.30062,15.3809,3.37769]],267.4],['Land_HBarrier_01_line_1_green_F',[CRQ_POS_VEC,[7.99016,3.02835]],88.8763],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[6.01266,4.02811]],268.018],['Land_BagFence_01_short_green_F',[CRQ_POS_VECZ,[12.139,66.2086,3.37768]],265.809],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[8.5922,41.9318,3.37768]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[10.8016,53.5191,3.37768]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[7.23163,26.6368,3.37768]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[11.3946,77.2468,3.37768]],269.173]]
+#define CRA_BASE_1_1_3_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[7.61056,86.3896,3.40044]]]],[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[7.45507,74.1227,0.315807]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,45]],[[CRQ_POS_VECZ,[11.7789,62.5905,0.284]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,135]],[[CRQ_POS_VECZ,[11.1754,116.427,3.378]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,315]],[[CRQ_POS_VECZ,[12.9789,294.168,3.37768]]]]]
+
+// YELLOW MEDIUM HOUSE
+#define CRA_BASE_1_2_0_DATA [12.8589]
+#define CRA_BASE_1_2_0_INST [['Land_MapBoard_01_Wall_Tanoa_F',[CRQ_POS_VECZ,[2.53612,75.4768,1.497]],90],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[4.67726,160.205,0.404]],270.196],['CargoNet_01_box_F',[CRQ_POS_VECZ,[5.94124,219.805,0.403843]],359.447],['Land_PortableSpeakers_01_F',[CRQ_POS_VECZ,[3.46174,283.051,0.838563]],87.0273],['',[-1,[]],-1],['',[-1,[]],-1]]
+#define CRA_BASE_1_2_0_PROP [['Land_House_Small_06_F',[CRQ_POS_REL,[0,0,0]],0],['Land_PortableLight_single_F',[CRQ_POS_VEC,[8.45734,222.623]],57.0266],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[6.33735,184.793]],0],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[1.80429,217.247,4.05676]],90],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[6.99011,236.156]],267.396],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[7.957,217.242]],0.370514],['Newspaper_01_F',[CRQ_POS_VECZ,[3.37584,288.629,0.838563]],29.5193],['Book_01_F',[CRQ_POS_VECZ,[3.67199,283.837,0.838563]],35.3866],['Land_RattanChair_01_F',[CRQ_POS_VECZ,[3.10437,304.477,0.403843]],27.223],['Land_RattanChair_01_F',[CRQ_POS_VECZ,[4.43398,291.9,0.403843]],305.927],['Land_RattanChair_01_F',[CRQ_POS_VECZ,[4.14164,272.5,0.403843]],241.068],['Land_PortableLight_single_F',[CRQ_POS_VEC,[6.03419,290.506]],98.463],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[7.36007,331.264]],0],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[7.05392,305.986]],270.405],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[5.79911,278.188]],270.405],['Land_TableSmall_01_F',[CRQ_POS_VECZ,[3.45181,286.362,0.403843]],44.5028],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[8.1283,140.692]],0],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[8.78416,96.6618]],271.23],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[10.2257,121.764]],91.3783],['Land_PortableLight_single_F',[CRQ_POS_VEC,[9.81147,64.0764]],270.508],['Land_PortableLight_single_F',[CRQ_POS_VEC,[7.7518,32.5128]],181.826],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[9.82758,63.3235]],271.23],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[6.77943,17.1279]],0],['Land_HBarrier_01_line_1_green_F',[CRQ_POS_VEC,[9.93577,49.8739]],179.572],['Land_Bench_02_F',[CRQ_POS_VEC,[8.5066,60.6445]],90.3777],['Land_FlowerPot_01_Flower_F',[CRQ_POS_VEC,[4.43383,42.8847]],0]]
+#define CRA_BASE_1_2_0_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[1.22876,216.802,0.405439]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,315]],[[CRQ_POS_VECZ,[5.2561,325.268,0.403843]]]]]
+
+// BALA AIRSTRIP TERMINAL
+#define CRA_BASE_1_4_0_DATA [22.9571]
+#define CRA_BASE_1_4_0_INST [['MapBoard_Tanoa_F',[CRQ_POS_VECZ,[12.4857,46.8763,0.248006]],52.7638],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[9.36607,312.911,0.27944]],0],['CargoNet_01_box_F',[CRQ_POS_VECZ,[4.1675,49.1642,0.140003]],0],['Land_FMradio_F',[CRQ_POS_VECZ,[11.4735,56.3441,1.11419]],229.053],['',[-1,[]],-1],['',[-1,[]],-1]]
+#define CRA_BASE_1_4_0_PROP [['Land_Airport_01_terminal_F',[CRQ_POS_REL,[0,0,0]],0],['Land_Shed_04_F',[CRQ_POS_VEC,[9.54137,222.005]],0],['Land_GarbageContainer_closed_F',[CRQ_POS_VEC,[10.5366,231.794]],181.698],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[8.75344,211.767]],91.4168],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[12.4652,193.227]],0],['Land_BagBunker_01_small_green_F',[CRQ_POS_VEC,[11.9906,206.965]],90],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[14.1361,331.792]],0.255737],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[17.2298,292.266]],270.379],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[9.41103,312.847,2.719]],180],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[16.5348,319.021]],358.724],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[19.3151,304.544]],270.519],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[13.6759,346.65]],270.519],['Land_BagBunker_01_small_green_F',[CRQ_POS_VEC,[19.1695,313.634]],181.588],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[14.4934,116.326]],90.5945],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[12.6817,161.518]],0],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[13.0291,94.3276]],90.5945],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[15.3645,141.395]],0],['Land_BagBunker_01_small_green_F',[CRQ_POS_VEC,[16.9931,128.314]],271.849],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[16.2676,53.0034]],90.5945],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[14.0174,28.6907]],1.53027],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[13.6875,71.3947]],90.5945],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[9.46629,47.4625,2.719]],0],['Land_HBarrier_01_line_3_green_F',[CRQ_POS_VEC,[13.6261,13.2034]],270.52],['Land_BagBunker_01_small_green_F',[CRQ_POS_VEC,[17.3966,39.4712]],181.588],['Land_WoodenTable_large_F',[CRQ_POS_VECZ,[10.6048,55.6408,0.246514]],89.3994]]
+#define CRA_BASE_1_4_0_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VEC,[12.1846,359.978]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,270]],[[CRQ_POS_VEC,[12.0232,207.54]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,90]],[[CRQ_POS_VEC,[17.1313,128.539]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,0]],[[CRQ_POS_VEC,[17.4607,39.5325]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,0]],[[CRQ_POS_VEC,[19.1046,313.811]]]]]
+
+// THREE-ROOM BUNGALOW / FARM HOUSE
+#define CRA_BASE_1_6_0_DATA [13.8993]
+#define CRA_BASE_1_6_0_INST [['Land_MapBoard_01_Wall_Tanoa_F',[CRQ_POS_VECZ,[3.05235,13.1815,1.695]],270],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[7.13119,32.1143,0.616]],0],['CargoNet_01_box_F',[CRQ_POS_VECZ,[8.08596,327.833,0.616364]],0],['',[-1,[]],-1],['',[-1,[]],-1],['',[-1,[]],-1]]
+#define CRA_BASE_1_6_0_PROP [['Land_Slum_03_F',[CRQ_POS_REL,[0,0,0]],0],['Land_BagFence_01_round_green_F',[CRQ_POS_VEC,[12.372,233.922]],45],['Land_BagFence_01_round_green_F',[CRQ_POS_VEC,[11.1967,243.888]],129.271],['Land_BagFence_01_round_green_F',[CRQ_POS_VEC,[10.794,225.77]],322.843],['Land_PortableLight_single_F',[CRQ_POS_VEC,[10.2754,253.193]],89.2193],['Land_BagFence_01_short_green_F',[CRQ_POS_VEC,[8.25716,210.428]],267.886],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[9.42426,252.929]],268.952],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[8.51436,220.363]],359.372],['Land_PortableLight_single_F',[CRQ_POS_VEC,[9.25855,320.754]],172.174],['Land_BagFence_01_corner_green_F',[CRQ_POS_VEC,[11.3867,309.78]],270.993],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[9.53912,287.597]],270.236],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[9.05178,270.133]],268.805],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[10.2582,318.643]],359.457],['Land_BagFence_01_round_green_F',[CRQ_POS_VEC,[11.2221,130.239]],315],['Land_BagFence_01_round_green_F',[CRQ_POS_VEC,[9.97449,120.448]],220.955],['Land_BagFence_01_round_green_F',[CRQ_POS_VEC,[9.66553,139.164]],41.8336],['Land_PortableLight_single_F',[CRQ_POS_VEC,[6.63043,101.71]],268.953],['Land_PortableLight_single_F',[CRQ_POS_VEC,[7.31099,171.711]],357.706],['Land_BagFence_01_short_green_F',[CRQ_POS_VEC,[7.12988,178.291]],90.2834],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[7.69608,145.661]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[8.29782,111.582]],88.8775],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[6.61133,165.063]],179.319],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[7.67968,91.5794]],88.6817],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[5.4775,5.1861,3.242]],0],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[3.06194,14.5038,3.24159]],180],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[0.626762,52.9158,3.242]],0],['Land_BagFence_01_corner_green_F',[CRQ_POS_VEC,[10.1976,45.8517]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[8.03702,72.3615]],89.8396],['Land_BagFence_01_long_green_F',[CRQ_POS_VEC,[9.40869,54.9391]],89.8396],['Land_BagFence_01_end_green_F',[CRQ_POS_VEC,[9.73295,40.7747]],180.201]]
+#define CRA_BASE_1_6_0_PERS [[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[3.89461,67.6503,0.617439]]]],[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[5.45644,338.679,0.617439]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,225]],[[CRQ_POS_VEC,[10.7302,235.348]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,135]],[[CRQ_POS_VEC,[9.70508,131.274]]]]]
+
+#define CRA_BASE_1_6_1_DATA [11.6825]
+#define CRA_BASE_1_6_1_INST [['Land_MapBoard_01_Wall_Tanoa_F',[CRQ_POS_VECZ,[5.39533,4.33646,1.669]],0],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[6.98826,307.328,0.707387]],90.1253],['CargoNet_01_box_F',[CRQ_POS_VECZ,[3.70515,251.275,0.707387]],358.817],['Land_FMradio_F',[CRQ_POS_VECZ,[6.25127,252.499,1.552]],0],['',[-1,[]],-1],['',[-1,[]],-1]]
+#define CRA_BASE_1_6_1_PROP [['Land_House_Small_03_F',[CRQ_POS_REL,[0,0,0]],0],['Land_ChairWood_F',[CRQ_POS_VECZ,[5.6223,255.279,0.707387]],359.952],['Land_PortableLight_single_F',[CRQ_POS_VEC,[4.77049,223.409]],358.761],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[7.69765,260.542]],271.461],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[6.49937,238.618]],181.333],['OfficeTable_01_old_F',[CRQ_POS_VECZ,[5.89926,252.674,0.707387]],179.859],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[7.83579,325.697]],179.207],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[8.65114,300.034]],271.469],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[2.82708,303.921,2.81574]],0],['Land_HBarrier_01_line_1_green_F',[CRQ_POS_VEC,[6.59641,350.69]],356.374],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[4.03764,146.488]],358.656],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[4.26387,92.4382]],90.7722],['Land_PortableLight_single_F',[CRQ_POS_VEC,[4.304,83.0866]],267.958],['Land_HBarrier_01_line_5_green_F',[CRQ_POS_VEC,[6.85456,18.4382]],179.207],['Land_HBarrier_01_line_1_green_F',[CRQ_POS_VEC,[6.77245,39.0656]],90.8511]]
+#define CRA_BASE_1_6_1_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[2.19244,15.9384,0.708438]]]]]
+
+#define CRA_BASE_1_6_2_DATA [11.9995]
+#define CRA_BASE_1_6_2_INST [['Land_MapBoard_01_Wall_Tanoa_F',[CRQ_POS_VECZ,[4.11094,214.325,1.34115]],270],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[3.53346,112.369,0.2]],0],['CargoNet_01_box_F',[CRQ_POS_VECZ,[3.72075,2.79819,0.2]],270.707],['',[-1,[]],-1],['Land_Campfire_F',[CRQ_POS_VEC,[7.94633,214.852]],0],['',[-1,[]],-1]]
+#define CRA_BASE_1_6_2_PROP [['Land_House_Small_04_F',[CRQ_POS_REL,[0,0,0]],0],['Land_ChairPlastic_F',[CRQ_POS_VEC,[6.33737,225.944]],101.225],['Land_ChairPlastic_F',[CRQ_POS_VEC,[5.57813,214.569]],127.396],['Land_BagFence_01_short_green_F',[CRQ_POS_VECZ,[5.37935,239.113,0.2]],269.088],['Land_BagFence_01_short_green_F',[CRQ_POS_VECZ,[5.01834,225.871,0.2]],178.262],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[8.64181,185.681,0.2]],179.625],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[7.45845,198.406,0.2]],89.7591],['Land_CampingChair_V2_white_F',[CRQ_POS_VECZ,[4.04096,230.344,0.2]],121.706],['Land_BagFence_01_short_green_F',[CRQ_POS_VECZ,[5.64137,320.731,0.2]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[5.56732,303.689,0.2]],88.8843],['Land_CampingChair_V2_white_F',[CRQ_POS_VECZ,[3.52192,298.48,0.2]],71.3538],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[2.53461,157.093,2.88774]],90],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[8.24384,148.029,0.2]],269.818]]
+#define CRA_BASE_1_6_2_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[2.49729,179.244,0.201439]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,225]],[[CRQ_POS_VECZ,[7.07534,185.646,0.2]]]]]
+
+#define CRA_BASE_1_6_3_DATA [12.0664]
+#define CRA_BASE_1_6_3_INST [['Land_MapBoard_01_Wall_Tanoa_F',[CRQ_POS_VECZ,[7.03546,208.379,1.233]],180],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[3.74962,251.269,0.163]],179.802],['CargoNet_01_box_F',[CRQ_POS_VECZ,[3.79431,287.043,0.163198]],0],['Land_FMradio_F',[CRQ_POS_VECZ,[5.598,177.583,1.028]],342.994],['',[-1,[]],-1],['',[-1,[]],-1]]
+#define CRA_BASE_1_6_3_PROP [['Land_House_Small_02_F',[CRQ_POS_REL,[0,0,0]],0],['Land_Razorwire_F',[CRQ_POS_VEC,[7.2811,233.42]],270.437],['Land_Razorwire_F',[CRQ_POS_VEC,[7.70957,187.363]],179.157],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[4.96727,202.302,2.422]],90],['Land_WoodenTable_small_F',[CRQ_POS_VECZ,[5.33876,181.032,0.163198]],269.736],['Land_CzechHedgehog_01_old_F',[CRQ_POS_VEC,[9.06139,219.206]],237.119],['Land_Razorwire_F',[CRQ_POS_VEC,[7.58095,347.53]],179.157],['Land_Razorwire_F',[CRQ_POS_VEC,[7.21815,306.466]],270.437],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[4.97454,337.739,2.42195]],270],['Land_CzechHedgehog_01_old_F',[CRQ_POS_VEC,[8.99107,322.06]],109.273],['Land_Bench_03_F',[CRQ_POS_VEC,[4.71595,152.875]],263.622],['Land_PortableLight_single_F',[CRQ_POS_VEC,[6.33501,163.69]],292.058],['Land_CzechHedgehog_01_old_F',[CRQ_POS_VEC,[6.65414,159.111]],48.7632],['Land_Bench_05_F',[CRQ_POS_VEC,[2.73704,43.6122]],92.4975],['Land_PortableLight_double_F',[CRQ_POS_VEC,[1.52661,89.9359]],269.902],['Land_PortableLight_single_F',[CRQ_POS_VEC,[6.73215,10.8825]],252.316],['Land_CzechHedgehog_01_old_F',[CRQ_POS_VEC,[6.96744,16.2752]],19.46]]
+#define CRA_BASE_1_6_3_PERS [[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[3.78367,208.219,0.164439]]]],[[CRA_ROLE_GUARD,-0.75,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[4.22144,336.459,0.164439]]]]]
+
+#define CRA_BASE_1_6_4_DATA [13.335]
+#define CRA_BASE_1_6_4_INST [['Land_MapBoard_01_Wall_Tanoa_F',[CRQ_POS_VECZ,[1.70586,91.0661,1.21872]],90],['O_CargoNet_01_ammo_F',[CRQ_POS_VECZ,[4.18657,7.66418,0.159]],270.545],['CargoNet_01_box_F',[CRQ_POS_VECZ,[5.46874,324.061,0.159]],177.963],['',[-1,[]],-1],['Land_Campfire_F',[CRQ_POS_VEC,[6.1733,122.747]],0],['',[-1,[]],-1]]
+#define CRA_BASE_1_6_4_PROP [['Land_House_Small_05_F',[CRQ_POS_REL,[0,0,0]],0],['Land_PortableLight_single_F',[CRQ_POS_VEC,[4.81745,258.224]],88.3427],['Land_BagFence_01_corner_green_F',[CRQ_POS_VECZ,[6.0299,216.096,0.16064]],177.667],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[5.52761,202.57,0.160643]],0],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[4.94341,232.176,0.160648]],89.6323],['Land_CzechHedgehog_01_old_F',[CRQ_POS_VEC,[7.61972,220.369]],196.315],['Land_Razorwire_F',[CRQ_POS_VEC,[6.61949,344.403]],0],['Land_TentLamp_01_suspended_F',[CRQ_POS_VECZ,[2.20557,327.545,2.82967]],0],['Land_CzechHedgehog_01_old_F',[CRQ_POS_VEC,[8.23353,321.543]],345.755],['Land_Bench_05_F',[CRQ_POS_VEC,[4.33977,139.675]],89.1667],['Land_PortableLight_single_F',[CRQ_POS_VEC,[5.55248,149.704]],357.533],['Land_PortableLight_single_F',[CRQ_POS_VEC,[8.19283,104.376]],316.24],['Land_BagFence_01_corner_green_F',[CRQ_POS_VECZ,[5.02345,159.476,0.160652]],87.1206],['Land_BagFence_01_long_green_F',[CRQ_POS_VECZ,[3.59863,147.568,0.160653]],269.82],['Land_CzechHedgehog_01_old_F',[CRQ_POS_VEC,[9.23703,108.575]],345.755],['Land_Razorwire_F',[CRQ_POS_VEC,[8.97824,81.7467]],89.983],['Land_Razorwire_F',[CRQ_POS_VEC,[8.50256,41.0824]],0],['Land_CzechHedgehog_01_old_F',[CRQ_POS_VEC,[11.0164,55.1294]],302.727]]
+#define CRA_BASE_1_6_4_PERS [[[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],[[CRQ_POS_VECZ,[2.1238,310.842,0.161438]]]],[[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,225]],[[CRQ_POS_VECZ,[3.90981,210.862,0.161]]]]]
+
+#define CRA_BASE_INDEX [\
+[CRA_BASE_0_1_0_DATA,CRA_BASE_0_1_0_INST,CRA_BASE_0_1_0_PROP,CRA_BASE_0_1_0_PERS],\
+[CRA_BASE_0_2_0_DATA,CRA_BASE_0_2_0_INST,CRA_BASE_0_2_0_PROP,CRA_BASE_0_2_0_PERS],\
+[CRA_BASE_0_5_0_DATA,CRA_BASE_0_5_0_INST,CRA_BASE_0_5_0_PROP,CRA_BASE_0_5_0_PERS],\
+[CRA_BASE_0_5_1_DATA,CRA_BASE_0_5_1_INST,CRA_BASE_0_5_1_PROP,CRA_BASE_0_5_1_PERS],\
+[CRA_BASE_1_4_0_DATA,CRA_BASE_1_4_0_INST,CRA_BASE_1_4_0_PROP,CRA_BASE_1_4_0_PERS],\
+[CRA_BASE_0_2_1_DATA,CRA_BASE_0_2_1_INST,CRA_BASE_0_2_1_PROP,CRA_BASE_0_2_1_PERS],\
+[CRA_BASE_1_6_0_DATA,CRA_BASE_1_6_0_INST,CRA_BASE_1_6_0_PROP,CRA_BASE_1_6_0_PERS],\
+[CRA_BASE_1_6_1_DATA,CRA_BASE_1_6_1_INST,CRA_BASE_1_6_1_PROP,CRA_BASE_1_6_1_PERS],\
+[CRA_BASE_1_6_2_DATA,CRA_BASE_1_6_2_INST,CRA_BASE_1_6_2_PROP,CRA_BASE_1_6_2_PERS],\
+[CRA_BASE_1_6_3_DATA,CRA_BASE_1_6_3_INST,CRA_BASE_1_6_3_PROP,CRA_BASE_1_6_3_PERS],\
+[CRA_BASE_1_6_4_DATA,CRA_BASE_1_6_4_INST,CRA_BASE_1_6_4_PROP,CRA_BASE_1_6_4_PERS],\
+[CRA_BASE_1_1_0_DATA,CRA_BASE_1_1_0_INST,CRA_BASE_1_1_0_PROP,CRA_BASE_1_1_0_PERS],\
+[CRA_BASE_1_1_1_DATA,CRA_BASE_1_1_1_INST,CRA_BASE_1_1_1_PROP,CRA_BASE_1_1_1_PERS],\
+[CRA_BASE_1_1_2_DATA,CRA_BASE_1_1_2_INST,CRA_BASE_1_1_2_PROP,CRA_BASE_1_1_2_PERS],\
+[CRA_BASE_1_1_3_DATA,CRA_BASE_1_1_3_INST,CRA_BASE_1_1_3_PROP,CRA_BASE_1_1_3_PERS],\
+[CRA_BASE_1_2_0_DATA,CRA_BASE_1_2_0_INST,CRA_BASE_1_2_0_PROP,CRA_BASE_1_2_0_PERS]]
+
+#define CRA_BASEB_1_0 ["Land_Warehouse_03_F",[11]]
+#define CRA_BASEB_1_1 ["Land_School_01_F",[12]]
+#define CRA_BASEB_1_2 ["Land_House_Big_02_F",[13]]
+#define CRA_BASEB_1_3 ["Land_House_Big_03_F",[14]]
+#define CRA_BASEB_2_0 ["Land_House_Small_06_F",[15]]
+#define CRA_BASEB_4_0 ["Land_Airport_01_terminal_F",[4]]
+#define CRA_BASEB_6_0 ["Land_Slum_03_F",[6]]
+#define CRA_BASEB_6_1 ["Land_House_Small_03_F",[7]]
+#define CRA_BASEB_6_2 ["Land_House_Small_04_F",[8]]
+#define CRA_BASEB_6_3 ["Land_House_Small_02_F",[9]]
+#define CRA_BASEB_6_4 ["Land_House_Small_05_F",[10]]
+
+#define CRA_BASEG_CITY [0]
+#define CRA_BASEG_VILLAGE [1,5]
+#define CRA_BASEG_ROADBLOCK [2,3]
+#define CRA_BASEG_OUTPOST [6,7,8,9,10]
+
+#define CRA_BASEB_CITY [CRA_BASEB_1_0,CRA_BASEB_1_1,CRA_BASEB_1_2,CRA_BASEB_1_3]
+#define CRA_BASEB_VILLAGE [CRA_BASEB_1_1,CRA_BASEB_1_2,CRA_BASEB_2_0,CRA_BASEB_6_0,CRA_BASEB_6_1,CRA_BASEB_6_2,CRA_BASEB_6_3]
+#define CRA_BASEB_AIRPORT [CRA_BASEB_4_0]
+
+#define CRA_BASEB_OUTPOSTS [CRA_BASEB_2_0,CRA_BASEB_6_0,CRA_BASEB_6_1,CRA_BASEB_6_2,CRA_BASEB_6_3,CRA_BASEB_6_4]
+
+#define CRA_LOCATION_REJUVENATION 0.01
+
+#define CRA_LOCATION_CONFIG_BASE 1
+#define CRA_LOCATION_CONFIG_ROAD 0
+#define CRA_LOCATION_CONFIG_POST 0
+#define CRA_LOCATION_VALUE_HIGH 12
+#define CRA_LOCATION_VALUE_MED 6
+#define CRA_LOCATION_VALUE_LOW 3
+#define CRA_LOCATION_VALUE_NONE 0
+#define CRA_LOCATION_CAPTURE_NONE [CRQ_SIDE_CIVFOR]
+#define CRA_LOCATION_CAPTURE_ALL [CRQ_SIDE_BLUFOR,CRQ_SIDE_IDFOR,CRQ_SIDE_OPFOR,CRQ_SIDE_CIVFOR]
+#define CRA_LOCATION_MARKER_NONE []
+#define CRA_LOCATION_MARKER_BASE ["b_unknown","n_unknown","o_unknown","c_unknown"]
+
+#define CRA_LOCATION_TYPES [\
+[[CRA_LOCATION_CONFIG_BASE,	CRA_LOCATION_VALUE_HIGH,	CRA_LOCATION_CAPTURE_ALL,	[[2.00,1.50],[-1,3,1,-1]],	CRA_LOCATION_MARKER_BASE,	"NameCityCapital"],	[63,CRA_BASEG_CITY]],\
+[[CRA_LOCATION_CONFIG_BASE,	CRA_LOCATION_VALUE_MED,		CRA_LOCATION_CAPTURE_ALL,	[[1.00,0.75],[-1,3,1,-1]],	CRA_LOCATION_MARKER_BASE,	"NameCity"],		[63,CRA_BASEG_CITY]],\
+[[CRA_LOCATION_CONFIG_BASE,	CRA_LOCATION_VALUE_LOW,		CRA_LOCATION_CAPTURE_ALL,	[[0.60,0.75],[-1,2,1,-1]],	CRA_LOCATION_MARKER_BASE,	"NameVillage"],		[63,CRA_BASEG_VILLAGE]],\
+[[CRA_LOCATION_CONFIG_BASE,	CRA_LOCATION_VALUE_LOW,		CRA_LOCATION_CAPTURE_ALL,	[[0.40,0.75],[-1,2,1,-1]],	CRA_LOCATION_MARKER_BASE,	"NameLocal"],		[63,CRA_BASEG_VILLAGE]],\
+[[CRA_LOCATION_CONFIG_BASE,	CRA_LOCATION_VALUE_MED,		CRA_LOCATION_CAPTURE_ALL,	[[0.80,0.75],[-1,3,1,-1]],	CRA_LOCATION_MARKER_BASE,	"Airport"],			[63,CRA_BASEG_CITY]],\
+[[CRA_LOCATION_CONFIG_ROAD,	CRA_LOCATION_VALUE_NONE,	CRA_LOCATION_CAPTURE_NONE,	[[0.40,0.75],[-1,1,0,-1]],	CRA_LOCATION_MARKER_NONE,	"u_installation"],	[62,CRA_BASEG_ROADBLOCK]],\
+[[CRA_LOCATION_CONFIG_POST,	CRA_LOCATION_VALUE_NONE,	CRA_LOCATION_CAPTURE_NONE,	[[0.40,0.75],[-1,1,0,-1]],	CRA_LOCATION_MARKER_NONE,	"u_installation"],	[62,CRA_BASEG_OUTPOST]]]
+
+#define CRA_PERSONNEL_TYPES [\
+[CRA_ROLE_GUARD,-1,[CRA_SQUAD_TYPE_BASIC]],\
+[CRA_ROLE_PATROL,-1,[CRA_SQUAD_TYPE_BASIC]],\
+[CRA_ROLE_VEHICLE,-1,[CRA_VEHICLE_CAR]],\
+[CRA_ROLE_STATIC,-1,[CRA_STATIC_MG_HIGH,0]]]
+#define CRA_PERSONNEL_WP_GUARD [[CRQ_POS_REL,[0,0,0]]]
+#define CRA_PERSONNEL_WP_PATROL [[[CRQ_POS_FIND,CRQ_POS_EMPTY],[['houses',125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[['meadow',125],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[['trees',125],[5,25]]]]
+#define CRA_PERSONNEL_WP_PATROL_NEAR [[[CRQ_POS_FIND,CRQ_POS_EMPTY],[['houses',75],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[['meadow',75],[5,25]]],[[CRQ_POS_FIND,CRQ_POS_EMPTY],[['trees',75],[5,25]]]]
+#define CRA_PERSONNEL_WP_VEHICLE [[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]],[[CRQ_POS_EMPTY],[[15,175]]]]
+#define CRA_PERSONNEL_WP_STATIC [[CRQ_POS_REL,[0,0,0]]]
+#define CRA_LOCATION_PERSONNEL_WP [\
+[CRA_PERSONNEL_WP_GUARD,CRA_PERSONNEL_WP_PATROL,CRA_PERSONNEL_WP_VEHICLE,CRA_PERSONNEL_WP_STATIC],\
+[CRA_PERSONNEL_WP_GUARD,CRA_PERSONNEL_WP_PATROL,CRA_PERSONNEL_WP_VEHICLE,CRA_PERSONNEL_WP_STATIC],\
+[CRA_PERSONNEL_WP_GUARD,CRA_PERSONNEL_WP_PATROL,CRA_PERSONNEL_WP_VEHICLE,CRA_PERSONNEL_WP_STATIC],\
+[CRA_PERSONNEL_WP_GUARD,CRA_PERSONNEL_WP_PATROL,CRA_PERSONNEL_WP_VEHICLE,CRA_PERSONNEL_WP_STATIC],\
+[CRA_PERSONNEL_WP_GUARD,CRA_PERSONNEL_WP_PATROL,CRA_PERSONNEL_WP_VEHICLE,CRA_PERSONNEL_WP_STATIC],\
+[CRA_PERSONNEL_WP_GUARD,CRA_PERSONNEL_WP_PATROL_NEAR,CRA_PERSONNEL_WP_VEHICLE,CRA_PERSONNEL_WP_STATIC],\
+[CRA_PERSONNEL_WP_GUARD,CRA_PERSONNEL_WP_PATROL_NEAR,CRA_PERSONNEL_WP_VEHICLE,CRA_PERSONNEL_WP_STATIC]]
+
+#define CRA_LOCATION_TYPE_CAPITAL 0
+#define CRA_LOCATION_TYPE_CITY 1
+#define CRA_LOCATION_TYPE_VILLAGE 2
+#define CRA_LOCATION_TYPE_LOCALITY 3
+#define CRA_LOCATION_TYPE_AIRPORT 4
+#define CRA_LOCATION_TYPE_ROADBLOCK 5
+#define CRA_LOCATION_TYPE_OUTPOST 6
+
+#define CRA_LOCATION_OUTPOST_COUNT 120
+#define CRA_LOCATION_OUTPOST_PROXIMITY 400
+
+#define CRA_LOCATION_SCAN [\
+["NameCityCapital",	[CRA_LOCATION_TYPE_CAPITAL,		"","",[],[],3],										[[CRQ_VEC_FIND,[["houses + houses"],-2]],[]],			[]],\
+["NameCity",		[CRA_LOCATION_TYPE_CITY,		"","",[],[],3],										[[CRQ_VEC_FIND,[["houses + houses"],-2]],[]],			CRA_BASEB_CITY],\
+["NameVillage",		[CRA_LOCATION_TYPE_VILLAGE,		"","",[],[],3],										[[CRQ_VEC_FIND,[["houses + meadow"],-2]],[]],			CRA_BASEB_VILLAGE],\
+["NameLocal",		[CRA_LOCATION_TYPE_LOCALITY,	"","",[],[],3],										[[CRQ_VEC_FIND,[["houses + meadow"],-2]],[]],			[]],\
+["Airport",			[CRA_LOCATION_TYPE_AIRPORT,		"","",[],[],3],										[[CRQ_VEC_FIND,[["houses"],-2]],[]],					CRA_BASEB_AIRPORT]]
+#define CRA_LOCATION_SCAN_OVERRIDE [\
+["ImuriIsland01",	[CRA_LOCATION_TYPE_VILLAGE,		"","",[CRQ_VEC_ABS,[[1817,1058],9]],[],3],			[[CRQ_VEC_REL,[[0,0,0],0]],[]],							[]],\
+["Koumac01",		[CRA_LOCATION_TYPE_VILLAGE,		"","",[CRQ_VEC_ABS,[[1528,3012],0]],[100,100],3],	[[CRQ_VEC_ABS,[[1541,3055],141]],[]],					[]],\
+["Airstrip01",		[CRA_LOCATION_TYPE_AIRPORT,		"","",[],[],2],										[],														[]]]
 
 
-
-#define CRA_ROADBLOCK_INST [["",[-1,[]],-1],["O_CargoNet_01_ammo_F",[CRQ_POS_VEC,[18.8015,298.722]],270.863],["CargoNet_01_box_F",[CRQ_POS_VEC,[16.858,233.354]],88.3275],["",[-1,[]],-1],["Land_Campfire_F",[CRQ_POS_VEC,[14.3024,64.4961]],245.917]]
-#define CRA_ROADBLOCK_PROP [["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[21.1985,256.495]],90.7194],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[21.4514,286.648]],89.0248],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[23.4945,299.489]],92.1464],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[21.1868,233.129]],179.749],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[20.5455,271.777]],270.96],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[23.1512,242.728]],88.2763],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[30.3668,298.553]],0],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[23.3684,308.674]],0],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[37.9421,292.393]],0],["RoadBarrier_small_F",[CRQ_POS_VEC,[34.8182,170.309]],210.906],["RoadBarrier_small_F",[CRQ_POS_VEC,[31.7022,191.578]],161.356],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[26.862,193.705]],89.3399],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[21.4083,162.985]],270.823],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[29.595,167.739]],89.7354],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[18.9214,200.19]],268.879],["Land_SignWarning_01_CheckpointAhead_F",[CRQ_POS_VEC,[34.2544,169.481]],13.3484],["Land_PortableLight_single_F",[CRQ_POS_VEC,[7.31537,300.257]],273.017],["Land_PortableLight_single_F",[CRQ_POS_VEC,[7.45137,121.89]],90.711],["Land_CampingChair_V1_F",[CRQ_POS_VEC,[16.0128,58.5448]],15.2469],["Land_CampingChair_V1_F",[CRQ_POS_VEC,[11.39,230.537]],29.7018],["Land_CampingChair_V1_F",[CRQ_POS_VEC,[13.3313,224.027]],167.067],["Land_CampingChair_V1_F",[CRQ_POS_VEC,[12.1737,234.562]],354.773],["Land_CampingChair_V1_F",[CRQ_POS_VEC,[12.16,53.027]],303.506],["Land_HBarrier_01_big_tower_green_F",[CRQ_POS_VEC,[13.3256,313.062]],183.325],["Land_HBarrier_01_big_tower_green_F",[CRQ_POS_VEC,[13.5273,135.595]],1.46033],["Land_Cargo_House_V1_F",[CRQ_POS_VEC,[17.2994,240.05]],268.434],["Land_TentDome_F",[CRQ_POS_VEC,[14.2208,51.0695]],238.438],["Land_FoodSacks_01_cargo_brown_F",[CRQ_POS_VEC,[10.3611,130.114]],359.837],["Land_CncBarrierMedium4_F",[CRQ_POS_VEC,[9.6294,38.6203]],91.3503],["Land_CncBarrierMedium4_F",[CRQ_POS_VEC,[10.1376,217.525]],90.3543],["Land_CncBarrierMedium4_F",[CRQ_POS_VEC,[7.24952,122.934]],89.0941],["Land_CncBarrierMedium4_F",[CRQ_POS_VEC,[12.583,330.744]],90.7583],["Land_CncBarrierMedium4_F",[CRQ_POS_VEC,[7.12142,300.759]],89.5267],["Land_CncBarrierMedium4_F",[CRQ_POS_VEC,[12.9145,151.811]],271.291],["Land_CampingTable_white_F",[CRQ_POS_VEC,[12.6028,227.805]],181.267],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[16.0728,217.562]],178.135],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[17.9035,147.433]],178.135],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[15.6474,38.7472]],358.43],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[17.4841,326.182]],0],["Land_BarGate_01_open_F",[CRQ_POS_VEC,[0.198995,140.176]],0],["RoadBarrier_small_F",[CRQ_POS_VEC,[34.7704,349.991]],17.6658],["RoadBarrier_small_F",[CRQ_POS_VEC,[30.9903,11.6525]],346.689],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[26.0788,13.7217]],270.221],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[20.7451,341.447]],269.115],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[28.8885,347.102]],272.198],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[18.3733,20.3233]],86.6282],["Land_SignWarning_01_CheckpointAhead_F",[CRQ_POS_VEC,[34.0591,349.464]],197.353],["Land_Cargo20_grey_F",[CRQ_POS_VEC,[19.1921,111.731]],90.0265],["Land_TentDome_F",[CRQ_POS_VEC,[18.2838,62.8553]],326.838],["Land_TentDome_F",[CRQ_POS_VEC,[17.6419,75.3941]],26.3593],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[22.8743,63.3452]],268.54],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[20.8654,54.0703]],359.854],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[20.5372,92.3437]],270.649],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[21.0619,77.0398]],270.649],["Land_HBarrier_01_line_5_green_F",[CRQ_POS_VEC,[21.4194,106.965]],270.649],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[23.4238,129.796]],178.135],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[37.7862,112.997]],178.135],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[22.7618,116.319]],91.1477],["Land_HBarrier_01_big_4_green_F",[CRQ_POS_VEC,[30.3722,119.345]],178.135],["Land_FieldToilet_F",[CRQ_POS_VEC,[21.7767,125.594]],90.6654]]
-#define CRA_ROADBLOCK_PERSONNEL [\
-[[CRA_ROLE_GUARD,CRA_SQUAD_TYPE_BASIC,6],[[CRQ_POS_VEC,[15.0402,269.712]]]],\
-[[CRA_ROLE_GUARD,CRA_SQUAD_TYPE_BASIC,6],[[CRQ_POS_VEC,[14.9429,89.3335]]]]]
-
-#define CRA_ROADBLOCK [[[[CRQ_POS_REL,[0,0,0]],-2],42.643,0],CRA_ROADBLOCK_INST,CRA_ROADBLOCK_PROP,CRA_ROADBLOCK_PERSONNEL]
 
 
 

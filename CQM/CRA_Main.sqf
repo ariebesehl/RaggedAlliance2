@@ -48,86 +48,46 @@ gRA_Civilians = [];
 
 gRA_Version = missionNamespace getVariable ["gRA_Version", []];
 gRA_LoadTime = missionNamespace getVariable ["gRA_LoadTime", 0];
-gRA_LoadCache = missionNamespace getVariable ["gRA_LoadCache", false]; // TODO param values
-gRA_LoadSave = missionNamespace getVariable ["gRA_LoadSave", false]; // TODO param values
+gRA_CacheLoad = missionNamespace getVariable ["gRA_CacheLoad", false]; // TODO param values
+gRA_CacheSave = missionNamespace getVariable ["gRA_CacheSave", false];
 
-CRA_CacheLoad = {
-	private _crc = [0, CRA_VERSION] call CRQ_CRC;
-	{
-		private _var = profileNamespace getVariable [_x#0, []];
-		missionNamespace setVariable [_x#1, _var];
-		_crc = [_crc, _var] call CRQ_CRC;
-	} forEach CRA_PRECACHED;
-	_crc = (_crc call CRA_DepotLoad);
-	_crc
-};
-CRA_CacheSave = {
-	private _crc = [0, CRA_VERSION] call CRQ_CRC;
-	{
-		private _var = missionNamespace getVariable [_x#1, []];
-		profileNamespace setVariable [_x#0, _var];
-		_crc = [_crc, _var] call CRQ_CRC;
-	} forEach CRA_PRECACHED;
-	_crc = _crc call CRA_DepotSave;
-	profileNamespace setVariable [CRA_VAR_CRC, _crc];
-	profileNamespace setVariable [CRA_VAR_VERSION, gRA_Version];
-	_crc
-};
-CRA_CacheClear = {
-	{profileNamespace setVariable [_x#0, nil];} forEach CRA_PRECACHED;
-	profileNamespace setVariable [CRA_VAR_CACHE_DEPOT_DATA, nil];
-	profileNamespace setVariable [CRA_VAR_CACHE_DEPOT_TYPES, nil];
-	profileNamespace setVariable [CRA_VAR_CRC, nil];
-	profileNamespace setVariable [CRA_VAR_VERSION, nil];
-};
-CRA_CacheReset = {
-	call CRA_ItemReset;
-	call CRA_DepotReset;
-};
 CRA_Temp = {
 	private _location = if (_this isEqualType -1) then {gRA_Locations#_this} else {_this};
 	private _units = _location getVariable [CRA_VAR_LOCATION_UNIT_PERSONNEL, []];
 	{_x setDamage 1;} forEach _units;
 	{[_x, _location] call CRA_PlayerTeleport;} forEach allPlayers;
 };
-CRA_Night = {
-	{if (_x getVariable [CRA_VAR_LOCATION_STATE, -1] == CRA_STATE_ACTIVE) then {[_x, true] call CRA_LocationBaseLights;};} forEach gRA_Locations;
-};
-CRA_Day = {
-	{if (_x getVariable [CRA_VAR_LOCATION_STATE, -1] == CRA_STATE_ACTIVE) then {[_x, false] call CRA_LocationBaseLights;};} forEach gRA_Locations;
-};
 CRA_Loop = {
 	call CRA_PlayerLoop;
-	call CRA_LocationLoop;
 	call CRA_VehicleLoop;
 	call CRA_DepotLoop;
 	call CRA_CivilianLoop;
+	call CRA_LocationLoop;
+};
+CRA_LightsOn = {
+	{if (_x getVariable [CRA_VAR_LOCATION_STATE, -1] == CRA_STATE_ACTIVE) then {[_x, true] call CRA_LocationBaseLights;};} forEach gRA_Locations;
+};
+CRA_LightsOff = {
+	{if (_x getVariable [CRA_VAR_LOCATION_STATE, -1] == CRA_STATE_ACTIVE) then {[_x, false] call CRA_LocationBaseLights;};} forEach gRA_Locations;
 };
 CRA_InitPre = {
 	private _tickStart = diag_tickTime;
 	call CRA_PlayerInit;
 	gRA_Version = CRA_VERSION + productVersion;
-	if (gRA_LoadCache && {(profileNamespace getVariable [CRA_VAR_VERSION, []]) isEqualTo gRA_Version}) then {
+	private _cacheOK = false;
+	if (gRA_CacheLoad && {(profileNamespace getVariable [CRA_VAR_VERSION, []]) isEqualTo gRA_Version}) then {
 		private _crc = profileNamespace getVariable [CRA_VAR_CRC, -1];
-		if (_crc == -1) exitWith {gRA_LoadCache = false;};
-		gRA_LoadCache = _crc == (call CRA_CacheLoad);
-		if (!gRA_LoadCache) then {
-			systemChat "resetting...";
-			call CRA_DepotReset;
-		};
-	} else {
-		gRA_LoadCache = false;
+		if (_crc == (call CRA_CacheLoad)) then {_cacheOK = true;} else {call CRA_CacheReset;};
 	};
-	if (!gRA_LoadCache) then {
+	if (!_cacheOK) then {
 		call CRA_CacheClear;
 		call CRA_UnitIdentityInit;
 		call CRA_ItemInit;
 		call CRA_VehicleInit;
-		call CRA_DepotInit;
-		if (gRA_LoadSave) then {call CRA_CacheSave;};
-	} else {
-		systemChat "cache ok";
+		call CRA_DepotGenerate;
+		if (gRA_CacheSave) then {call CRA_CacheSave;};
 	};
+	call CRA_DepotInit;
 	call CRA_LocationInit;
 	call CRA_SideInit;
 	gRA_LoadTime = diag_tickTime - _tickStart;
@@ -135,12 +95,40 @@ CRA_InitPre = {
 CRA_Init = {
 	call CRA_ProgressInit; // TODO this back into InitPre?
 };
+CRA_CacheLoad = { // TODO add statics!
+	private _crc = [0, CRA_VERSION] call CRQ_CRC;
+	{_crc = [_crc, _x#0, _x#1, _x#2] call CRQ_CacheLoad;} forEach CRA_CACHE_ITEM;
+	{_crc = [_crc, _x#0, _x#1, _x#2] call CRQ_CacheLoad;} forEach CRA_CACHE_VEHICLE;
+	_crc = (_crc call CRA_DepotLoad);
+	_crc
+};
+CRA_CacheSave = {
+	private _crc = [0, CRA_VERSION] call CRQ_CRC;
+	{_crc = [_crc, _x#1, _x#0, _x#2] call CRQ_CacheSave;} forEach CRA_CACHE_ITEM;
+	{_crc = [_crc, _x#1, _x#0, _x#2] call CRQ_CacheSave;} forEach CRA_CACHE_VEHICLE;
+	_crc = _crc call CRA_DepotSave;
+	profileNamespace setVariable [CRA_VAR_CRC, _crc];
+	profileNamespace setVariable [CRA_VAR_VERSION, gRA_Version];
+};
+CRA_CacheClear = {
+	{profileNamespace setVariable [_x#0, nil];} forEach CRA_CACHE_ITEM;
+	{profileNamespace setVariable [_x#0, nil];} forEach CRA_CACHE_VEHICLE;
+	profileNamespace setVariable [CRA_VAR_CACHE_DEPOT_DATA, nil];
+	profileNamespace setVariable [CRA_VAR_CACHE_DEPOT_TYPES, nil];
+	profileNamespace setVariable [CRA_VAR_CRC, nil];
+	profileNamespace setVariable [CRA_VAR_VERSION, nil];
+};
+CRA_CacheReset = {
+	{missionNamespace setVariable [_x#1, _x#2];} forEach CRA_CACHE_ITEM;
+	{missionNamespace setVariable [_x#1, _x#2];} forEach CRA_CACHE_VEHICLE;
+	call CRA_DepotReset;
+};
 CRA_SideInit = {
 	civilian setFriend [west, 1];
 	civilian setFriend [east, 1];
 	civilian setFriend [resistance, 1];
 };
-CRA_Opponents = {
+CRA_SideOpponent = {
 	switch (_this) do {
 		default {[]};
 		case CRQ_SIDE_CIVFOR: {[]};
@@ -153,7 +141,7 @@ CRA_Opponents = {
 		case west: {[east, resistance]};
 	};
 };
-CRA_Allies = {
+CRA_SideAlly = {
 	switch (_this) do {
 		default {[]};
 		case CRQ_SIDE_CIVFOR: {[]};
@@ -321,10 +309,11 @@ CRA_ActionRelayAdd = {
 	};
 };
 CRA_ProgressInit = {
-	gRA_PlayerProgress = gRA_SettingProgressStart;
-	gRA_ProgressFactor = gRA_SettingProgressSpeed / gRA_ProgressValue;
 	gRA_ProgressEnemyCountVarianceBase = 1.0 - gRA_SettingProgressEnemyCountVariance / 2;
 	gRA_ProgressEnemySkillVarianceBase = 1.0 - gRA_SettingProgressEnemySkillVariance / 2;
+	{gRA_ProgressValue = gRA_ProgressValue + (_x getVariable [CRA_VAR_LOCATION_VALUE, 0]);} forEach gRA_Locations;
+	gRA_ProgressFactor = if (gRA_ProgressValue > 0) then {gRA_SettingProgressSpeed / gRA_ProgressValue} else {0};
+	gRA_PlayerProgress = gRA_SettingProgressStart;
 	call CRA_ProgressCalculate;
 };
 CRA_ProgressRange = {
@@ -360,9 +349,9 @@ CRA_ProgressEnemyCount = {
 CRA_ProgressEnemyCountPlayerFactor = {
 	private _playerCount = count allPlayers;
 	switch (gRA_SettingProgressEnemyCountPlayer) do {
-		default {};
-		case 1: {sqrt _playerCount};
 		case 2: {_playerCount};
+		case 1: {sqrt _playerCount};
+		default {1};
 	};
 };
 CRA_ProgressCalculate = {
@@ -371,10 +360,9 @@ CRA_ProgressCalculate = {
 	gRA_ProgressArmy = gRA_PlayerProgress call CRA_ProgressArmy;
 	gRA_ProgressEnemyCountBase = gRA_PlayerProgress call CRA_ProgressEnemyCount;
 	gRA_ProgressEnemySkillBase = gRA_PlayerProgress call CRA_ProgressEnemySkill;
-	private _depotAbandonRangeBase = gRA_PlayerEnter;
-	switch (gRA_SettingDepotAbandonRangeMode) do {
-		default {};
-		case 1: {_depotAbandonRangeBase = 1000;};
+	private _depotAbandonRangeBase = switch (gRA_SettingDepotAbandonRangeMode) do {
+		case 1: {1000};
+		default {gRA_PlayerEnter};
 	};
 	gRA_DepotAbandonRange = _depotAbandonRangeBase * gRA_SettingDepotAbandonRange;
 };
@@ -536,17 +524,19 @@ CRA_PlayerLocationEnter = {
 CRA_PlayerLocationCapture = {
 	private _ownerPrev = _this getVariable [CRA_VAR_LOCATION_OWNER_PREV, CRQ_SIDE_CIVFOR];
 	private _owner = _this getVariable [CRA_VAR_LOCATION_OWNER, -1];
-	private _message = "";
-	if (_owner != CRQ_SIDE_CIVFOR) then {
-		if (_ownerPrev != CRQ_SIDE_CIVFOR) then {
-			_message = format ["%1: %2 have gained control from %3", text _location, _owner call CRQ_SideLabel, _ownerPrev call CRQ_SideLabel];
+	if (_this getVariable [CRA_VAR_LOCATION_ANNOUNCE, false]) then {
+		private _message = "";
+		if (_owner != CRQ_SIDE_CIVFOR) then {
+			if (_ownerPrev != CRQ_SIDE_CIVFOR) then {
+				_message = format ["%1: %2 have gained control from %3", text _location, _owner call CRQ_SideLabel, _ownerPrev call CRQ_SideLabel];
+			} else {
+				_message = format ["%1: %2 have gained control", text _location, _owner call CRQ_SideLabel];
+			};
 		} else {
-			_message = format ["%1: %2 have gained control", text _location, _owner call CRQ_SideLabel];
+			_message = format ["%1: %2 have lost control", text _location, _ownerPrev call CRQ_SideLabel];
 		};
-	} else {
-		_message = format ["%1: %2 have lost control", text _location, _ownerPrev call CRQ_SideLabel];
+		CRQ_MESSAGE(_message);
 	};
-	CRQ_MESSAGE(_message);
 	private _playerAffected = false;
 	if (_ownerPrev == CRA_PLAYER_SIDE) then {_location call CRA_PlayerLocationLost; _playerAffected = true;};
 	if (_owner == CRA_PLAYER_SIDE) then {_location call CRA_PlayerLocationWin; _playerAffected = true;};
@@ -586,33 +576,36 @@ CRA_LocationLoop = {
 	} forEach gRA_Locations;
 };
 CRA_LocationEnter = {
-	if (_this getVariable [CRA_VAR_LOCATION_STATE, -1] == CRA_STATE_INIT) then {
-		_this call CRA_LocationOwnerInit;
-		_this call CRA_LocationInventoryInit;
-		_this call CRA_PlayerLocationEnter;
-	};
 	_this call CRA_LocationBaseSpawn;
 	_this call CRA_LocationBaseRadioNext;
-	[_this, call CRQ_Nighttime] call CRA_LocationBaseLights;
-	if (_this getVariable [CRA_VAR_LOCATION_HIBERNATE_UNITS, []] isNotEqualTo [] || _this getVariable [CRA_VAR_LOCATION_HIBERNATE_GROUPS, []] isNotEqualTo []) then {
-		_this call CRA_LocationThaw;
-	} else {
-		private _owner = _this getVariable [CRA_VAR_LOCATION_OWNER, -1];
-		if ((CRA_PLAYER_SIDE call CRA_Opponents) find _owner != -1) then {
-			if (!(_this getVariable [CRA_VAR_LOCATION_ENGAGED, false])) then {
-				_this call CRA_LocationOwnerInit; // TODO fix these temporary workarounds
-				_this call CRA_LocationInventoryInit;
-			};
-			_this call CRA_LocationPersonnelSpawn;
+	[_this, call CRQ_Lights] call CRA_LocationBaseLights;
+	
+	private _init = _this getVariable [CRA_VAR_LOCATION_STATE, -1] == CRA_STATE_INIT;
+	
+	private _timeDelta = gT_Now - (_this getVariable [CRA_VAR_LOCATION_HIBERNATE_TIME, gT_Now]);
+	private _rejuvenation = (_timeDelta / 60) * CRA_LOCATION_REJUVENATION;
+	private _damageUnit = (_this getVariable [CRA_VAR_LOCATION_DAMAGE_PERSONNEL, 0]) - _rejuvenation;
+	private _damageVehicle = (_this getVariable [CRA_VAR_LOCATION_DAMAGE_VEHICLE, 0]) - _rejuvenation;
+	
+	private _enemyControlled = (CRA_PLAYER_SIDE call CRA_SideOpponent) find (_this getVariable [CRA_VAR_LOCATION_OWNER, -1]) != -1;
+	if (_init || _enemyControlled && {_damageUnit <= 0 && _damageVehicle <= 0}) then {
+		if (_init || {random 1 < _rejuvenation}) then {
+			_this call CRA_LocationOwnerInit; // TODO partial rejuvenation
+			_this call CRA_LocationInventoryInit;
 		};
+		_this call CRA_LocationPersonnelSpawn;
+	} else {
+		_this call CRA_LocationThaw;
 	};
+	
 	_this call CRA_LocationPersonnelOrders;
+	
 	_this call CRA_LocationInventoryLoad;
 	_this call CRA_LocationActionCreate;
+	if (_init) then {if (_this getVariable [CRA_VAR_LOCATION_ANNOUNCE, false]) then {_this call CRA_PlayerLocationEnter;};};
 	[_this, CRA_STATE_ACTIVE] call CRA_LocationState;
 };
 CRA_LocationLeave = {
-	//if ((_this getVariable [CRA_VAR_LOCATION_OWNER, -1] == CRA_PLAYER_SIDE) || (_this getVariable [CRA_VAR_LOCATION_ENGAGED, false])) then {};
 	_this call CRA_LocationHibernate;
 	_this call CRA_LocationPersonnelDespawn;
 	_this call CRA_LocationActionRemove;
@@ -637,8 +630,7 @@ CRA_LocationOwnerChange = {
 CRA_LocationCaptureLoop = {
 	private _pos = (_this getVariable [CRA_VAR_LOCATION_BASE_VEC, [[]]])#0;
 	if (_pos isEqualTo []) then {_pos = locationPosition _this;};
-	(size _this) params ["_sizeX", "_sizeY"];
-	private _radius = (_sizeX + _sizeY) / 2;
+	private _radius = ((size _this)#0) + CRA_BASE_ORBIT;
 	private _owner = _this getVariable [CRA_VAR_LOCATION_OWNER, CRQ_SIDE_CIVFOR];
 	private _unitCount = [0,0,0];
 	private _alive = [];
@@ -656,18 +648,18 @@ CRA_LocationCaptureLoop = {
 	} forEach _units;
 	{_alive pushBack (_x > 0);} forEach _unitCount;
 	if (_owner == CRQ_SIDE_CIVFOR || {!(_alive#_owner)}) then {
-		private _dominant = -1;
+		private _dominant = [];
 		private _aliveAllies = false;
 		private _aliveOpponents = false;
-		{if (_alive#_x) exitWith {_aliveAllies = true;};} forEach (_owner call CRA_Allies);
-		{if (_alive#_x) exitWith {_aliveOpponents = true;};} forEach (_owner call CRA_Opponents);
-		if (!_aliveAllies && _aliveOpponents) then {_dominant = CRQ_SIDE_CIVFOR;};
+		{if (_alive#_x) exitWith {_aliveAllies = true;};} forEach (_owner call CRA_SideAlly);
+		{if (_alive#_x) exitWith {_aliveOpponents = true;};} forEach (_owner call CRA_SideOpponent);
+		if (!_aliveAllies && _aliveOpponents) then {_dominant pushBack [-1, CRQ_SIDE_CIVFOR];};
 		
 		private _capture = [];
 		{
 			if (_x) then {
 				private _unopposed = true;
-				{if (_alive#_x) exitWith {_unopposed = false;};} forEach (_forEachIndex call CRA_Opponents);
+				{if (_alive#_x) exitWith {_unopposed = false;};} forEach (_forEachIndex call CRA_SideOpponent);
 				if (_unopposed) then {_capture pushBack _forEachIndex;};
 			};
 		} forEach _alive;
@@ -676,12 +668,16 @@ CRA_LocationCaptureLoop = {
 		{
 			private _count = _unitCount#_x;
 			if (_count > _countDominant) then {
-				_dominant = _x;
+				_dominant pushBack [_count, _x];
 				_countDominant = _count;
 			};
 		} forEach _capture;
 		
-		if (_dominant != -1) then {[_this, _dominant] call CRA_LocationCapture;};
+		if (_dominant isNotEqualTo []) then {
+			_dominant sort false;
+			private _sidesAllowed = _this getVariable [CRA_VAR_LOCATION_CAPTUREABLE, [CRQ_SIDE_CIVFOR]];
+			{if (_sidesAllowed find (_x#1) != -1) exitWith {[_this, _x#1] call CRA_LocationCapture;};} forEach _dominant;
+		};
 	};
 };
 CRA_LocationCapture = {
@@ -693,7 +689,7 @@ CRA_LocationCapture = {
 };
 CRA_UnitHibernate = {
 	private _type = typeOf _this;
-	private _vec = [getPos _this, getDir _this];
+	private _vec = [getPosATL _this, getDir _this];
 	private _loadout = getUnitLoadout _this;
 	private _identity = _this call CRQ_GetIdentity;
 	private _skill = skill _this;
@@ -701,34 +697,48 @@ CRA_UnitHibernate = {
 	[_type, _vec, _loadout, _identity, _skill, _damage]
 };
 CRA_LocationHibernate = {
-	private _units = _this getVariable [CRA_VAR_LOCATION_UNIT_PERSONNEL, []];
-	private _strength = _this getVariable [CRA_VAR_LOCATION_COUNT_PERSONNEL, -1];
-	private _count = 0;
-	{if (!isNull _x && {alive _x}) then {_count = _count + 1;};} forEach _units;
-	if (_strength == -1 || _strength == _count) exitWith {};
 	private _hibUnits = [];
 	private _hibVehicles = [];
 	private _hibGroups = [];
 	private _groups = _this getVariable [CRA_VAR_LOCATION_GROUP_PERSONNEL, []];
+	private _units = _this getVariable [CRA_VAR_LOCATION_UNIT_PERSONNEL, []];
 	private _vehicles = _this getVariable [CRA_VAR_LOCATION_UNIT_VEHICLE, []];
+	private _countUnit = _this getVariable [CRA_VAR_LOCATION_COUNT_PERSONNEL, -1];
+	private _countVehicle = _this getVariable [CRA_VAR_LOCATION_COUNT_VEHICLE, -1];
+	private _unitDamage = 0;
+	private _vehicleDamage = 0;
 	{
-		if (!isNull _x) then {
+		if (isNull _x) then {
+			_unitDamage = _unitDamage + 1;
+			_hibUnits pushBack [];
+		} else {
 			private _vehicle = objectParent _x;
 			private _turret = if (_vehicle isNotEqualTo objNull) then {[_vehicles find _vehicle, _vehicle unitTurret _x]} else {[]};
 			private _group = (_groups find (group _x));
-			_hibUnits pushBack [_group, _turret, _x call CRA_UnitHibernate];
-		} else {
-			_hibUnits pushBack [];
+			private _hibernated = _x call CRA_UnitHibernate;
+			_unitDamage = _unitDamage + (_hibernated#5);
+			_hibUnits pushBack [_group, _turret, _hibernated];
 		};
 	} forEach _units;
-	{if (_x isNotEqualTo objNull) then {_hibVehicles pushBack (_x call CRA_VehicleHibernate);} else {_hibVehicles pushBack [];};} forEach _vehicles;
-	{if (!(isNull _x)) then {_hibGroups pushBack _forEachIndex;} else {_hibGroups pushBack -1;};} forEach _groups;
+	{
+		if (isNull _x) then {
+			_vehicleDamage = _vehicleDamage + 1;
+			_hibVehicles pushBack [];
+		} else {
+			private _hibernated = _x call CRA_VehicleHibernate;
+			_vehicleDamage = _vehicleDamage + (_hibernated#1#3);
+			_hibVehicles pushBack _hibernated;
+		};
+	} forEach _vehicles;
+	{if (isNull _x) then {_hibGroups pushBack -1;} else {_hibGroups pushBack _forEachIndex;};} forEach _groups;
 	_this setVariable [CRA_VAR_LOCATION_HIBERNATE_GROUPS, _hibGroups];
 	_this setVariable [CRA_VAR_LOCATION_HIBERNATE_VEHICLES, _hibVehicles];
 	_this setVariable [CRA_VAR_LOCATION_HIBERNATE_UNITS, _hibUnits];
-	_this setVariable [CRA_VAR_LOCATION_ENGAGED, true];
+	_this setVariable [CRA_VAR_LOCATION_HIBERNATE_TIME, gT_Now];
+	_this setVariable [CRA_VAR_LOCATION_DAMAGE_PERSONNEL, if (_countUnit > 0) then {_unitDamage / _countUnit} else {0}];
+	_this setVariable [CRA_VAR_LOCATION_DAMAGE_VEHICLE, if (_countVehicle > 0) then {_vehicleDamage / _countVehicle} else {0}];
 };
-CRA_LocationThaw = { // TODO Hibernate identity too
+CRA_LocationThaw = {
 	private _groups = [];
 	private _vehicles = [];
 	private _units = [];
@@ -760,90 +770,244 @@ CRA_LocationThaw = { // TODO Hibernate identity too
 	_this setVariable [CRA_VAR_LOCATION_HIBERNATE_VEHICLES, []];
 	_this setVariable [CRA_VAR_LOCATION_HIBERNATE_UNITS, []];
 };
-CRA_LocationInit = {
-	{
-		private _name = className _x;
-		private _type = "";
-		private _text = "";
-		private _pos = [];
-		private _size = [];
-		private _override = -1;
-		{if ((_x#0) == _name) exitWith {_override = _forEachIndex;};} forEach CRA_LOCATION_OVERRIDE;
-		if (_override != -1) then {
-			_type = CRA_LOCATION_OVERRIDE#_override#1;
-			_name = CRA_LOCATION_OVERRIDE#_override#2;
-			_text = CRA_LOCATION_OVERRIDE#_override#3;
-			_pos = CRA_LOCATION_OVERRIDE#_override#4;
-			_size = CRA_LOCATION_OVERRIDE#_override#5;
+CRA_LocationRoadblockInit = {
+	private _roadBlocks = [];
+	private _full = (worldSize / CRA_ROADBLOCK_DENSITY);
+	private _half = _full / 2;
+	private _radius = 1.42 * _full;
+	private _posY = _half;
+	for [{private _iY = 0}, {_iY < CRA_ROADBLOCK_DENSITY}, {_iY = _iY + 1}] do {
+		private _posX = _half;
+		for [{private _iX = 0}, {_iX < CRA_ROADBLOCK_DENSITY}, {_iX = _iX + 1}] do {
+			private _pos = [_posX, _posY];
+			private _roadsAll = [_posX, _posY] nearRoads _radius;
+			private _countAll = count _roadsAll;
+			private _history = [];
+			private _found = false;
+			while {true} do {
+				private _remaining = _countAll - count _history;
+				if (_remaining < 1) exitWith {};
+				if (true) then {
+					private _index = floor (random _remaining);
+					{if (_x <= _index) then {_index = _index + 1;};} forEach _history;
+					_history pushBack _index;
+					
+					private _road = _roadsAll#_index;
+					
+					private _roadPos = _road call CRQ_Pos2D;
+					if (!(_roadPos inArea [_pos, _half, _half, 0, true])) exitWith {};
+					
+					private _roadInfo = getRoadInfo _road;
+					if ((_roadInfo#8) || {["TRACK","ROAD","MAIN ROAD"] find (_roadInfo#0) == -1}) exitWith {};
+					
+					private _exclude = false;
+					{if (_roadPos distance2D (locationPosition _x) < CRA_ROADBLOCK_DISTANCE_LOCATION) exitWith {_exclude = true;};} forEach gRA_Locations;
+					if (_exclude) exitWith {};
+					
+					{if (_roadPos distance2D (_x#0) < CRA_ROADBLOCK_DISTANCE_OTHER) exitWith {_exclude = true;};} forEach _roadBlocks;
+					if (_exclude) exitWith {};
+					
+					private _path0 = [_road, [], _roadPos, 120] call CRA_PathRoad;
+					if (_path0 isEqualTo []) exitWith {};
+					private _path1 = [_road, [_path0#1], _roadPos, 120] call CRA_PathRoad;
+					if (_path1 isEqualTo []) exitWith {};
+					reverse _path1;
+					_path0 deleteAt 0;
+					private _path = _path1 + _path0;
+					private _pathLength = count _path - CRA_ROADBLOCK_SEGMENTS;
+					private _segments = [];
+					for [{private _i = 1}, {_i < _pathLength}, {_i = _i + 1}] do {
+						private _segment0 = _path#(_i - 1);
+						private _segment1 = _path#_i;
+						private _straight = true;
+						private _angles = [];
+						private _dirs = [];
+						for [{private _n = 1}, {_n <= CRA_ROADBLOCK_SEGMENTS}, {_n = _n + 1}] do {
+							private _distance0 = _segment0 distance2D _segment1;
+							private _dir0 = _segment0 getDir _segment1;
+							_segment0 = _segment1;
+							_segment1 = _path#(_i + _n);
+							private _distance1 = _segment0 distance2D _segment1;
+							private _dir1 = _segment0 getDir _segment1;
+							private _angle = [_dir0, _dir1] call CRQ_Angle;
+							if (_angle > CRA_ROADBLOCK_ANGLE_MAX) exitWith {_straight = false;};
+							_angles pushBack [_angle, _distance0 + _distance1];
+							_dirs pushBack [_dir0, _distance0];
+							_dirs pushBack [_dir1, _distance1];
+						};
+						if (_straight) exitWith {_segments pushback [_angles call CRQ_AngleAvg, _i, _dirs call CRQ_AngleAvg];};
+					};
+					if (_segments isEqualTo []) exitWith {};
+					_segments sort true;
+					_roadBlocks pushBack [_path#((_segments#0#1) + floor (CRA_ROADBLOCK_SEGMENTS / 2)), _segments#0#2];
+					_found = true;
+				};
+				if (_found || {count _history >= CRA_ROADBLOCK_SCAN_ATTEMPTS}) exitWith {};
+			};
+			_posX = _posX + _full;
 		};
-		if (_type isEqualTo "") then {_type = type _x;};
-		if (_name isEqualTo "") then {_name = className _x;};
-		if (_text isEqualTo "") then {_text = text _x;};
-		if (_pos isEqualTo []) then {_pos = locationPosition _x;};
-		if (_size isEqualTo []) then {_size = size _x;};
-		private _location = ["CRA_" + _name, _text, _type, _pos, _size] call CRA_LocationGenerate;
-		_location call CRA_LocationMarkerInit;
-		_location setVariable [CRA_VAR_LOCATION_INDEX, _forEachIndex];
-		gRA_ProgressValue = gRA_ProgressValue + (_location getVariable [CRA_VAR_LOCATION_VALUE, 0]);
-		gRA_Locations pushBack _location;
-	} forEach (CRA_LOCATION_BASE_TYPES call CRQ_WorldLocations);
+		_posY = _posY + _full;
+	};
+	private _offset = count gRA_Locations;
+	{gRA_Locations pushBack ([_offset + _forEachIndex, CRA_LOCATION_TYPE_ROADBLOCK, [(_x#0) call CRQ_Pos2D, _x#1], "CRA_ROADBLOCK_" + str _forEachIndex, "Roadblock", [], objNull] call CRA_LocationGenerate);} forEach _roadBlocks;
+};
+CRA_LocationOutpostInit = {
+	private _outpostTypes = [];
+	{_outpostTypes pushBack [toLowerANSI ((_x#0) call CRQ_ClassModel), _x#1];} forEach CRA_BASEB_OUTPOSTS;
 	
-	/*private _roadblock = ["CRA_ROADBLOCK", "Roadblock", "u_installation", [2266.682,3408.027,0], [50,50]] call CRA_LocationGenerate;
-	_roadblock call CRA_LocationMarkerInit;
-	_roadblock setVariable [CRA_VAR_LOCATION_INDEX, count gRA_Locations];
-	gRA_Locations pushBack _roadblock;*/
+	private _candidates = [];
+	{
+		private _obj = _x;
+		private _name = _obj call CRQ_ObjectModel;
+		{
+			if (_name isEqualTo (_x#0)) exitWith {
+				private _pos = getPosATL _obj;
+				private _include = true;
+				{if (_pos distance2D (locationPosition _x) < CRA_LOCATION_OUTPOST_PROXIMITY) exitWith {_include = false;};} forEach gRA_Locations;
+				if (_include) then {_candidates pushBack [_obj, [_pos, getDir _obj], _x#1];};
+			};
+		} forEach _outpostTypes;
+	} forEach (["HOUSE"] call CRQ_WorldTerrainObjects);
+	if (_candidates isNotEqualTo []) then {
+		_candidates = _candidates call CRQ_ArrayRandomize;
+		private _probability = CRA_LOCATION_OUTPOST_COUNT / (count _candidates);
+systemChat (str [count _candidates, _probability]);
+		private _offset = count gRA_Locations;
+		private _index = 0;
+		private _outposts = [];
+		{
+			if (random 1 < _probability) then {
+				private _pos = _x#1#0;
+				private _include = true;
+				{if (_pos distance2D (locationPosition _x) < CRA_LOCATION_OUTPOST_PROXIMITY) exitWith {_include = false;};} forEach _outposts;
+				if (_include) then {
+					_outposts pushBack ([_offset + _index, CRA_LOCATION_TYPE_OUTPOST, _x#1, "CRA_OUTPOST_" + str _index, "Outpost", _x#2, _x#0] call CRA_LocationGenerate);
+					_index = _index + 1;
+				};
+			};
+		} forEach _candidates;
+		gRA_Locations append _outposts;
+	};
+};
+CRA_LocationInit = {
+	private _scanTypes = [];
+	private _houseBases = [];
+	{
+		_scanTypes pushBack (_x#0);
+		private _base = [];
+		{_base pushBack [[CRQ_VEC_HOUSE,[_x#0]],_x#1];} forEach (_x#3);
+		_houseBases pushback _base;
+	} forEach CRA_LOCATION_SCAN;
+	{
+		private _scanIndex = _forEachIndex;
+		private _scanLocation = _x;
+		private _scanID = className _scanLocation;
+		private _scanType = type _scanLocation;
+		
+		private _scanOverrideIndex = CRA_LOCATION_SCAN_OVERRIDE findIf {(_x#0) == _scanID};
+		private _scanTypeIndex = _scanTypes findIf {_x == _scanType};
+		
+		private _locationData = [];
+		private _locationBaseGenerics = [];
+		private _locationBaseBuildings = [];
+		if (_scanOverrideIndex != -1) then {
+			_locationData = CRA_LOCATION_SCAN_OVERRIDE#_scanOverrideIndex#1;
+			_locationBaseGenerics = CRA_LOCATION_SCAN_OVERRIDE#_scanOverrideIndex#2;
+			{_locationBaseBuildings pushBack [[CRQ_VEC_HOUSE,[_x#0]],_x#1];} forEach (CRA_LOCATION_SCAN_OVERRIDE#_scanOverrideIndex#3);
+		} else {
+			_locationData = CRA_LOCATION_SCAN#_scanTypeIndex#1;
+		};
+		if (_locationBaseGenerics isEqualTo []) then {_locationBaseGenerics = CRA_LOCATION_SCAN#_scanTypeIndex#2;};
+		if (_locationBaseBuildings isEqualTo []) then {_locationBaseBuildings = _houseBases#_scanTypeIndex;};
+		
+		_locationData params ["_locationType", "_locationName", "_locationLabel","_locationVec","_locationSize","_locationBasePref"];
+		(_locationBasePref call CRQ_ByteDecode) params ["_baseGeneric", "_baseBuilding"];
+		private _locationBaseTypes = [];
+		if (_baseGeneric) then {_locationBaseTypes pushBack _locationBaseGenerics;};
+		if (_baseBuilding) then {_locationBaseTypes append _locationBaseBuildings;};
+		_locationBaseTypes = _locationBaseTypes call CRQ_ArrayRandomize;
+		if (!_baseGeneric) then {_locationBaseTypes pushBack _locationBaseGenerics;};
+		private _locationRadius = if (_locationSize isEqualTo []) then {selectMax (size _scanLocation)} else {selectMax _locationSize};
+		private _scanVec = [];
+		if (_locationVec isEqualTo []) then {
+			_scanVec = [locationPosition _scanLocation, 0];
+		} else {
+			[[locationPosition _scanLocation, 0], _locationRadius, 0] call CRQ_VecUtilSetup;
+			_scanVec = _locationVec call CRQ_VecUtil;
+		};
+		if (_locationName isEqualTo "") then {_locationName = _scanID;};
+		if (_locationLabel isEqualTo "") then {_locationLabel = text _scanLocation;};
+		{
+			_x params ["_locationPositioning", "_locationBases"];
+			[_scanVec, _locationRadius, 0] call CRQ_VecUtilSetup;
+			private _vec = _locationPositioning call CRQ_VecUtil;
+			if (call CRQ_VecUtilValid) exitWith {
+				gRA_Locations pushBack ([_scanIndex, _locationType, _vec, _locationName, _locationLabel, _locationBases, call CRQ_VecUtilObject] call CRA_LocationGenerate);
+			};
+		} forEach _locationBaseTypes;
+	} forEach (_scanTypes call CRQ_WorldLocations);
+	call CRA_LocationRoadblockInit;
+	call CRA_LocationOutpostInit;
 };
 CRA_LocationGenerate = {
-	params ["_name", "_label", "_type", "_pos", "_size"];
-	private _location = createLocation [_type, _pos, _size#0, _size#1];
+	params ["_index", "_type", "_vec", "_name", "_label", "_base", "_anchor"];
+	(CRA_LOCATION_TYPES#_type) params ["_locationData", "_locationBaseData"];
+	_locationData params ["_config", "_value", "_capture", "_personnel", "_markerTypes", "_locationType"];
+	if (_base isEqualTo []) then {_base = _locationBaseData#1;};
+	(CRA_BASE_INDEX#(selectRandom _base)) params ["_baseData", "_baseInst", "_baseProp", "_basePersonnel"];
+	
+	private _location = createLocation [_locationType, _vec#0, _baseData#0, _baseData#0];
 	_location setName _name;
 	_location setText _label;
-	private _source = [];
-	{if (_name isEqualTo (_x#0)) exitWith {_source = _x#1;};} forEach CRA_BASE_OVERRIDE;
-	if (_source isEqualTo []) then {
-		switch (_type) do {
-			case "NameCityCapital": {_source = CRA_BASE_CAPITAL;};
-			case "NameCity": {_source = CRA_BASE_CITY;};
-			case "NameVillage": {_source = CRA_BASE_VILLAGE;};
-			case "NameLocal": {_source = CRA_BASE_LOCALITY;};
-			case "Airport": {_source = CRA_BASE_AIRPORT;};
-			case "u_installation": {_source = CRA_ROADBLOCK;};
-			default {};
-		};
-	};
-	_source params ["_iData", "_iInst", "_iProp", "_iGarrison"];
-	[_pos, 0, selectMax _size, 0] call CRQ_PosUtilSetup;
-	private _basePos = (_iData#0#0) call CRQ_PosUtil; // TODO make avoid roads
-	private _baseDir = _iData#0#1;
-	private _baseSize = _iData#1;
 	
-	switch (_baseDir) do {
-		case -2: {
-			private _roads = _basePos nearRoads (_baseSize + CRA_BASE_ROAD_FIND);
-			if (_roads isNotEqualTo []) then {
-				_baseDir = _basePos getDir (_roads#([_basePos, _roads] call CRQ_PosClosest));
-			} else {
-				_baseDir = random 360;
-			};
-		};
-		case -1: {
-			_baseDir = random 360;
-		};
-		default {};
-	};
-	
+	_location setVariable [CRA_VAR_LOCATION_BASE_VEC, _vec];
+	_location setVariable [CRA_VAR_LOCATION_OWNER, -1];
 	_location setVariable [CRA_VAR_LOCATION_STATE, CRA_STATE_INIT];
 	_location setVariable [CRA_VAR_LOCATION_ENGAGED, false];
 	_location setVariable [CRA_VAR_LOCATION_CAPTURED, false];
-	_location setVariable [CRA_VAR_LOCATION_VALUE, _iData#2];
-	private _baseVec = [_basePos, _baseDir];
-	_location setVariable [CRA_VAR_LOCATION_BASE_VEC, _baseVec];
-	_location setVariable [CRA_VAR_LOCATION_BASE_CLUTTER, [_basePos, _baseSize] call CRQ_WorldClutter];
-	{_location setVariable [_x#1, [_baseVec, _x#0] call CRQ_PropRasterize];} forEach [[_iInst,CRA_VAR_LOCATION_BASE_INST],[_iProp,CRA_VAR_LOCATION_BASE_PROP]];
 	
-	private _personnel = [];
-	{_personnel pushBack [_x#0, [_baseVec, _x#1] call CRQ_PosRasterize];} forEach _iGarrison;
-	_location setVariable [CRA_VAR_LOCATION_BASE_PERSONNEL, _personnel];
+	_location setVariable [CRA_VAR_LOCATION_INDEX, _index];
+	
+	(_config call CRQ_ByteDecode) params ["_announce"];
+	_location setVariable [CRA_VAR_LOCATION_ANNOUNCE, _announce];
+	
+	_location setVariable [CRA_VAR_LOCATION_VALUE, _value];
+	_location setVariable [CRA_VAR_LOCATION_CAPTUREABLE, _capture];
+	_location setVariable [CRA_VAR_LOCATION_STRENGTH, _personnel#0];
+	
+	_location setVariable [CRA_VAR_LOCATION_MARKER_TYPES, _markerTypes];
+	_location setVariable [CRA_VAR_LOCATION_MARKER, if (_markerTypes isNotEqualTo []) then {createMarker [_name, _vec#0]} else {""}];
+	
+	{if (!_x) then {_baseInst set [_forEachIndex, ['',[-1,[]],-1]];};} forEach ((_locationBaseData#0) call CRQ_ByteDecode);
+	_location setVariable [CRA_VAR_LOCATION_BASE_INST, [_vec, _baseInst] call CRQ_PropRasterize];
+	if (isNull _anchor) then {
+		_location setVariable [CRA_VAR_LOCATION_BASE_CLUTTER, [_vec#0, _baseData#0] call CRQ_WorldClutter];
+		_location setVariable [CRA_VAR_LOCATION_BASE_PROP, [_vec, _baseProp] call CRQ_PropRasterize];
+	} else {
+		_location setVariable [CRA_VAR_LOCATION_BASE_CLUTTER, [_vec#0, _baseData#0, [_anchor]] call CRQ_WorldClutter];
+		private _prop = [];
+		{if (_forEachIndex > 0) then {_prop pushBack _x};} forEach _baseProp;
+		_location setVariable [CRA_VAR_LOCATION_BASE_PROP, [_vec, _prop] call CRQ_PropRasterize];
+	};
+	
+	private _personnelTypes = [];
+	private _personnelCount = [0,0,0,0];
+	private _waypointTypes = CRA_LOCATION_PERSONNEL_WP#_type;
+	private _waypointCount = [];
+	{_waypointCount pushBack (count _x);} forEach _waypointTypes;
+	{
+		private _roleIndex = _x#0#0;
+		private _waypoints = +(_x#1);
+		for [{private _i = count (_x#1)},{_i < (_waypointCount#_roleIndex)},{_i = _i + 1}] do {_waypoints pushBack (_waypointTypes#_roleIndex#_i);};
+		_personnelTypes pushBack [_x#0, [_vec, _waypoints] call CRQ_PosRasterize];
+		[_personnelCount, _roleIndex, 1] call CRQ_ArrayIncrement;
+	} forEach _basePersonnel;
+	{
+		for [{private _i = _x},{_i < (_personnel#1#_forEachIndex)},{_i = _i + 1}] do {
+			_personnelTypes pushBack [CRA_PERSONNEL_TYPES#_forEachIndex, [_vec, _waypointTypes#_forEachIndex] call CRQ_PosRasterize];
+		};
+	} forEach _personnelCount;
+	_location setVariable [CRA_VAR_LOCATION_BASE_PERSONNEL, _personnelTypes];
 	_location
 };
 CRA_LocationBaseRadioLoop = {
@@ -876,6 +1040,7 @@ CRA_LocationBaseSpawn = {
 	_this setVariable [CRA_VAR_LOCATION_UNIT_INST_BOX_AUX, _installations#2];
 	_this setVariable [CRA_VAR_LOCATION_UNIT_INST_RADIO, _installations#3];
 	_this setVariable [CRA_VAR_LOCATION_UNIT_INST_FIRE, _installations#4];
+	_this setVariable [CRA_VAR_LOCATION_UNIT_INST_GATE, _installations#5];
 };
 CRA_LocationBaseDespawn = {
 	_this setVariable [CRA_VAR_LOCATION_UNIT_INST_MAP, objNull];
@@ -883,6 +1048,7 @@ CRA_LocationBaseDespawn = {
 	_this setVariable [CRA_VAR_LOCATION_UNIT_INST_BOX_AUX, objNull];
 	_this setVariable [CRA_VAR_LOCATION_UNIT_INST_RADIO, objNull];
 	_this setVariable [CRA_VAR_LOCATION_UNIT_INST_FIRE, objNull];
+	_this setVariable [CRA_VAR_LOCATION_UNIT_INST_GATE, objNull];
 	{(_this getVariable [_x, []]) call CRQ_PropDespawn; _this setVariable [_x, []];} forEach [CRA_VAR_LOCATION_UNIT_INST,CRA_VAR_LOCATION_UNIT_PROP];
 	{_x hideObjectGlobal false;} forEach (_this getVariable [CRA_VAR_LOCATION_BASE_CLUTTER, []]);
 };
@@ -950,16 +1116,13 @@ CRA_LocationInventoryGather = {
 	};
 	[count _items, count _mags, count _weapons, count _containers]
 };
-CRA_LocationMarkerInit = {
-	private _pos = (_this getVariable CRA_VAR_LOCATION_BASE_VEC)#0;
-	_this setVariable [CRA_VAR_LOCATION_MARKER, createMarker [name (_this), _pos]];
-};
 CRA_LocationMarkerState = {
 	private _marker = _this getVariable [CRA_VAR_LOCATION_MARKER, ""];
 	if (_marker isNotEqualTo "") then {
-		private _owner = _this getVariable [CRA_VAR_LOCATION_OWNER, -1];
 		private _state = _this getVariable [CRA_VAR_LOCATION_STATE, -1];
-		if (_owner != -1) then {_marker setMarkerType (CRA_LOCATION_MARKER#_owner);};
+		private _owner = _this getVariable [CRA_VAR_LOCATION_OWNER, -1];
+		private _types = _this getVariable [CRA_VAR_LOCATION_MARKER_TYPES, []];
+		if (_owner != -1 && _types isNotEqualTo []) then {_marker setMarkerType (_types#_owner);};
 		if (_state != -1) then {_marker setMarkerAlpha (CRA_ALPHA_STATE#_state);};
 	};
 };
@@ -971,32 +1134,56 @@ CRA_LocationPersonnelSpawn = {
 		default {[]};
 	};
 	private _faction = (_factions#1) selectRandomWeighted (_factions#0);
+	private _strength = _this getVariable [CRA_VAR_LOCATION_STRENGTH, [1.00,1.00]];
 	private _groups = [];
 	private _units = [];
 	private _vehicles = [];
 	{
+		(_x#0) params ["_role", "_count", "_args"];
 		private _group = grpNull;
-		if ((_x#0#0) != CRA_ROLE_VEHICLE) then {
-			_group = _owner call CRQ_GroupCreate;
-			_units append ([_group, selectRandom (_x#1), [_faction, _x#0] call CRA_UnitList] call CRA_GroupPopulate);
-		} else {
-			private _vehicleTypes = gRA_VehicleArmed#(call CRA_ItemLevel)#(_x#0#1)#_owner;
-			if (_vehicleTypes isNotEqualTo []) then {
+		switch (_role) do {
+			case CRA_ROLE_GUARD: {
+				if (_count < 0) then {_count = -(_count) * (_strength#0) * CRA_ROLE_STRENGTH_GUARD;};
 				_group = _owner call CRQ_GroupCreate;
-				_vehicles pushBack ([selectRandom _vehicleTypes, [selectRandom (_x#1), random 360], [_group, [1,1,1,0]]] call CRA_VehicleCreate);
-				_units append (units _group);
+				_units append ([_group, selectRandom (_x#1), [_faction, _count, _args] call CRA_UnitList] call CRA_GroupPopulate);
 			};
+			case CRA_ROLE_PATROL: {
+				if (_count < 0)  then {_count = -(_count) * (_strength#1) * CRA_ROLE_STRENGTH_PATROL;};
+				_group = _owner call CRQ_GroupCreate;
+				_units append ([_group, selectRandom (_x#1), [_faction, _count, _args] call CRA_UnitList] call CRA_GroupPopulate);
+			};
+			case CRA_ROLE_VEHICLE: {
+				private _vehicleTypes = gRA_VehicleArmed#(call CRA_ItemLevel)#(_args#0)#_owner;
+				if (_vehicleTypes isNotEqualTo []) then {
+					_group = _owner call CRQ_GroupCreate;
+					private _vehicle = [selectRandom _vehicleTypes, [selectRandom (_x#1), random 360], [_group, [1,1,1,0]]] call CRA_VehicleCreate;
+					_vehicles pushBack _vehicle;
+					_units append (units _group);
+				};
+			};
+			case CRA_ROLE_STATIC: {
+				private _staticTypes = gRA_Statics#(call CRA_ItemLevel)#(_args#0)#_owner;
+				if (_staticTypes isNotEqualTo []) then {
+					private _baseDir = (_this getVariable [CRA_VAR_LOCATION_BASE_VEC, [[],0]])#1;
+					_group = _owner call CRQ_GroupCreate;
+					_vehicles pushBack ([selectRandom _staticTypes, [selectRandom (_x#1), _baseDir + (_args#1)], [_group, [1,1,1,0]]] call CRA_VehicleCreate);
+					_units append (units _group);
+				};
+			};
+			default {};
 		};
 		_groups pushBack _group;
 	} forEach (_this getVariable [CRA_VAR_LOCATION_BASE_PERSONNEL, []]);
-	_this setVariable [CRA_VAR_LOCATION_COUNT_PERSONNEL, count _units];
 	_this setVariable [CRA_VAR_LOCATION_GROUP_PERSONNEL, _groups];
 	_this setVariable [CRA_VAR_LOCATION_UNIT_PERSONNEL, _units];
+	_this setVariable [CRA_VAR_LOCATION_COUNT_PERSONNEL, count _units];
 	_this setVariable [CRA_VAR_LOCATION_UNIT_VEHICLE, _vehicles];
+	_this setVariable [CRA_VAR_LOCATION_COUNT_VEHICLE, count _vehicles];
 };
 CRA_LocationPersonnelClear = {
 	_this setVariable [CRA_VAR_LOCATION_HIBERNATE_GROUPS, []];
 	_this setVariable [CRA_VAR_LOCATION_HIBERNATE_UNITS, []];
+	_this setVariable [CRA_VAR_LOCATION_HIBERNATE_VEHICLES, []];
 	{
 		if (!isNull _x) then {
 			_x setVariable [CRA_VAR_VEHICLE_ALLOW_ABANDON, true];
@@ -1031,53 +1218,28 @@ CRA_LocationPersonnelOrders = {
 };
 CRA_LocationPersonnelLoop = {
 	private _units = _this getVariable [CRA_VAR_LOCATION_UNIT_PERSONNEL, []];
+	private _vehicles = _this getVariable [CRA_VAR_LOCATION_UNIT_VEHICLE, []];
+	private _groups = _this getVariable [CRA_VAR_LOCATION_GROUP_PERSONNEL, []];
 	if (_units isNotEqualTo []) then {
 		private _removeUnit = [];
-		{
-			if (!isNull _x) then {
-				if (!alive _x) then {
-					_x call CRQ_CorpseRegister;
-					_removeUnit pushBack _forEachIndex;
-				};
-			};
-		} forEach _units;
+		{if (!isNull _x && {!alive _x}) then {_x call CRQ_CorpseRegister; _removeUnit pushBack _forEachIndex;};} forEach _units;
 		reverse _removeUnit;
 		{_units set [_x, objNull];} forEach _removeUnit;
 		_this setVariable [CRA_VAR_LOCATION_UNIT_PERSONNEL, _units];
 	};
-	private _vehicles = _this getVariable [CRA_VAR_LOCATION_UNIT_VEHICLE, []];
 	if (_vehicles isNotEqualTo []) then {
 		private _removeVehicle = [];
-		{
-			if (!isNull _x) then {
-				if (!alive _x) then {
-					_x call CRQ_WreckRegister;
-					_removeVehicle pushBack _forEachIndex;
-				};
-			};
-		} forEach _vehicles;
+		{if (!isNull _x && {!alive _x}) then {_x call CRQ_WreckRegister; _removeVehicle pushBack _forEachIndex;};} forEach _vehicles;
 		reverse _removeVehicle;
 		{_vehicles set [_x, objNull];} forEach _removeVehicle;
 		_this setVariable [CRA_VAR_LOCATION_UNIT_VEHICLE, _vehicles];
 	};
-	private _groups = _this getVariable [CRA_VAR_LOCATION_GROUP_PERSONNEL, []];
 	if (_groups isNotEqualTo []) then {
 		private _removeGroup = [];
-		//private _safe = true;
-		{
-			if (!isNull _x) then {
-				if (units _x isEqualTo []) then {
-					deleteGroup _x;
-					_removeGroup pushBack _forEachIndex;
-				//} else {
-					//_safe = (_safe && (_x call CRQ_AI_SafeGroup));
-				};
-			};
-		} forEach _groups;
+		{if (!isNull _x && {units _x isEqualTo []}) then {deleteGroup _x; _removeGroup pushBack _forEachIndex;};} forEach _groups;
 		reverse _removeGroup;
 		{_groups set [_x, grpNull];} forEach _removeGroup;
 		_this setVariable [CRA_VAR_LOCATION_GROUP_PERSONNEL, _groups];
-		//if (!_safe && !(_this getVariable [CRA_VAR_LOCATION_ENGAGED, false])) then {_this setVariable [CRA_VAR_LOCATION_ENGAGED, true];};
 	};
 };
 CRA_UnitSkill = {
@@ -1096,12 +1258,12 @@ CRA_GroupPopulate = {
 	_units
 };
 CRA_UnitList = {
-	params ["_faction", "_args"];
+	params ["_faction", "_count","_args"];
 	private _leader = [];
 	private _squad = [];
 	switch (_faction) do {
 		case CRA_FACTION_OPFOR_ARMY: {
-			switch (_args#1) do { // specops, recon, diver, etc...
+			switch (_args#0) do { // specops, recon, diver, etc...
 				default {
 					_leader = CRA_SQUAD_ARMY_LEADER;
 					_squad = CRA_SQUAD_ARMY;
@@ -1109,7 +1271,7 @@ CRA_UnitList = {
 			};
 		};
 		case CRA_FACTION_IDFOR_LOOTER: {
-			switch (_args#1) do {
+			switch (_args#0) do {
 				default {
 					_leader = CRA_SQUAD_LOOTER_LEADER;
 					_squad = CRA_SQUAD_LOOTER;
@@ -1117,7 +1279,7 @@ CRA_UnitList = {
 			};
 		};
 		case CRA_FACTION_IDFOR_CARTEL: {
-			switch (_args#1) do {
+			switch (_args#0) do {
 				default {
 					_leader = CRA_SQUAD_CARTEL_LEADER;
 					_squad = CRA_SQUAD_CARTEL;
@@ -1126,9 +1288,8 @@ CRA_UnitList = {
 		};
 		default {};
 	};
-	private _numFactor = gRA_ProgressEnemyCountBase * (call CRA_ProgressEnemyCountPlayerFactor) * (gRA_ProgressEnemyCountVarianceBase + random gRA_SettingProgressEnemyCountVariance);
-	private _num = floor ((_args#2) * _numFactor + 0.5);
-	if (_num < 1) then {_num = 1;};
+	_count = round (_count * gRA_ProgressEnemyCountBase * (call CRA_ProgressEnemyCountPlayerFactor) * (gRA_ProgressEnemyCountVarianceBase + random gRA_SettingProgressEnemyCountVariance));
+	if (_count < 1) then {_count = 1;};
 	private _unit = selectRandom _leader;
 	private _weapons = _unit call CRA_UnitWeapon;
 	if (count _weapons < 1) then {
@@ -1136,7 +1297,7 @@ CRA_UnitList = {
 		_weapons = _unit call CRA_UnitWeapon;
 	};
 	private _units = [[_unit, _weapons]];
-	for [{private _i = 1;}, {_i < _num;}, {_i = _i + 1;}] do {
+	for [{private _i = 1;}, {_i < _count;}, {_i = _i + 1;}] do {
 		_unit = selectRandom ((_squad#1) selectRandomWeighted (_squad#0));
 		_weapons = _unit call CRA_UnitWeapon;
 		if (count _weapons < 1) then {

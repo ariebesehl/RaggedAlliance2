@@ -12,6 +12,7 @@ gCQ_CfgVehicles = configFile >> "CfgVehicles";
 gCQ_CfgWeapons = configFile >> "CfgWeapons";
 
 gCQ_PosUtil = missionNamespace getVariable ["gCQ_PosUtil", [[0,0,0],0,CRQ_POS_UTIL_RADIUS,CRQ_POS_UTIL_RESOLUTION]];
+gCQ_VecUtil = missionNamespace getVariable ["gCQ_VecUtil", [[[0,0,0],0],CRQ_POS_UTIL_RADIUS,CRQ_POS_UTIL_RESOLUTION,true,[]]];
 
 CRQ_ByteDecode = {
 	private _bits = [];
@@ -30,15 +31,31 @@ CRQ_CRC = {
 	{_crc = (_crc + _x) % CRQ_CRC_MODULO;} forEach (toArray (str _data));
 	_crc
 };
+CRQ_CacheLoad = {
+	params ["_crc", "_source", "_target", "_default"];
+	private _var = profileNamespace getVariable [_source, _default];
+	missionNamespace setVariable [_target, _var];
+	([_crc, _var] call CRQ_CRC)
+};
+CRQ_CacheSave = {
+	params ["_crc", "_source", "_target", "_default"];
+	private _var = missionNamespace getVariable [_source, _default];
+	profileNamespace setVariable [_target, _var];
+	([_crc, _var] call CRQ_CRC)
+};
 CRQ_Wait = {
 	private _start = time;
 	while {(time - _start) <  _this} do {sleep CRQ_WAIT_RESOLUTION;};
 };
+CRQ_ArrayIncrement = {
+	params ["_array", "_index", "_increment"];
+	_array set [_index, (_array#_index) + _increment];
+};
 CRQ_ArrayRandomize = {
-	private _resevoir = [];
-	{_resevoir pushBack _forEachIndex;} forEach _this;
+	private _reservoir = [];
+	{_reservoir pushBack _forEachIndex;} forEach _this;
 	private _randomized = [];
-	{_randomized pushBack (_this#(_resevoir deleteAt (floor (random (count _resevoir)))));} forEach _this;
+	{_randomized pushBack (_this#(_reservoir deleteAt (floor (random (count _reservoir)))));} forEach _this;
 	_randomized
 };
 CRQ_Angle = {
@@ -88,7 +105,7 @@ CRQ_PosAvgObj = {
 	private _posY = 0;
 	{
 		private _pos = getPosWorld _x;
-		_posX = _posX + (_pox#0);
+		_posX = _posX + (_pos#0);
 		_posY = _posY + (_pos#1);
 	} forEach _this;
 	private _num = count _this;
@@ -96,6 +113,7 @@ CRQ_PosAvgObj = {
 };
 CRQ_PosRasterize = {
 	params ["_vec", "_positions"];
+	[_vec#0, _vec#1, 0, 0] call CRQ_PosUtilSetup;
 	private _rasterized = [];
 	{_rasterized pushBack (_x call CRQ_PosUtil);} forEach _positions;
 	_rasterized
@@ -104,7 +122,7 @@ CRQ_PosUtilSetup = {
 	params ["_base", "_dir", "_radius", "_resolution"];
 	gCQ_PosUtil = [if (count _base > 2) then {_base} else {_base + [0]}, _dir, if (_radius > 0) then {_radius} else {CRQ_POS_UTIL_RADIUS}, if (_resolution > 0) then {_resolution} else {CRQ_POS_UTIL_RESOLUTION}];
 };
-CRQ_PosUtil = {
+CRQ_PosUtil = { // TODO deprecated, replace with VecUtil
 	params ["_iMode", "_iArg"];
 	private _pos = gCQ_PosUtil#0;
 	private _modes = [];
@@ -140,7 +158,7 @@ CRQ_PosUtil = {
 					if (_argc > 0) then {
 						_pos set [0, (_pos#0) + (_argv#0#0)];
 						_pos set [1, (_pos#1) + (_argv#0#1)];
-						if (count (_argv#0) > 2) then {_pos set [2, (_pos#2) + (_argv#0#2)];} else {_pos set [2, 0];};
+						if (count (_argv#0) > 2) then {_pos set [2, (_pos#2) + (_argv#0#2)];};// else {_pos set [2, 0];};
 					};
 				};
 			};
@@ -178,6 +196,169 @@ CRQ_PosUtil = {
 	} forEach _modes;
 	_pos
 };
+CRQ_VecUtilSetup = {
+	params ["_vec", "_radius", "_resolution"];
+	gCQ_VecUtil = [if (count (_vec#0) > 2) then {_vec} else {[(_vec#0) + [0], _vec#1]}, if (_radius > 0) then {_radius} else {CRQ_VEC_UTIL_RADIUS}, if (_resolution > 0) then {_resolution} else {CRQ_VEC_UTIL_RESOLUTION},true,objNull];
+};
+CRQ_VecUtilValid = {
+	(gCQ_VecUtil#3)
+};
+CRQ_VecUtilObject = {
+	(gCQ_VecUtil#4)
+};
+CRQ_VecUtil = {
+	params ["_iMode", "_iArg"];
+	private _vec = +(gCQ_VecUtil#0);
+	private _modes = [];
+	private _args = [];
+	if (_iMode isEqualType -1) then {
+		_modes = [_iMode];
+		_args = [_iArg];
+	} else {
+		_modes = _iMode;
+		_args = _iArg;
+	};
+	{
+		private _argv = _args#_forEachIndex;
+		private _argc = count _argv;
+		switch (_x) do {
+			case CRQ_POS_ABS: {
+				if (_argc > 1) then {
+					(_vec#0) set [0, _argv#0];
+					(_vec#0) set [1, _argv#1];
+					if (_argc > 2) then {(_vec#0) set [2, _argv#2];} else {(_vec#0) set [2, 0];};
+				} else {
+					if (_argc > 0) then {
+						_vec set [0, _argv#0];
+					};
+				};
+			};
+			case CRQ_VEC_ABS: {
+				if (_argc > 1) then {
+					(_vec#0) set [0, _argv#0#0];
+					(_vec#0) set [1, _argv#0#1];
+					if (count (_argv#0) > 2) then {(_vec#0) set [2, _argv#0#2];} else {(_vec#0) set [2, 0];};
+					_vec set [1, _argv#1];
+				};
+			};
+			case CRQ_POS_REL: {
+				if (_argc > 1) then {
+					(_vec#0) set [0, (_vec#0#0) + (_argv#0)];
+					(_vec#0) set [1, (_vec#0#1) + (_argv#1)];
+					if (_argc > 2) then {(_vec#0) set [2, (_vec#0#2) + (_argv#2)];} else {(_vec#0) set [2, 0];};
+				} else {
+					if (_argc > 0) then {
+						(_vec#0) set [0, ((_vec#0)#0) + (_argv#0#0)];
+						(_vec#0) set [1, ((_vec#0)#1) + (_argv#0#1)];
+						if (count (_argv#0) > 2) then {(_vec#0) set [2, ((_vec#0)#2) + (_argv#0#2)];};
+					};
+				};
+			};
+			case CRQ_VEC_REL: {
+				if (_argc > 1) then {
+					(_vec#0) set [0, (_vec#0#0) + (_argv#0#0)];
+					(_vec#0) set [1, (_vec#0#1) + (_argv#0#1)];
+					if (count (_argv#0) > 2) then {(_vec#0) set [2, (_vec#0#2) + (_argv#0#2)];};
+					_vec set [1, (_vec#1) + (_argv#1)];
+				};
+			};
+			case CRQ_POS_VEC: {
+				if (_argc > 1) then {
+					_vec set [0, (_vec#0) getPos [_argv#0, (_vec#1) + (_argv#1)]];
+				};
+			};
+			case CRQ_VEC_VEC: {
+				if (_argc > 1) then {
+					_vec set [0, (_vec#0) getPos [_argv#0#0, (_vec#1) + (_argv#0#1)]];
+					_vec set [1, (_vec#1) + (_argv#1)];
+				};
+			};
+			case CRQ_POS_VECZ: {
+				if (_argc > 2) then {
+					_vec set [0, (_vec#0) getPos [_argv#0, (_vec#1) + (_argv#1)]];
+					(_vec#0) set [2, ((_vec#0)#2) + (_argv#2)];
+				};
+			};
+			case CRQ_VEC_VECZ: {
+				if (_argc > 2) then {
+					_vec set [0, (_vec#0) getPos [_argv#0#0, (_vec#1) + (_argv#0#1)]];
+					(_vec#0) set [2, ((_vec#0)#2) + (_argv#0#2)];
+					_vec set [1, (_vec#1) + (_argv#1)];
+				};
+			};
+			case CRQ_POS_FIND: {
+				gCQ_VecUtil set [3, false];
+				if (_argc > 0) then {
+					private _radius = if (_argc > 1) then {_argv#1} else {(gCQ_VecUtil#1)};
+					private _resolution = if (_argc > 2) then {_argv#2} else {(gCQ_VecUtil#2)};
+					private _attempt = 0;
+					while {_attempt < 8} do {
+						private _options = selectBestPlaces [_vec#0, _radius, _argv#0, _resolution, 1];
+						if (_options isNotEqualTo []) exitWith {_vec set [0, _options#0#0]; gCQ_VecUtil set [3, true];};
+						_attempt = _attempt + 1;
+					};
+				};
+			};
+			case CRQ_VEC_FIND: {
+				gCQ_VecUtil set [3, false];
+				if (_argc > 1) then {
+					(_argv#0) params ["_criteria", ["_radius", (gCQ_VecUtil#1)], ["_resolution", (gCQ_VecUtil#2)]];
+					//private _radius = if (_argc > 1) then {_argv#1} else {(gCQ_VecUtil#1)};
+					//private _resolution = if (_argc > 2) then {_argv#2} else {(gCQ_VecUtil#2)};
+					private _attempt = 0;
+					while {_attempt < 8} do {
+						private _options = selectBestPlaces [_vec#0, _radius, _criteria, _resolution, 1];
+						if (_options isNotEqualTo []) exitWith {
+							_vec set [0, _options#0#0];
+							switch (_argv#1) do {
+								default {_vec set [1, _argv#1];};
+								case -1: {_vec set [1, random 360];};
+								case -2: {
+									private _roads = (_vec#0) nearRoads _radius; // OPTIMIZE 
+									if (_roads isNotEqualTo []) then {
+										_vec set [1, (_vec#0) getDir (_roads#([(_vec#0), _roads] call CRQ_PosClosest))];
+									} else {
+										_vec set [1, random 360];
+									};
+								};
+							};
+							gCQ_VecUtil set [3, true];
+						};
+						_attempt = _attempt + 1;
+					};
+				};
+			};
+			case CRQ_POS_EMPTY : {
+				if (_argc > 0) then {
+					private _radius = if (_argc > 1) then {_argv#1} else {(gCQ_VecUtil#1)};
+					_vec set [0, [_vec#0, 0, _radius, _argv#0, 0, 0, 0, [], [+(gCQ_VecUtil#0#0), +(gCQ_VecUtil#0#0)]] call BIS_fnc_findSafePos]; // TODO implement valid
+				};
+			};
+			case CRQ_VEC_HOUSE: {
+				gCQ_VecUtil set [3, false];
+				gCQ_VecUtil set [4, objNull];
+				if (_argc > 0) then {
+					private _model = toLowerANSI ((_argv#0) call CRQ_ClassModel);
+					private _radius = if (_argc > 1) then {_argv#1} else {(gCQ_VecUtil#1)};
+					if (if (_argc > 2) then {_argv#2} else {false}) then {
+						{if (_model == (_x call CRQ_ObjectModel)) exitWith {_vec = [getPosATL _x, getDir _x]; gCQ_VecUtil set [3, true]; gCQ_VecUtil set [4, _x];};} forEach (nearestTerrainObjects [_vec#0, ["HOUSE"], _radius, true, true]);
+					} else {
+						private _candidates = [];
+						{if (_model == (_x call CRQ_ObjectModel)) then {_candidates pushBack _x;};} forEach (nearestTerrainObjects [_vec#0, ["HOUSE"], _radius, false, true]);
+						if (_candidates isNotEqualTo []) then {
+							private _obj = selectRandom _candidates;
+							_vec = [getPosATL _obj, getDir _obj];
+							gCQ_VecUtil set [3, true];
+							gCQ_VecUtil set [4, _obj];
+						};
+					};
+				};
+			};
+			default {};
+		};
+	} forEach _modes;
+	_vec
+};
 CRQ_Nighttime = {
 	private _dayTime = dayTime;
 	(_dayTime >= CRQ_TIME_NIGHT_MIN || _dayTime <= CRQ_TIME_NIGHT_MAX)
@@ -185,6 +366,9 @@ CRQ_Nighttime = {
 CRQ_Daytime = {
 	private _dayTime = dayTime;
 	(_dayTime < CRQ_TIME_NIGHT_MIN && _dayTime > CRQ_TIME_NIGHT_MAX)
+};
+CRQ_Lights = {
+	([0,0,0] getEnvSoundController "night" > 0.7)
 };
 CRQ_WorldLocations = {
 	private _axis = worldSize / 2; // worldSize is a calculation, config >> worldName might be faster? probably hardly makes a difference
@@ -196,9 +380,10 @@ CRQ_WorldTerrainObjects = {
 };
 CRQ_WorldClutter = {
 	params ["_pos", "_radius"];
-	private _radiusExtra = if (count _this > 2) then {_this#2} else {CRQ_CLUTTER_EXTRA};
+	private _ignore = if (count _this > 2) then {_this#2} else {[]};
+	private _radiusExtra = if (count _this > 3) then {_this#3} else {CRQ_CLUTTER_EXTRA};
 	private _clutter = [];
-	{if ((_pos distance2D _x) < (_radius + ((_x call CRQ_ObjectSize)#0))) then {_clutter pushBack _x;};} forEach (nearestTerrainObjects [_pos, [], _radius + _radiusExtra, false, true]);
+	{if (_ignore find _x == -1 && {(_pos distance2D _x) < (_radius + ((_x call CRQ_ObjectSize)#0))}) then {_clutter pushBack _x;};} forEach (nearestTerrainObjects [_pos, [], _radius + _radiusExtra, false, true]);
 	_clutter
 };
 CRQ_ClassModel = {
@@ -497,13 +682,17 @@ CRQ_InventoryBoxAddContainer = {
 		private _existing = everyBackpack _target;
 		reverse _existing;
 		_target addBackpackCargoGlobal [_type, 1];
-		{if ((_existing find (_x)) == -1) exitWith {_container = _x;};} forEach (everyBackpack _target); // OPTIMIZE reverse? done. that was easy
+		private _current = everyBackpack _target;
+		reverse _current;
+		{if ((_existing find (_x)) == -1) exitWith {_container = _x;};} forEach _current; // OPTIMIZE reverse?
 	} else {
 		private _existing = [];
 		{_existing pushBack (_x#1);} forEach (everyContainer _target);
 		reverse _existing;
 		_target addItemCargoGlobal [_type, 1];
-		{if ((_existing find (_x#1)) == -1) exitWith {_container = _x#1;};} forEach (everyContainer _target); // OPTIMIZE reverse?
+		private _current = (everyContainer _target);
+		reverse _current;
+		{if ((_existing find (_x#1)) == -1) exitWith {_container = _x#1;};} forEach _current; // OPTIMIZE reverse?
 	};
 	_container
 };
@@ -708,8 +897,9 @@ CRQ_VehicleCreate = {
 	params ["_type", "_vector"];
 	private _argc = count _this;
 	private _vehicle = createVehicle [_type, _vector#0, [], 0, "CAN_COLLIDE"];
+	[_vehicle, _vector#0] call CRQ_ObjectSpawnPosAdjust;
 	_vehicle setDir (_vector#1); // TODO setPosWorld?
-	if (_argc > 2) then {_vehicle call CRQ_InventoryBoxClear; [_vehicle, _this#2] call CRQ_InventoryBoxAppend;};
+	if (_argc > 2 && {(_this#2) isNotEqualTo []}) then {_vehicle call CRQ_InventoryBoxClear; [_vehicle, _this#2] call CRQ_InventoryBoxAppend;};
 	if (_argc > 3) then {_vehicle setDamage (_this#3);};
 	_vehicle
 };
