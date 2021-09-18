@@ -5,7 +5,7 @@ Liberate cities, villages and other locations on the islands of Tanoa. Player st
 
 
 ## Instructions
-Download the latest release [here](https://github.com/ariebesehl/RaggedAlliance2/releases). Does **not** work on single-player, functional on self-hosted multiplayer with slightly limited gaming experience (as e.g. locations are marked on map, since they are local to your machine), designed for and works best on dedicated servers.
+Download the latest release [here](https://github.com/ariebesehl/RaggedAlliance2/releases). Does **not** work on single-player, functional on self-hosted multiplayer with slightly limited gaming experience (e.g. locations supposed to be discovered are already marked on map), designed for and works best on dedicated servers.
 
 
 ## Known Issues
