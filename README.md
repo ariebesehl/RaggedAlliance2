@@ -7,4 +7,4 @@ Download the latest release [here](https://github.com/ariebesehl/RaggedAlliance2
 
 
 ## Known Issues
-Spawning in the first time is a bit buggy.
+~~Spawning in the first time is a bit buggy.~~ May have been fixed.
