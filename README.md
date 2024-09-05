@@ -14,6 +14,7 @@ Liberate cities, villages and other locations on the islands of Tanoa. Player st
 - Presently, it is only written for and usable on **Tanoa** (the building configs above require it; there are generics, but also only for Tanoa (tropical flavor; generifying this is also possible, in theory, or maybe just LUT translation))
 - It requires **all official DLCs (e.g. Marksmen DLC, etc.), including Contact** and **no mods** to have the **same experience as the developer and clients** that have so far tested it
 - You can replace the place-holding sound files with the real deal for the more authentic experience; only intro (Menu music), win (sector won), lose (sector lost) are implemented; they add a lot of atmosphere, but I don't want to tread licensing issues by including them here, so this is on you
+- **For the actual current source code, please refer to the attachments of the releases**
 
 ## Instructions
 Download the latest release [here](https://github.com/ariebesehl/RaggedAlliance2/releases). Does **not** work on single-player, functional on self-hosted multiplayer ~~with slightly limited gaming experience (e.g. locations supposed to be discovered are already marked on map)~~ (May have been fixed), designed for and works best on dedicated servers.  
@@ -80,7 +81,7 @@ As you can see from the above, I make the progress 4x faster, meaning you need o
 Once it's started, there are two modes it works: One will hot-load locations, the other cold-loads them before the server starts. Faster systems (>= e.g. Ryzen 2700X) should use the latter, slower the former (e.g. <=i5-3470), this is a user-defined setting, the default I think is to hot-load, so you may need to wait five minutes until the server is warm and ready (you can join beforehand, but only a progress indicator will be there, no enemies or anything).
 
 You parajump in; left-click the location, right-click and hold to drag the map around AND set the direction you want to be faced inserting, mouse-wheel to zoom, and then click OK to spawn in. Liberated locations in your control will show up on the left side of the map as an alternative spawn location, without parajumping.
-The default intention is Imuri Island -> Koumac -> Bala Airport, much like Omerta -> Drassen, but the parajump allows you to pick any location you'd want, whatever, it's all code that runs as generic as possible.
+The default intention is Imuri Island -> Koumac -> Bala Airport, much like Omerta -> Drassen, but the parajump allows you to pick any location you'd want, since it's all code designed to run as generic as possible.
 
 ## Known Issues
 - ~~Spawning in the first time is a bit buggy.~~ ~~May have been fixed.~~ Probably has.
