@@ -15,6 +15,8 @@ Liberate cities, villages and other locations on the islands of Tanoa. Player st
 - It requires **all official DLCs (e.g. Marksmen DLC, etc.), including Contact** and **no mods** to have the **same experience as the developer and clients** that have so far tested it
 - You can replace the place-holding sound files with the real deal for the more authentic experience; only intro (Menu music), win (sector won), lose (sector lost) are implemented; they add a lot of atmosphere, but I don't want to tread licensing issues by including them here, so this is on you
 - **For the actual current source code, please refer to the attachments of the releases**
+- If you want to **play it single-player**, place the PBO file in your `MPMissions` folder in your Arma directory and **host a local LAN multiplayer** game; this is effectively de facto single-player ("lone multiplayer")
+- There is no saving, so your progress is lost; the current **workaround is a dedicated server with persistency**; if you hack around and enable saving and it happens to work, tell me!
 
 ## Instructions
 Download the latest release [here](https://github.com/ariebesehl/RaggedAlliance2/releases). Does **not** work on single-player, functional on self-hosted multiplayer ~~with slightly limited gaming experience (e.g. locations supposed to be discovered are already marked on map)~~ (May have been fixed), designed for and works best on dedicated servers.  
