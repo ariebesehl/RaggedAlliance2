@@ -15,12 +15,21 @@ Liberate cities, villages and other locations on the islands of Tanoa. Player st
 - It requires **all official DLCs (e.g. Marksmen DLC, etc.), including Contact** and **no mods** to have the **same experience as the developer and clients** that have so far tested it
 - You can replace the place-holding sound files with the real deal for the more authentic experience; only intro (Menu music), win (sector won), lose (sector lost) are implemented; they add a lot of atmosphere, but I don't want to tread licensing issues by including them here, so this is on you
 - **For the actual current source code, please refer to the attachments of the releases**
-- If you want to **play it single-player**, place the PBO file in your `MPMissions` folder in your Arma directory and **host a local LAN multiplayer** game; this is effectively de facto single-player ("lone multiplayer")
 - There is no saving, so your progress is lost; the current **workaround is a dedicated server with persistency**; if you hack around and enable saving and it happens to work, tell me!
 
-## Instructions
-Download the latest release [here](https://github.com/ariebesehl/RaggedAlliance2/releases). Does **not** work on single-player, functional on self-hosted multiplayer ~~with slightly limited gaming experience (e.g. locations supposed to be discovered are already marked on map)~~ (May have been fixed), designed for and works best on dedicated servers.  
-This is the command I use to spawn a dedicated server on a Linux shell I've SSH'ed into with the Arma 3 directory as the working directory `nohup ./RA2_Tanoa.sh >stdout.log 2>stderr.log &`  
+
+## Instructions (single-player via/or local multiplayer LAN-hosting)
+Download the latest release [here](https://github.com/ariebesehl/RaggedAlliance2/releases).  
+If you want to **play it single-player**, place the PBO file in your `MPMissions` folder in your Arma directory and **host a local LAN multiplayer** game; this is effectively de facto single-player ("lone multiplayer").  
+You parajump in; left-click the location, right-click and hold to drag the map around AND set the direction you want to be faced inserting, mouse-wheel to zoom, and then click OK to spawn in. Liberated locations in your control will show up on the left side of the map as an alternative spawn location, without parajumping.  
+The default intention is Imuri Island -> Koumac -> Bala Airport, much like Omerta -> Drassen, but the parajump allows you to pick any location you'd want, since it's all code designed to run as generic as possible.  
+As of v220402, it seems the user experience is the same on dedicated/locally hosted
+
+## Instructions (dedicated servers)
+This is the command I use to spawn a dedicated server on a Linux shell I've SSH'ed into with the Arma 3 directory as the working directory  
+
+    nohup ./RA2_Tanoa.sh >stdout.log 2>stderr.log &
+
 These are the contents of `RA2_Tanoa.sh`  
     
     #!/bin/sh    
@@ -78,12 +87,9 @@ These are the (brevity- and privacy-redacted) contents of `CONFIG_RA2_Tanoa.cfg`
     onHackedData        = "kick (_this select 0)";    // command to run if a player has tampered files
     headlessClients[]  = {""};
     localClient[]      = {"127.0.0.1"};
-As you can see from the above, I make the progress 4x faster, meaning you need only acquire 25% of the island's locations for 100% equipment progress, otherwise, the full mission would likely take 240+ hours (no victory condition has been programmed yet; obviously I'm inspired to make it about assasinating a particularly ruthless dictator). System-clutter detect makes the engine run a simulation with known objects to determine their EXACT maximum dimensions via ray-collision, allowing those generic bases to be placed even more immersive into location ba having to delete fewer surrounding cluttering objects.
 
+As you can see from the above, I make the progress 4x faster (apparently I've also set that as the default, just to be safe), meaning you need only acquire 25% of the island's locations for 100% equipment progress, otherwise, the full mission would likely take 240+ hours (no victory condition has been programmed yet; obviously I'm inspired to make it about assasinating a particularly ruthless dictator). System-clutter detect makes the engine run a simulation with known objects to determine their EXACT maximum dimensions via ray-collision, allowing those generic bases to be placed even more immersive into location by having to delete fewer surrounding cluttering objects.  
 Once it's started, there are two modes it works: One will hot-load locations, the other cold-loads them before the server starts. Faster systems (>= e.g. Ryzen 2700X) should use the latter, slower the former (e.g. <=i5-3470), this is a user-defined setting, the default I think is to hot-load, so you may need to wait five minutes until the server is warm and ready (you can join beforehand, but only a progress indicator will be there, no enemies or anything).
-
-You parajump in; left-click the location, right-click and hold to drag the map around AND set the direction you want to be faced inserting, mouse-wheel to zoom, and then click OK to spawn in. Liberated locations in your control will show up on the left side of the map as an alternative spawn location, without parajumping.
-The default intention is Imuri Island -> Koumac -> Bala Airport, much like Omerta -> Drassen, but the parajump allows you to pick any location you'd want, since it's all code designed to run as generic as possible.
 
 ## Known Issues
 - ~~Spawning in the first time is a bit buggy.~~ ~~May have been fixed.~~ Probably has.
