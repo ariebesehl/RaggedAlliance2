@@ -97,3 +97,23 @@ Once it's started, there are two modes it works: One will hot-load locations, th
 - Enemy names are not synced if the user is not present when they spawn in, these are harmless as well, and also only cosmetic
 - Road-Blocks and Outposts can be cleared without having been discovered; in either case, there is no music to signify an acquisition of the player's party by it (usual victory music too much; silence too litte; but cosmetic)
 - and a few more I'm currently likely not thinking about
+
+## Screenshots
+![20240906164941_1](https://github.com/user-attachments/assets/14547ebc-3986-4dab-9f77-a07774f60e97)
+>*The map after liberating Imuri Island, Koumac and Bala Airstrip, and using the "Gather Intel" action on Bala Airstrip's map, revealing the surrounding area's locations (in the case of an airport, a lot of intel is secured). Half-transparent markers are inactive locations, for which simulation runs suspended. The distance of this defaults to a flat 700m, but it can be adjusted to a higher/lower value and grow or shrink with progress. Locations are kept in an unknown state to decide at the very last moment (to mirror the current progress as closely as possible) what equipment, units, faction, etc. the location is spawned with/as.*
+---
+![20240906165832_1](https://github.com/user-attachments/assets/fcc91430-f89a-4a96-b195-67150a891539)
+>*The randomly picked enemy base in Yanukka from the preceding screenshot. As a lone player and with default settings, only one larger guard squad and two smaller patrol squads garrison a base at this stage. In the background, a civilian vehicle is moving away into the distance and was spawned in such a way that its origin and destination are beyond the player's activation range and a central waypoint is a random road segment within a certain radius of the player (a civilian road vehicle becomes spawnable when a valid path fulfilling the above criteria has been found, after which it becomes a probability if it gets spawned at all). Compensations due for moving players are also in effect.*
+---
+![20240906165842_1](https://github.com/user-attachments/assets/7a2146e7-dbb0-419c-96d8-65a55c64d005)
+>*Same as above, a little later, but without HUD.*
+---
+![20240906165950_1](https://github.com/user-attachments/assets/3e9bca9e-48c1-4dda-9644-3bcc97a2c302)
+>*The inside of that base. The map can be gathered for intel, revealing locations, and used to teleport and parajump (arbitrarily as of current development state). The inventory box also gathers loot from corpses and on the ground, and can unload/repack items/mags. A map is part of every location worth points and one that a player can secure, and intentionally missing from Road Blocks/Outposts (which currently cannot be captured by the player, only neutralized)*
+---
+![20240906170001_1](https://github.com/user-attachments/assets/aab9ec83-58c8-47bb-bdc3-87f0541149d9)
+>*The plants are not part of the base configuration are part of the scenery; they did not intersect with the base's blueprint, hence they are not deleted from the global scenery when the base spawns. Every component in a non-player/non-character unit's identity (voice, face, pitch, uniform/clothing) is a randomly picked as well.*
+---
+![20240906170016_1](https://github.com/user-attachments/assets/3a0f4861-d9ef-40b3-b698-b7f2d66d4f45)
+>*Patrol paths and bases (what to delete, what to insert) are all precalculated at the beginning to optimize run-time efficiency. A ground-evenness compensation for base decorations is not being performed, as the tipped over bench demonstrates.*
+
