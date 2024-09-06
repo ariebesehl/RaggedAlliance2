@@ -93,6 +93,7 @@ Once it's started, there are two modes it works: One will hot-load locations, th
 
 ## Known Issues
 - ~~Spawning in the first time is a bit buggy.~~ ~~May have been fixed.~~ Probably has.
+- **A base might not yet be spawned when you teleport in, so watch out when it does (1s resolution), especially if the base is on a slope, because you might get hit by a tumbling 40-foot container...**
 - Duplicate user-defined actions on inventory/maps at locations are unintentional, but harmless and cosmetic
 - Enemy names are not synced if the user is not present when they spawn in, these are harmless as well, and also only cosmetic
 - Road-Blocks and Outposts can be cleared without having been discovered; in either case, there is no music to signify an acquisition of the player's party by it (usual victory music too much; silence too litte; but cosmetic)
