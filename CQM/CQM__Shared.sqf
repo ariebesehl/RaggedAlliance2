@@ -1,6 +1,5 @@
 
-#define CQM_SIDE_LABEL_BLUFOR "Liberators"
-#define CQM_SIDE_LABEL_IDFOR "Outlaws"
-#define CQM_SIDE_LABEL_OPFOR "Tanoan National Army"
-#define CQM_SIDE_LABEL_CIVFOR "Civilians"
+#define CQM_CLIENT_RESTORE_AUTO false
+
 #define CQM_SIDE_LABEL_UNKNOWN "UNKNOWN"
+#define CQM_SIDE_LABELS ["Liberators","Outlaws","Tanoan National Army","Civilians"]

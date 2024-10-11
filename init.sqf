@@ -1,4 +1,5 @@
 
-//#include "CRQ\CRQ_Client.sqf"
 
-execVM "CRQ\CRQ_Client.sqf";
+if (isDedicated) exitWith {};
+
+#include "CRQ\CRQ_Client.sqf";

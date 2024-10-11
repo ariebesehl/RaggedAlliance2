@@ -29,5 +29,7 @@ wreckManagerMode = 0;
 joinUnassigned = 1;
 saving = 0;
 
-#include "CQM\CQM__Param.hpp"
-#include "CQM\CQM__Res.hpp"
+#include "CRQ\CRQ_Param.hpp"
+
+#include "CQM\CQM_Res.hpp"
+#include "CRQ\CRQ_Display.hpp"

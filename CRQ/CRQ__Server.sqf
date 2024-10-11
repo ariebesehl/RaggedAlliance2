@@ -1,15 +1,13 @@
 
-#define CRQ_PLAYER_RESOLVE_RESOLUTION 0.15
-#define CRQ_PLAYER_RESOLVE_TIMEOUT 60
+#define CRQ_NOTIFY(MESSAGE) [(MESSAGE)] remoteExec ["hint", gCS_Broadcast]
+#define CRQ_MESSAGE(MESSAGE) [(MESSAGE)] remoteExec ["systemChat", gCS_Broadcast]
 
-#define CRQ_DELAY_LOOP 0.2
+#define CRQ_LOOP_TIMER [[1,-0.875],[2,-1.750],[4,-3.625],[8,-7.500],[16,-15.375],[32,-31.250],[64,-63.125],[128,-127.000]]
+#define CRQ_LOOP_RESOLUTION 0.1
+
+#define CRQ_DAYTIME_TIMER [-0.975,0.075,0.425,0.650,0.975,-0.125]
+
+#define CRQ_CORPSE_EXPEDITE 0.9
 #define CRQ_CORPSE_DELETE 10
 
-//#define CRQ_LOOP_TIMER_DELAY [1,2,4,8,16,32,64,128]
-//#define CRQ_LOOP_TIMER_INIT [0,0,0,-7.5,0,0,0,0]
-#define CRQ_LOOP_TIMER [[1,0],[2,0],[4,0],[8,-7.5],[16,0],[32,0],[64,0],[128,0]]
-
-#define CRQ_PLAYER_ACTION_SYNC_DELAY 1
-
-#define CRQ_NOTIFY(TEXT) [(TEXT)] remoteExec ["hint", gCS_Broadcast]
-#define CRQ_MESSAGE(TEXT) [(TEXT)] remoteExec ["systemChat", gCS_Broadcast]
+#define CRQ_ACTION_SYNC 1

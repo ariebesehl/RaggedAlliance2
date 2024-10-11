@@ -1,4 +1,2 @@
 
-//#include "CRQ\CRQ_Server.sqf"
-
-execVM "CRQ\CRQ_Server.sqf";
+#include "CRQ\CRQ_Server.sqf";
