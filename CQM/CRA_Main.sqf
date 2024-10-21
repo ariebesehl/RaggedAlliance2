@@ -1415,7 +1415,7 @@ CRA_LocationFlagUpdate = {
 	
 	private _flagAnim = ("true" configClasses (configFile >> "CfgVehicles" >> (typeOf _flagObj) >> "AnimationSources")) apply {configName _x};
 	if (count _flagAnim > 0) exitWith {_flagObj animateSource [_flagAnim#0, _favV, true];};
-	_flagObj setFlagAnimationPhase _favV;
+	[_flagObj, _favV] remoteExec ["setFlagAnimationPhase", gCS_MP_All];
 };
 CRA_LocationInventoryInit = {
 	private _box = _this getVariable [CRA_SVAR_LOCATION_UNIT_INST_BOX, objNull];
@@ -1706,7 +1706,7 @@ CRA_CivilianAirSpawn = {
 	_asset setVariable [CRA_SVAR_ACTIVITY, 0.5];
 	_asset setVariable [CRA_SVAR_ACTIVITY_BASE, -2];
 	_group setVariable [CRA_SVAR_GROUP_PATH, _flPath];
-	if (_type == CRA_ASSET_ROTOR) then {
+	if (_type == CRA_ASSET_ROTOR) then { // I suppose I need "compile" if I want to refactor this seemingly unnecessary construct
 		_group setVariable [CRA_SVAR_FNC_MAIN, [{[_this, CRA_ASSET_ROTOR] call CRA_CivilianAssetActive}, {CRA_ASSET_ROTOR call CRA_CivilianAssetDespawn}]];
 	} else {
 		_group setVariable [CRA_SVAR_FNC_MAIN, [{[_this, CRA_ASSET_WINGED] call CRA_CivilianAssetActive}, {CRA_ASSET_WINGED call CRA_CivilianAssetDespawn}]];

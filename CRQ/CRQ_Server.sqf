@@ -35,6 +35,7 @@ gCS_MN_FNCS = missionNamespace getVariable ["gCS_MN_FNCS", [
 		{[] call CRQ_fnc_EN_ClimateLoop;}
 ]];
 
+gCS_MP_All = missionNamespace getVariable ["gCS_MP_All", 0];
 gCS_MP_Broadcast = missionNamespace getVariable ["gCS_MP_Broadcast", if (isDedicated) then {-2} else {0}];
 gCS_SyncArrays = missionNamespace getVariable ["gCS_SyncArrays", createHashMap];
 gCS_Action = missionNamespace getVariable ["gCS_Action", []];

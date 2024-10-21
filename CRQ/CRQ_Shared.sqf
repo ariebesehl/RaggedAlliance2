@@ -1376,7 +1376,7 @@ CRQ_RoadPath = {
 	private _branches = [];
 	private _branchCurrent = -1;
 	private _unknown = createHashMap;
-	{_unknown set [netId _x, false];} forEach _rdExclude;
+	{_unknown set [netId _x, false];} forEach _rdExclude; // NOTE: there's a getObjectID since v2.10...?
 	private _break = false;
 	while {true} do {
 		_unknown set [netId _rdNow, false];
