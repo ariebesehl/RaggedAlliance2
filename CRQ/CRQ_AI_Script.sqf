@@ -1,29 +1,23 @@
 
 #define CRQ_DEFINE_AISCRIPT 1
-
 #include "CRQ_AI_Main.sqf"
-
 params ["_g","","","_v", "_n"];
-
 if (_n >= 0) then {
-	if (_g call CRQ_AI_Safe) then {
-		_g setVariable [CRQ_AIVAR_ORGANIZED, false];
-		(selectRandom (dCRA_AI_TIMEOUTS#_n)) call ([
-			{[_g, _this] call CRQ_AI_Timeout;},
-			{[_g, _this] call CRQ_AI_Timeout; _g call CRQ_AI_Regroup;},
-			{[_g, _this] call CRQ_AI_Timeout; [_g, _v, _this#0] call CRQ_AI_Scatter;},
-			{[_g, _this] call CRQ_AI_Timeout; [_g, _this#0] call CRQ_AI_Rest;},
-			{[_g, _this] call CRQ_AI_Timeout; _g call CRQ_AI_Stop;},
-			{[_g, _this] call CRQ_AI_Timeout; [_g, _v, _this#0] call CRQ_AI_Look;},
-			{[_g, _this] call CRQ_AI_Timeout; _g call CRQ_AI_Bino;},
-			{[_g, _this] call CRQ_AI_Timeout; [_g, _v, _this#0] call CRQ_AI_Return;}
-		]#_n);
+	private _safe = _g call CRQ_fnc_AI_SAFE;
+	if (_safe) then {
+		_g setVariable ["CRQP_ORG", false];
+		(selectRandom (dCRQ_AI_TMS#_n)) call {
+			[_g, _this] call CRQ_fnc_AI_TMO;
+			_this call (dCRQ_AI_FNC#_n);
+		};
 	} else {
-		[_g, selectRandom CRQ_AI_TIMEOUT_COMBAT] call CRQ_AI_Timeout;
-		if (_g getVariable [CRQ_AIVAR_ORGANIZED, false]) exitWith {};
-		_g setVariable [CRQ_AIVAR_ORGANIZED, true];
-		_g call CRQ_AI_Regroup;
+		[_g, selectRandom dCRQ_AI_TMC] call CRQ_fnc_AI_TMO;
+		if (_g getVariable ["CRQP_ORG", false]) exitWith {};
+		_g setVariable ["CRQP_ORG", true];
+		_g call CRQ_fnc_AI_BHRG;
 	};
+	_g setVariable ["CRQP_TGL", _safe isNotEqualTo (_g getVariable ["CRQP_STS", _safe])];
+	_g setVariable ["CRQP_STS", _safe];
 } else {
-	_g spawn {sleep CRQ_AI_RESTART_DELAY; _this setCurrentWaypoint [_this, 0];};
+	_g spawn {sleep 1; if (_this isEqualTo grpNull) exitWith {}; _this setCurrentWaypoint [_this, 0];};
 };

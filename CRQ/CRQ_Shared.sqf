@@ -3,10 +3,35 @@
 #include "CRQ__Shared.sqf"
 #include "CRQ__Catalog.sqf"
 
-#include "..\CQM\CQM_Shared.sqf"
+#include "..\CQM\CQM__FNC__Shared.sqf"
 
 #include "CRQ_AI_Main.sqf"
 #include "CRQ_Catalog.sqf"
+
+dCRQ_BS_DWRD = missionNamespace getVariable ["dCRQ_BS_DWRD", [
+	CRQ_BS_DWRD apply {false},
+	CRQ_BS_DWRD apply {true},
+	CRQ_BS_DWRD,
+	(CRQ_BS_DWRD apply {_x}) call {reverse _this; _this},
+	(CRQ_BS_DWRD apply {2^_x}),
+	(CRQ_BS_DWRD apply {2^_x}) call {reverse _this; _this}
+]];
+dCRQ_BS_WORD = missionNamespace getVariable ["dCRQ_BS_WORD", [
+	CRQ_BS_WORD apply {false},
+	CRQ_BS_WORD apply {true},
+	CRQ_BS_WORD,
+	(CRQ_BS_WORD apply {_x}) call {reverse _this; _this},
+	(CRQ_BS_WORD apply {2^_x}),
+	(CRQ_BS_WORD apply {2^_x}) call {reverse _this; _this}
+]];
+dCRQ_BS_BYTE = missionNamespace getVariable ["dCRQ_BS_BYTE", [
+	CRQ_BS_BYTE apply {false},
+	CRQ_BS_BYTE apply {true},
+	CRQ_BS_BYTE,
+	(CRQ_BS_BYTE apply {_x}) call {reverse _this; _this},
+	(CRQ_BS_BYTE apply {2^_x}),
+	(CRQ_BS_BYTE apply {2^_x}) call {reverse _this; _this}
+]];
 
 gCQ_CfgAmmo = configFile >> "CfgAmmo";
 gCQ_CfgGlasses = configFile >> "CfgGlasses";
@@ -21,51 +46,71 @@ gCQ_CfgIGUI = configfile >> "RscInGameUI";
 gCQ_ObjectAreas = missionNamespace getVariable ["gCQ_ObjectAreas", createHashMap];
 gCQ_VecUtil = missionNamespace getVariable ["gCQ_VecUtil", [[[0,0,0],0],CRQ_VU_RADIUS,CRQ_VU_RESOLUTION,true,[]]];
 
-pCQ_AiSkillAdjust = missionNamespace getVariable ["pCQ_AiSkillAdjust", []];
+pCQ_AI_Adjust = missionNamespace getVariable ["pCQ_AI_Adjust", []];
+pCQ_CL_Connect = missionNamespace getVariable ["pCQ_CL_Connect", (CRQ_SIDES apply {[]})];
+pCQ_CL_Data = missionNamespace getVariable ["pCQ_CL_Data", (CRQ_SIDES apply {[]})];
 
-CRQ_ByteDecode = {
-	private _bits = [];
-	{if (_this >= _x) then {_bits pushBack true; _this = _this - _x;} else {_bits pushBack false;};} forEach [128,64,32,16,8,4,2,1];
-	reverse _bits;
-	_bits
+CRQ_fnc_ObjectIsUnit = {
+	(_this isEqualType objNull && {_this isKindOf "Man"})
 };
-CRQ_ByteEncode = {
+CRQ_fnc_TimeNow = {
+	systemTimeUTC call {(_this#3) * 3600.0 + (_this#4) * 60.0 + (_this#5) + ((_this#6) / 1000.0)};
+};
+CRQ_fnc_TimeCoerce = {
+	(((_this % 86400.0) + 86400.0) % 86400.0)
+};
+CRQ_fnc_TimeDelta = {
+	_this = ((_this param [1, [] call CRQ_fnc_TimeNow, [0]]) call CRQ_fnc_TimeCoerce) - ((_this param [0, [] call CRQ_fnc_TimeNow, [0]]) call CRQ_fnc_TimeCoerce);
+	if (_this < 0) then {_this + 86400.0} else {_this};
+};
+CRQ_fnc_WordEncode = {
+	private _cache = dCRQ_BS_WORD#4;
+	private _word = 0;
+	{if (_x) then {_word = _word + (_cache#_forEachIndex);};} forEach _this;
+	_word
+};
+CRQ_fnc_ByteEncode = {
+	private _cache = dCRQ_BS_BYTE#4;
 	private _byte = 0;
-	{if (_x) then {_byte = _byte + ([1,2,4,8,16,32,64,128]#_forEachIndex);};} forEach _this;
+	{if (_x) then {_byte = (_cache#_forEachIndex) + _byte;};} forEach _this;
 	_byte
 };
-CRQ_ByteOr = {
-	((_this#0) call CRQ_ByteDecode) params [["_b0_0", false], ["_b0_1", false], ["_b0_2", false], ["_b0_3", false], ["_b0_4", false], ["_b0_5", false], ["_b0_6", false], ["_b0_7", false]];
-	((_this#1) call CRQ_ByteDecode) params [["_b1_0", false], ["_b1_1", false], ["_b1_2", false], ["_b1_3", false], ["_b1_4", false], ["_b1_5", false], ["_b1_6", false], ["_b1_7", false]];
-	([_b0_0 || _b1_0, _b0_1 || _b1_1, _b0_2 || _b1_2, _b0_3 || _b1_3, _b0_4 || _b1_4, _b0_5 || _b1_5, _b0_6 || _b1_6, _b0_7 || _b1_7] call CRQ_ByteEncode)
+CRQ_fnc_WordDecode = {
+	private _bits = +(dCRQ_BS_WORD#0);
+	{if (_this >= _x) then {_this = _this - _x; _bits set [15 - _forEachIndex, true];};} forEach (dCRQ_BS_WORD#5);
+	_bits
 };
-CRQ_ByteAnd = {
-	((_this#0) call CRQ_ByteDecode) params [["_b0_0", false], ["_b0_1", false], ["_b0_2", false], ["_b0_3", false], ["_b0_4", false], ["_b0_5", false], ["_b0_6", false], ["_b0_7", false]];
-	((_this#1) call CRQ_ByteDecode) params [["_b1_0", false], ["_b1_1", false], ["_b1_2", false], ["_b1_3", false], ["_b1_4", false], ["_b1_5", false], ["_b1_6", false], ["_b1_7", false]];
-	([_b0_0 && _b1_0, _b0_1 && _b1_1, _b0_2 && _b1_2, _b0_3 && _b1_3, _b0_4 && _b1_4, _b0_5 && _b1_5, _b0_6 && _b1_6, _b0_7 && _b1_7] call CRQ_ByteEncode)
+CRQ_fnc_ByteDecode = {
+	private _bits = +(dCRQ_BS_BYTE#0);
+	{if (_this >= _x) then {_this = _this - _x; _bits set [7 - _forEachIndex, true];};} forEach (dCRQ_BS_BYTE#5);
+	_bits
 };
-CRQ_BitSum = {
+CRQ_fnc_ByteSum = {
 	private _sum = 0;
-	{if (_x) then {_sum = _sum + 1;};} forEach (if (_this isEqualType -1) then {_this call CRQ_ByteDecode} else {_this});
+	{if (_x) then {_sum = _sum + 1;};} forEach (if (_this isEqualType -1) then {_this call CRQ_fnc_ByteDecode} else {_this});
 	_sum
 };
-CRQ_ByteMSB = {
+CRQ_fnc_ByteLSB = {
 	private _index = 0;
-	private _bits = if (_this isEqualType -1) then {_this call CRQ_ByteDecode} else {_this};
-	{private _bit = _bits#_x; if ((!isNil {_bit}) && {_bit}) exitWith {_index = _x;};} forEach [7,6,5,4,3,2,1,0];
+	private _bits = if (_this isEqualType -1) then {_this call CRQ_fnc_ByteDecode} else {_this};
+	{private _bit = _bits#_x; if ((!isNil {_bit}) && {_bit}) exitWith {_index = _x;};} forEach (dCRQ_BS_BYTE#2);
 	_index
 };
-CRQ_ByteLSB = {
+CRQ_fnc_ByteMSB = {
 	private _index = 0;
-	private _bits = if (_this isEqualType -1) then {_this call CRQ_ByteDecode} else {_this};
-	{private _bit = _bits#_x; if ((!isNil {_bit}) && {_bit}) exitWith {_index = _x;};} forEach [0,1,2,3,4,5,6,7];
+	private _bits = if (_this isEqualType -1) then {_this call CRQ_fnc_ByteDecode} else {_this};
+	{private _bit = _bits#_x; if ((!isNil {_bit}) && {_bit}) exitWith {_index = _x;};} forEach (dCRQ_BS_BYTE#3);
 	_index
 };
-CRQ_ByteMSBValue = {
-	[1,2,4,8,16,32,64,128]#(_this call CRQ_ByteMSB)
+CRQ_fnc_ByteOr = {
+	((_this#0) call CRQ_fnc_ByteDecode) params [["_b0_0", false], ["_b0_1", false], ["_b0_2", false], ["_b0_3", false], ["_b0_4", false], ["_b0_5", false], ["_b0_6", false], ["_b0_7", false]];
+	((_this#1) call CRQ_fnc_ByteDecode) params [["_b1_0", false], ["_b1_1", false], ["_b1_2", false], ["_b1_3", false], ["_b1_4", false], ["_b1_5", false], ["_b1_6", false], ["_b1_7", false]];
+	([_b0_0 || _b1_0, _b0_1 || _b1_1, _b0_2 || _b1_2, _b0_3 || _b1_3, _b0_4 || _b1_4, _b0_5 || _b1_5, _b0_6 || _b1_6, _b0_7 || _b1_7] call CRQ_fnc_ByteEncode)
 };
-CRQ_ByteLSBValue = {
-	[1,2,4,8,16,32,64,128]#(_this call CRQ_ByteLSB)
+CRQ_fnc_ByteAnd = {
+	((_this#0) call CRQ_fnc_ByteDecode) params [["_b0_0", false], ["_b0_1", false], ["_b0_2", false], ["_b0_3", false], ["_b0_4", false], ["_b0_5", false], ["_b0_6", false], ["_b0_7", false]];
+	((_this#1) call CRQ_fnc_ByteDecode) params [["_b1_0", false], ["_b1_1", false], ["_b1_2", false], ["_b1_3", false], ["_b1_4", false], ["_b1_5", false], ["_b1_6", false], ["_b1_7", false]];
+	([_b0_0 && _b1_0, _b0_1 && _b1_1, _b0_2 && _b1_2, _b0_3 && _b1_3, _b0_4 && _b1_4, _b0_5 && _b1_5, _b0_6 && _b1_6, _b0_7 && _b1_7] call CRQ_fnc_ByteEncode)
 };
 CRQ_CRC = {
 	params ["_data", ["_crc", CRQ_CRC_INIT]];
@@ -84,13 +129,10 @@ CRQ_CacheSave = {
 	profileNamespace setVariable [_target, _var];
 	([_var, _crc] call CRQ_CRC)
 };
-CRQ_VarRetrieve = {
-	//(createHashMapFromArray ((allVariables _this) apply {[toLowerANSI _x, _this getVariable [_x, nil]]}))
-	private _vars = createHashMap;
-	{_vars set [toLowerANSI _x, _this getVariable [_x, nil]];} forEach (allVariables _this);
-	_vars
+CRQ_fnc_VarAvailable = {
+	(isNil {(_this#0) getVariable [(_this#1), nil]})
 };
-CRQ_VarRetrieve2 = {
+CRQ_VarRetrieve = {
 	(createHashMapFromArray ((allVariables _this) apply {[toLowerANSI _x, _this getVariable [_x, nil]]}))
 };
 CRQ_VarRestore = {
@@ -691,6 +733,7 @@ CRQ_PropSpawn = {
 		if (_type isNotEqualTo "") then {
 			private _object = [_type, _vec] call CRQ_ObjectSpawn;
 			_object allowDamage false;
+			if (maxLoad _object > 0) then {_object lockInventory true;};
 			_props pushBack _object;
 		} else {
 			_props pushBack objNull;
@@ -713,6 +756,14 @@ CRQ_Side = {
 	};
 	CRQ_SIDE_UNKNOWN
 };
+CRQ_fnc_SD_Matrix = {
+	private _friend = CRQ_SIDES apply {private _side = _x; CRQ_SIDES apply {_side getFriend _x}};
+	private _enemy = _friend apply {_x apply {1 - _x}};
+	private _dmF = _friend apply {_x apply {_x^2.0}};
+	private _dmE = _enemy apply {_x apply {_x^0.5}};
+	[_friend, _enemy, _dmF, _dmE]
+};
+
 CRQ_SideLabel = {
 	if (!(_this isEqualType -1)) then {_this = _this call CRQ_Side;};
 	if (_this >= 0) exitWith {CQM_SIDE_LABELS#_this};
@@ -1111,9 +1162,12 @@ CRQ_UnitCreate = {
 	if (_loadout isNotEqualTo []) then {[_unit, _loadout] call CRQ_LoadoutApply;};
 	if (_skill != -1) then {
 		_unit setSkill _skill;
-		{[_unit, _skill] call _x;} forEach pCQ_AiSkillAdjust;
+		{[_unit, _skill] call _x;} forEach pCQ_AI_Adjust;
 	};
 	if (_damage > 0) then {_unit setDamage _damage;};
+	//#ifdef CRQ_DEFINE_SERVER
+	_unit addEventHandler ["Killed", CRQ_EHS_UnitKilled];
+	//#endif
 	_unit
 };
 CRQ_UnitDelete = {
@@ -1156,6 +1210,10 @@ CRQ_VehicleCreate = {
 		{_vehicle setHitIndex [_x#0, _x#1, false, objNull];} forEach _damage;
 	};
 	if (_textures isNotEqualTo []) then {_vehicle setVariable ["BIS_enableRandomization", false]; {_vehicle setObjectTextureGlobal _x;} forEach _textures;};
+	//#ifdef CRQ_DEFINE_SERVER
+	// TODO disassembled? may be caught by verifying asset is not suddenly null
+	_vehicle addEventHandler ["Killed", CRQ_EHS_VehicleKilled];
+	//#endif
 	_vehicle
 };
 CRQ_VehicleDelete = {
@@ -1181,70 +1239,102 @@ CRQ_VehicleHibernate = {
 	[[typeOf _this, _this call CRQ_Vec3D, _this call CRQ_InventoryBox, [_damage, [], _fuel], _textures], _this call CRQ_VarRetrieve]
 };
 
+#define CRQ_LNK_NONE []
+#define CRQ_LNK_ID_GLOBAL ""
+
+gCQ_LNK_LIST = missionNamespace getVariable ["gCQ_LNK_LIST", createHashMap];
+gCQ_LNK_FNCH = missionNamespace getVariable ["gCQ_LNK_FNCH", [{(_this#0) getOrDefault ["CRQP_NGLNK", _this#1]}, {(_this#0) set ["CRQP_NGLNK", _this#1]}, {(_this#0) deleteAt "CRQP_NGLNK"}]];
+gCQ_LNK_FNCO = missionNamespace getVariable ["gCQ_LNK_FNCO", [{(_this#0) getVariable ["CRQP_NGLNK", _this#1]}, {(_this#0) setVariable ["CRQP_NGLNK", _this#1]}, {(_this#0) set ["CRQP_NGLNK", nil]}]];
+CRQ_fnc_LNK_Create = {
+	params ["_data", ["_id", CRQ_LNK_ID_GLOBAL]];
+	gCQ_LNK_LIST set [_id, _data apply {_x#0}];
+	{
+		_x params ["_obj", "_value"];
+		private _fnc = [gCQ_LNK_FNCO, gCQ_LNK_FNCH] select (_obj isEqualType createHashMap);
+		private _links = [_obj, CRQ_LNK_NONE] call (_fnc#0);
+		if (!(count _links > 0)) then {
+			_links = createHashMap;
+			[_obj, _links] call (_fnc#1);
+		};
+		_links set [_id, _value];
+	} forEach _data;
+};
+CRQ_fnc_LNK_Get = {
+	if (_this isEqualType "") exitWith {(gCQ_LNK_LIST getOrDefault [_this, CRQ_LNK_NONE])};
+	if (_this isEqualType createHashMap) exitWith {[_this, CRQ_LNK_NONE] call (gCQ_LNK_FNCH#0)};
+	[_this, CRQ_LNK_NONE] call (gCQ_LNK_FNCO#0)
+};
+CRQ_fnc_LNK_Free = {
+	if (_this isEqualType "") exitWith {(gCQ_LNK_LIST deleteAt _this)};
+	if (_this isEqualType []) exitWith {[_this] call (gCQ_LNK_FNCH#2)};
+	private _data = [_this, CRQ_LNK_NONE] call (gCQ_LNK_FNCO#0);
+	[_this] call (gCQ_LNK_FNCO#2);
+	_data
+};
 CRQ_LinkCreate = {
 	(_this#0) params ["_ent0", ["_index0", -1], ["_data0", []]];
 	(_this#1) params ["_ent1", ["_index1", -1], ["_data1", []]];
-	private _link0 = _ent0 getVariable [CRQ_PVAR_LINK, []];
-	private _link1 = _ent1 getVariable [CRQ_PVAR_LINK, []];
+	private _link0 = _ent0 getVariable ["CRQP_LNK", []];
+	private _link1 = _ent1 getVariable ["CRQP_LNK", []];
 	if (_index0 < 0) then {_index0 = count _link0;};
 	if (_index1 < 0) then {_index1 = count _link1;};
 	_link0 set [_index0, [_ent1, _index1, _data0]];
 	_link1 set [_index1, [_ent0, _index0, _data1]];
-	_ent0 setVariable [CRQ_PVAR_LINK, _link0];
-	_ent1 setVariable [CRQ_PVAR_LINK, _link1];
+	_ent0 setVariable ["CRQP_LNK", _link0];
+	_ent1 setVariable ["CRQP_LNK", _link1];
 };
 CRQ_LinkVars = {
 	params ["_vars", ["_default", []]];
-	([_vars, CRQ_PVAR_LINK, _default] call CRQ_VarGet)
+	([_vars, "CRQP_LNK", _default] call CRQ_VarGet)
 };
 CRQ_LinkFree = {
 	params ["_source", ["_index", -1], ["_default", []]]; // TODO make compatible with array source // should be done?
 	private _fnc_free = {
 		params [["_target", []], ["_tgIndex", -1]];
 		if (_target isNotEqualTo [] && {_tgIndex != -1}) then {
-			private _tgLinked = if (_target isEqualType []) then {_target} else {_target getVariable [CRQ_PVAR_LINK, []]};
+			private _tgLinked = if (_target isEqualType []) then {_target} else {_target getVariable ["CRQP_LNK", []]};
 			if (_tgIndex < count _tgLinked) then {
 				if ((_tgLinked#_tgIndex#0) isNotEqualTo _source) exitWith {};
 				(_tgLinked#_tgIndex) set [0, _default];
 				(_tgLinked#_tgIndex) set [1, -1];
-				//_target setVariable [CRQ_PVAR_LINK, _tgLinked]; // TODO *should* be redundant // seems to be the case, yes
+				//_target setVariable ["CRQP_LNK", _tgLinked]; // TODO *should* be redundant // seems to be the case, yes
 			};
 		};
 	};
-	private _link = if (_source isEqualType []) then {_source} else {_source getVariable [CRQ_PVAR_LINK, []]};
+	private _link = if (_source isEqualType []) then {_source} else {_source getVariable ["CRQP_LNK", []]};
 	if (_index isEqualType -1) exitWith {
 		if (_index < 0) exitWith {
 			{_x call _fnc_free} forEach _link;
-			if (_source isEqualType []) then {for "_i" from ((count _source) - 1) to 0 step -1 do {_source deleteAt _i;};} else {_source setVariable [CRQ_PVAR_LINK, []]};
+			if (_source isEqualType []) then {for "_i" from ((count _source) - 1) to 0 step -1 do {_source deleteAt _i;};} else {_source setVariable ["CRQP_LNK", []]};
 		};
 		(_link#_index) call _fnc_free;
 		_link deleteAt _index;
-		//_source setVariable [CRQ_PVAR_LINK, _link]; // TODO *should* be redundant
+		//_source setVariable ["CRQP_LNK", _link]; // TODO *should* be redundant
 	};
 	if (_index isEqualType []) exitWith {};
 	private _delete = -1;
 	{if ((_x#0) isEqualTo _index) exitWith {_x call _fnc_free; _delete = _forEachIndex;};} forEach _link;
 	_link deleteAt _delete;
-	//_source setVariable [CRQ_PVAR_LINK, _link]; // TODO *should* be redundant
+	//_source setVariable ["CRQP_LNK", _link]; // TODO *should* be redundant
 };
 CRQ_LinkSource = {
 	params ["_old", "_new"];
-	private _link = if (_old isEqualType []) then {_old} else {_old getVariable [CRQ_PVAR_LINK, []]};
+	private _link = if (_old isEqualType []) then {_old} else {_old getVariable ["CRQP_LNK", []]};
 	{
 		_x params ["_target", "_tgIndex"];
 		if (_target isNotEqualTo [] && {_tgIndex != -1}) then {
-			private _tgLinked = if (_target isEqualType []) then {_target} else {_target getVariable [CRQ_PVAR_LINK, []]};
+			private _tgLinked = if (_target isEqualType []) then {_target} else {_target getVariable ["CRQP_LNK", []]};
 			if (_tgIndex < count _tgLinked) then {
 				if ((_tgLinked#_tgIndex#0) isNotEqualTo _old) exitWith {};
 				(_tgLinked#_tgIndex) set [0, _new];
-				//_target setVariable [CRQ_PVAR_LINK, _tgLinked]; // TODO *should* be redundant
+				//_target setVariable ["CRQP_LNK", _tgLinked]; // TODO *should* be redundant
 			};
 		};
 	} forEach _link;
 };
 CRQ_LinkDataRead = {
 	params ["_source", ["_index", -1]];
-	private _link = if (_source isEqualType []) then {_source} else {_source getVariable [CRQ_PVAR_LINK, []]};
+	private _link = if (_source isEqualType []) then {_source} else {_source getVariable ["CRQP_LNK", []]};
 	if (_index isEqualType -1) exitWith {
 		if (_index < 0) exitWith {(_link apply {[_x#0, _x#2]})};
 		if (_index >= count _link) exitWith {[]};
@@ -1255,61 +1345,68 @@ CRQ_LinkDataRead = {
 };
 CRQ_LinkDataBroadcast = {
 	params ["_source", "_data"];
-	private _link = if (_source isEqualType []) then {_source} else {_source getVariable [CRQ_PVAR_LINK, []]};
+	private _link = if (_source isEqualType []) then {_source} else {_source getVariable ["CRQP_LNK", []]};
 	{
 		_x params ["_target", "_tgIndex"];
 		if (_target isNotEqualTo [] && {_tgIndex != -1}) then {
-			private _tgLinked = if (_target isEqualType []) then {_target} else {_target getVariable [CRQ_PVAR_LINK, []]};
+			private _tgLinked = if (_target isEqualType []) then {_target} else {_target getVariable ["CRQP_LNK", []]};
 			if (_tgIndex < count _tgLinked) then {
 				if ((_tgLinked#_tgIndex#0) isNotEqualTo _source) exitWith {};
 				(_tgLinked#_tgIndex) set [2, _data];
-				//_target setVariable [CRQ_PVAR_LINK, _tgLinked]; // TODO *should* be redundant
+				//_target setVariable ["CRQP_LNK", _tgLinked]; // TODO *should* be redundant
 			};
 		};
 	} forEach _link;
 };
-CRQ_RoadIsRoad = {
+CRQ_fnc_RD_Type = {
+	((getRoadInfo _this)#0)
+};
+CRQ_fnc_RD_IsBridge = {
+	((getRoadInfo _this)#8)
+};
+CRQ_fnc_RD_IsRoad = {
 	private _type = (getRoadInfo _this)#0;
 	(_type isEqualTo "ROAD" || {_type isEqualTo "TRACK" || {_type isEqualTo "MAIN ROAD"}})
 };
 CRQ_RoadPath = {
-	params ["_roadCurrent", "_roadExclude", "_refPos", "_refRadius"];
-	private _roadPath = [];
+	params ["_rdNow", "_rdExclude", "_refPos", "_refRadius"];
+	private _rdPath = [];
 	private _limit = ceil (_refRadius / CRQ_ROAD_PATH_SEGMENTATION);
 	private _counter = 0;
 	private _branches = [];
 	private _branchCurrent = -1;
-	private _history = +_roadExclude;
+	private _unknown = createHashMap;
+	{_unknown set [netId _x, false];} forEach _rdExclude;
 	private _break = false;
 	while {true} do {
-		_history pushBack _roadCurrent;
-		_roadPath pushBack _roadCurrent;
+		_unknown set [netId _rdNow, false];
+		_rdPath pushBack _rdNow;
 		
 		private _options = [];
-		{if (_history find _x == -1 && {_x call CRQ_RoadIsRoad}) then {_options pushBack _x;};} forEach (roadsConnectedTo _roadCurrent);
+		{if (_x call CRQ_fnc_RD_IsRoad && {_unknown getOrDefault [netId _x, true]}) then {_options pushBack _x;};} forEach (roadsConnectedTo _rdNow);
 		
 		private _countOptions = count _options;
 		if (_counter < _limit && _countOptions > 0) then {
 			_counter = _counter + 1;
 			if (_countOptions > 1) then {
-				_roadCurrent = _options deleteAt (floor (random _countOptions));
+				_rdNow = _options deleteAt (floor (random _countOptions));
 				_branchCurrent = _branchCurrent + 1;
 				_branches set [_branchCurrent, [_counter, _options]];
 			} else {
-				_roadCurrent = _options#0;
+				_rdNow = _options#0;
 			};
-			if (_refPos distance2D _roadCurrent >= _refRadius) then {_break = true;};
+			if (_refPos distance2D _rdNow >= _refRadius) then {_break = true;};
 		} else {
 			while {true} do {
 				if (_branchCurrent < 0) exitWith {
-					_roadPath = [];
+					_rdPath = [];
 					_break = true;
 				};
 				(_branches#_branchCurrent) params ["_brCounter", "_brOptions"];
 				if (_brOptions isNotEqualTo []) then {
-					_roadCurrent = _brOptions deleteAt (floor (random (count _brOptions)));
+					_rdNow = _brOptions deleteAt (floor (random (count _brOptions)));
 					_counter = _brCounter;
-					_roadPath resize (_counter); // OPTIMIZE resize history too?
+					_rdPath resize (_counter); // OPTIMIZE resize history too?
 				} else {
 					_branchCurrent = _branchCurrent - 1;
 				};
@@ -1317,7 +1414,7 @@ CRQ_RoadPath = {
 		};
 		if (_break || {_counter >= _limit}) exitWith {};
 	};
-	_roadPath
+	_rdPath
 };
 CRQ_RoadWaypoints = {
 	private _waypoints = [];

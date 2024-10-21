@@ -421,7 +421,7 @@
 }],\
 [[CRQ_BIAMMO_SMOKEX],{\
 	private _smData = _this select 0 select 3;\
-	(([CRQ_CDAT_AMMO_FX, _smData] call CRQ_CatalogArrayData) call CRQ_ByteDecode) params [["_smoke", false], ["_light", false]];\
+	(([CRQ_CDAT_AMMO_FX, _smData] call CRQ_CatalogArrayData) call CRQ_fnc_ByteDecode) params [["_smoke", false], ["_light", false]];\
 	if (_light) then {CRQ_MAG_LIGHT} else {CRQ_MAG_SMOKE};\
 }],\
 [[CRQ_BIAMMO_SHELL,CRQ_BIAMMO_SHELL],{CRQ_MAG_SHELL_CANNON_HEAT}],\

@@ -1,7 +1,10 @@
 
 #include "CRA__Var.sqf"
 
-#define CRA_VERSION [2024,10,08]
+// TODO undefine me
+#define CRQ_DBG_ENABLE
+
+#define CRA_VERSION [2024,10,21]
 
 #define CRA_PARADROP_HEIGHT 42
 
@@ -26,7 +29,8 @@
 "Picadori",\
 "Bregavanna",\
 "Bregavanna",\
-"Bregavanna"]
+"Bregavanna"\
+]
 #define CRA_DICT_RECONSVC_MAIL 0
 #define CRA_DICT_ROBBYBAYS_MAIL 1
 #define CRA_DICT_PROTAGONIST_MAIL 2
@@ -56,7 +60,8 @@
 ["Hello %1!", [CRA_TEXT_PARAM_PLAYER_NAME]],\
 ["Welcome to Ragged Alliance 2 v%1!", [CRA_TEXT_PARAM_DATE_SHORT]],\
 ["%1: Intel reveals within %2m there are %3", [CRA_TEXT_PARAM_LOCATION,CRA_TEXT_PARAM_NUMBER,CRA_TEXT_PARAM_PASS]],\
-["%1: Intel reveals no points-of-interest within %2m", [CRA_TEXT_PARAM_LOCATION,CRA_TEXT_PARAM_NUMBER]]]
+["%1: Intel reveals no points-of-interest within %2m", [CRA_TEXT_PARAM_LOCATION,CRA_TEXT_PARAM_NUMBER]]\
+]
 
 #define CRA_TEXT_GENERIC_PASS 0
 #define CRA_TEXT_GENERIC_DICT 1
@@ -77,3 +82,33 @@
 #define CRA_TEXT_PLAYER_VERSION 16
 #define CRA_TEXT_INFO_INTEL_GATHER 17
 #define CRA_TEXT_INFO_INTEL_NONE 18
+
+// CRA__Theme.sqf
+// ARMA
+#define CRA_RADEF_TRACKS_STEALTH ["LeadTrack01c_F", "LeadTrack06_F", "LeadTrack04_F", "LeadTrack04a_F", "LeadTrack02_F", "AmbientTrack04_F", "AmbientTrack04a_F", "AmbientTrack01a_F"]
+#define CRA_RADEF_TRACKS_COMBAT ["LeadTrack01c_F", "LeadTrack06_F", "LeadTrack04_F", "LeadTrack04a_F", "LeadTrack03_F", "LeadTrack05_F"] //, "LeadTrack01_F_Orange"]
+#define CRA_RADEF_TRACKS_SAFE ["AmbientTrack03_F", "AmbientTrack04a_F", "BackgroundTrack01_F", "BackgroundTrack02_F", "BackgroundTrack01a_F", "BackgroundTrack03_F"]
+#define CRA_RADEF_TRACKS_UI CRA_RADEF_TRACKS_SAFE
+#define CRA_RADEF_NAME "Arma 3"
+// "ALASKAN GLITCH" https://steamcommunity.com/app/107410/discussions/0/143387886728301734/#c2993171056503664166
+#define CRA_AGLT_TRACKS_STEALTH ["Track11_StageB_stealth", "BackgroundTrack01_F_EPB"]
+#define CRA_AGLT_TRACKS_COMBAT ["Track_O_16", "LeadTrack05_F", "Track10_StageB_action"] 
+#define CRA_AGLT_TRACKS_SAFE ["Track_C_03", "Track_C_12", "Track_C_20", "Track_O_08"] 
+#define CRA_AGLT_TRACKS_UI CRA_AGLT_TRACKS_SAFE
+#define CRA_AGLT_NAME "Alaskan Glitch"
+// ORIGINAL
+#define CRA_ORIG_TRACKS_STEALTH ["CRA_RES_MUSIC_ORIG_MODE_STEALTH_A", "CRA_RES_MUSIC_ORIG_MODE_STEALTH_B", "CRA_RES_MUSIC_ORIG_MODE_STEALTH_C"]
+#define CRA_ORIG_TRACKS_COMBAT ["CRA_RES_MUSIC_ORIG_MODE_COMBAT_A"]
+#define CRA_ORIG_TRACKS_SAFE ["CRA_RES_MUSIC_ORIG_MODE_SAFE_A", "CRA_RES_MUSIC_ORIG_MODE_SAFE_B", "CRA_RES_MUSIC_ORIG_MODE_SAFE_C", "CRA_RES_MUSIC_ORIG_MODE_SAFE_D"]
+#define CRA_ORIG_TRACKS_UI ["CRA_RES_MUSIC_ORIG_UI"]
+#define CRA_ORIG_NAME "Original"
+
+#define CRA_THEME_NONE ["None", ["", "", ""]]
+
+#define CRA_THEMES [\
+	["NULL", CRA_THEME_NONE],\
+	["ARMA", [CRA_RADEF_NAME, [CRA_RADEF_TRACKS_STEALTH, CRA_RADEF_TRACKS_COMBAT, CRA_RADEF_TRACKS_SAFE]]],\
+	["AGLT", [CRA_AGLT_NAME, [CRA_AGLT_TRACKS_STEALTH, CRA_AGLT_TRACKS_COMBAT, CRA_AGLT_TRACKS_SAFE]]],\
+	["ORIG", [CRA_ORIG_NAME, [CRA_ORIG_TRACKS_STEALTH, CRA_ORIG_TRACKS_STEALTH + CRA_ORIG_TRACKS_COMBAT, CRA_ORIG_TRACKS_UI + CRA_ORIG_TRACKS_SAFE]]]\
+]
+//#define CRA_THEME_TRACKS CRA_RADEF_TRACKS

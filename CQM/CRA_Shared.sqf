@@ -1,6 +1,7 @@
 
 #include "CRA__Shared.sqf"
 
+pRA_Themes = missionNamespace getVariable ["pRA_Themes", createHashMapFromArray CRA_THEMES];
 pRA_Locations = missionNamespace getVariable ["pRA_Locations", []];
 pRA_LocationSafe = missionNamespace getVariable ["pRA_LocationSafe", []];
 pRA_LoadMessage = missionNamespace getVariable ["pRA_LoadMessage", 0];

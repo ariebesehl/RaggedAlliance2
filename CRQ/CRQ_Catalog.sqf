@@ -225,14 +225,14 @@ CRQ_CatalogQualityAnalysis = {
 						case CRQ_QMOD_BITFLAG: {
 							private _attrValue = [];
 							switch (true) do {
-								case (_attrInput isEqualType -1): {_attrValue = _attrInput call CRQ_ByteDecode;};
+								case (_attrInput isEqualType -1): {_attrValue = _attrInput call CRQ_fnc_ByteDecode;};
 								case (_attrInput isEqualType []): {_attrValue = _attrInput;};
 								default {};
 							};
 							switch (true) do {
 								case (_attrBase isEqualType -1): {
-									private _bitWeights = _attrBase call CRQ_ByteDecode;
-									private _bitSum = _bitWeights call CRQ_BitSum;
+									private _bitWeights = _attrBase call CRQ_fnc_ByteDecode;
+									private _bitSum = _bitWeights call CRQ_fnc_ByteSum;
 									if (_bitSum == 0) exitWith {};
 									{
 										private _bit = _attrValue#_forEachIndex;
@@ -438,7 +438,7 @@ CRQ_CatalogIdentityRetrieve = {
 	_identity
 };
 CRQ_CatalogIdentityApply = {
-	_this remoteExec ["CRQ_CatalogIdentityBroadcast", gCS_Broadcast];
+	_this remoteExec ["CRQ_CatalogIdentityBroadcast", gCS_MP_Broadcast];
 };
 CRQ_CatalogIdentityBroadcast = {
 	params ["_unit", "_identity"];
@@ -585,7 +585,7 @@ CRQ_CatalogNVGInit = {
 		private _data = _x call CRQ_CatalogNVGAnalysis;
 		private _categories = [];
 		if (CQM_ITEM_NVG_EXCLUDE findIf {_name == _x} == -1 && {_categories isEqualTo [] || {CQM_ITEM_NVG_INCLUDE findIf {_name == _x} != -1}}) then {
-			(([CRQ_CDAT_VISION_MODE, _data] call CRQ_CatalogArrayData) call CRQ_ByteDecode) params [["_hasNormal", false], ["_hasNVG", false], ["_hasTI", false]];
+			(([CRQ_CDAT_VISION_MODE, _data] call CRQ_CatalogArrayData) call CRQ_fnc_ByteDecode) params [["_hasNormal", false], ["_hasNVG", false], ["_hasTI", false]];
 			if (!_hasNVG) exitWith {};
 			if (_hasTI) exitWith {_categories pushBack CRQ_CATALOG_NVG_THERMAL};
 			_categories pushBack CRQ_CATALOG_NVG_BASIC;
@@ -783,7 +783,7 @@ CRQ_CatalogHelmetInit = {
 		if (CQM_ITEM_HELMET_CEREMONIAL findIf {_name == _x} != -1) then {_categories pushBack CRQ_CATALOG_HELMET_CEREMONIAL;};
 		if (CQM_ITEM_HELMET_LEADER findIf {_name == _x} != -1) then {_categories pushBack CRQ_CATALOG_HELMET_LEADER;};
 		if (CQM_ITEM_HELMET_EXCLUDE findIf {_name == _x} == -1 && {_categories isEqualTo [] || {CQM_ITEM_HELMET_INCLUDE findIf {_name == _x} != -1}}) then {
-			(([CRQ_CDAT_VISION_MODE, _data] call CRQ_CatalogArrayData) call CRQ_ByteDecode) params [["_hasNormal", false], ["_hasNVG", false], ["_hasTI", false]];
+			(([CRQ_CDAT_VISION_MODE, _data] call CRQ_CatalogArrayData) call CRQ_fnc_ByteDecode) params [["_hasNormal", false], ["_hasNVG", false], ["_hasTI", false]];
 			if (_hasNVG || {_hasTI}) exitWith {_categories pushBack CRQ_CATALOG_HELMET_NVG;};
 			if (([CRQ_CDAT_ARMOR, _data] call CRQ_CatalogArrayData) > 0) exitWith {_categories pushBack CRQ_CATALOG_HELMET_ARMOR;};
 			_categories pushBack CRQ_CATALOG_HELMET_HAT;
@@ -909,7 +909,7 @@ CRQ_CatalogAssetAnalysis = {
 	private _cpSupply = getNumber (_x >> "transportAmmo") > 0;
 	private _cpRepair = getNumber (_x >> "transportRepair") > 0;
 	private _cpHeal = getNumber (_x >> "attendant") > 0;
-	private _capabilities = [_cpFuel, _cpSupply, _cpRepair, _cpHeal] call CRQ_ByteEncode;
+	private _capabilities = [_cpFuel, _cpSupply, _cpRepair, _cpHeal] call CRQ_fnc_ByteEncode;
 	
 	private _uav = (getNumber (_this >> "isUAV")) > 0;
 	
@@ -963,7 +963,7 @@ CRQ_CatalogWeaponAnalysis = {
 		};
 	} forEach (getArray (_weapon >> "modes"));
 	
-	private _capabilities = [_cpDisabled, _cpUnderwater, _cpRangefinder, _cpLock] call CRQ_ByteEncode;
+	private _capabilities = [_cpDisabled, _cpUnderwater, _cpRangefinder, _cpLock] call CRQ_fnc_ByteEncode;
 	
 	_data pushBack [CRQ_CDAT_ATTACHMENTS, [[],[],[],[]]];
 	_data pushBack [CRQ_CDAT_MAGAZINES, _mags];
@@ -1078,7 +1078,7 @@ CRQ_CatalogHelmetAnalysis = {
 		{
 			private _cfgItem = gCQ_CfgWeapons >> _x;
 			if (_forEachIndex > 0) then {
-				[_visionModes, _cfgItem call CRQ_CatalogUtilVisionModes] call CRQ_ByteOr;
+				[_visionModes, _cfgItem call CRQ_CatalogUtilVisionModes] call CRQ_fnc_ByteOr;
 			} else {
 				_visionModes = _cfgItem call CRQ_CatalogUtilVisionModes;
 			};
@@ -1132,7 +1132,7 @@ CRQ_CatalogWeaponAttachmentInit = {
 		CRQ_WEAPON_ATTACHMENT_DEFAULT
 	} else {
 		private _attach = [CRQ_MUZZLE_NONE,CRQ_LASER_NONE,CRQ_OPTIC_NONE,CRQ_UNDERBARREL_NONE];
-		{{_attach set [_forEachIndex, [_attach#_forEachIndex, _x] call CRQ_ByteOr];} forEach _x;} forEach _attachmentCategories;
+		{{_attach set [_forEachIndex, [_attach#_forEachIndex, _x] call CRQ_fnc_ByteOr];} forEach _x;} forEach _attachmentCategories;
 		_attach
 	};
 	
@@ -1147,7 +1147,7 @@ CRQ_CatalogWeaponAttachmentInit = {
 			{
 				if ((getNumber _x) > 0) then {
 					private _index = (configName _x) call CRQ_CatalogAttachmentRegister; // configName, because _x != gCQ_Weapons >> _x
-					if (([_slotAllowed, [_index, _slotType] call CRQ_CatalogDataItem] call CRQ_ByteAnd) != 0) then {_slotAttachments pushBack _index;};
+					if (([_slotAllowed, [_index, _slotType] call CRQ_CatalogDataItem] call CRQ_fnc_ByteAnd) != 0) then {_slotAttachments pushBack _index;};
 				};
 			} forEach (configProperties [_cfgSlot, "true", true]);
 		};
@@ -1164,28 +1164,28 @@ CRQ_CatalogAttachmentRegister = {
 		case CRQ_BITYPE_OPTIC: {
 			_data = _this call CRA_CatalogOpticAnalysis;
 			private _type = [CRQ_CDAT_OPTIC_TYPE, _data] call CRQ_CatalogArrayData;
-			if (([_type, CRQ_OPTIC_NEAR] call CRQ_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_OPTIC_NEAR;};
-			if (([_type, CRQ_OPTIC_MID] call CRQ_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_OPTIC_MID;};
-			if (([_type, CRQ_OPTIC_FAR] call CRQ_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_OPTIC_FAR;};
+			if (([_type, CRQ_OPTIC_NEAR] call CRQ_fnc_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_OPTIC_NEAR;};
+			if (([_type, CRQ_OPTIC_MID] call CRQ_fnc_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_OPTIC_MID;};
+			if (([_type, CRQ_OPTIC_FAR] call CRQ_fnc_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_OPTIC_FAR;};
 			_categories pushBack CRQ_CATALOG_ATTACHMENT_OPTIC;
 		};
 		case CRQ_BITYPE_LASER: {
 			_data = _this call CRQ_CatalogLaserAnalysis;
 			private _type = [CRQ_CDAT_LASER_TYPE, _data] call CRQ_CatalogArrayData;
-			if (([_type, CRQ_LASER_LIGHT] call CRQ_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_LASER_LIGHT;};
-			if (([_type, CRQ_LASER_IR] call CRQ_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_LASER_IR;};
+			if (([_type, CRQ_LASER_LIGHT] call CRQ_fnc_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_LASER_LIGHT;};
+			if (([_type, CRQ_LASER_IR] call CRQ_fnc_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_LASER_IR;};
 			_categories pushBack CRQ_CATALOG_ATTACHMENT_LASER;
 		};
 		case CRQ_BITYPE_MUZZLE: {
 			_data = _this call CRQ_CatalogMuzzleAnalysis;
 			private _type = [CRQ_CDAT_MUZZLE_TYPE, _data] call CRQ_CatalogArrayData;
-			if (([_type, CRQ_MUZZLE_SURPRESSOR] call CRQ_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_MUZZLE_SURPRESSOR;};
+			if (([_type, CRQ_MUZZLE_SURPRESSOR] call CRQ_fnc_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_MUZZLE_SURPRESSOR;};
 			_categories pushBack CRQ_CATALOG_ATTACHMENT_MUZZLE;
 		};
 		case CRQ_BITYPE_BIPOD: {
 			_data = _this call CRQ_CatalogBipodAnalysis;
 			private _type = [CRQ_CDAT_UNDERBARREL_TYPE, _data] call CRQ_CatalogArrayData;
-			if (([_type, CRQ_UNDERBARREL_BIPOD] call CRQ_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_UNDERBARREL_BIPOD;};
+			if (([_type, CRQ_UNDERBARREL_BIPOD] call CRQ_fnc_ByteAnd) > 0) then {_categories pushBack CRQ_CATALOG_ATTACHMENT_UNDERBARREL_BIPOD;};
 			_categories pushBack CRQ_CATALOG_ATTACHMENT_UNDERBARREL;
 		};
 		default {};
@@ -1216,7 +1216,7 @@ CRA_CatalogOpticAnalysis = {
 	{
 		_scopes = _scopes + 1;
 		_zoomMax = _zoomMax max (selectMax (_x call CRQ_CatalogUtilWeaponOpticsZoom));
-		if (_forEachIndex > 0) then {[_visionModes, _x call CRQ_CatalogUtilVisionModes] call CRQ_ByteOr;} else {_visionModes = _x call CRQ_CatalogUtilVisionModes;};
+		if (_forEachIndex > 0) then {[_visionModes, _x call CRQ_CatalogUtilVisionModes] call CRQ_fnc_ByteOr;} else {_visionModes = _x call CRQ_CatalogUtilVisionModes;};
 		private _zeroing = getArray (_x >> "discreteDistance");
 		if (_zeroing isEqualTo []) then {
 			_range pushBack ((getNumber (_x >> "distanceZoomMax") + getNumber (_x >> "distanceZoomMin")) / 2);
@@ -1386,7 +1386,7 @@ CRQ_CatalogUtilAmmoFX = { // TODO properly flag this
 			default {};
 		};
 	} forEach (configProperties [_cfgSmoke]);
-	([_smoke, _illumination] call CRQ_ByteEncode)
+	([_smoke, _illumination] call CRQ_fnc_ByteEncode)
 };
 CRQ_CatalogUtilAmmoTrigger = {
 	if (_this isEqualType "") then {_this = gCQ_CfgAmmo >> _this;};
@@ -1444,7 +1444,7 @@ CRQ_CatalogUtilWeaponVisionModes = {
 	private _visionModes = 0;
 	{
 		if (_forEachIndex > 0) then {
-			[_visionModes, _x call CRQ_CatalogUtilVisionModes] call CRQ_ByteOr;
+			[_visionModes, _x call CRQ_CatalogUtilVisionModes] call CRQ_fnc_ByteOr;
 		} else {
 			_visionModes = _x call CRQ_CatalogUtilVisionModes;
 		};
@@ -1501,8 +1501,8 @@ CRQ_CatalogUtilPutType = {
 		if (_this == CRQ_MAG_MINE) exitWith {
 			private _source = ((_data call CRQ_CatalogUtilMagazineAmmo) apply {[CRQ_CDAT_AMMO_TRIGGER, _x#3] call CRQ_CatalogArrayData});
 			private _trigger = 0;
-			{if (_forEachIndex > 0) then {_trigger = [_trigger, _x] call CRQ_ByteOr;} else {_trigger = _x;};} forEach _source;
-			(_trigger call CRQ_ByteDecode) params [["_remote", false], ["_person", false], ["_vehicle", false], ["_ship", false]];
+			{if (_forEachIndex > 0) then {_trigger = [_trigger, _x] call CRQ_fnc_ByteOr;} else {_trigger = _x;};} forEach _source;
+			(_trigger call CRQ_fnc_ByteDecode) params [["_remote", false], ["_person", false], ["_vehicle", false], ["_ship", false]];
 			if (_remote) then {_categories pushBack CRQ_CATALOG_PUT_MINE_REMOTE;};
 			if (_person) then {_categories pushBack CRQ_CATALOG_PUT_MINE_AP;};
 			if (_vehicle) then {_categories pushBack CRQ_CATALOG_PUT_MINE_AT;};
@@ -1641,7 +1641,7 @@ CRQ_CatalogUtilWeaponType = {
 };
 CRQ_CatalogUtilWeaponCapabilities = {
 	if (_this isEqualType -1) then {_this = gCQ_CatalogItem#_this#3;};
-	(([CRQ_CDAT_CAPABILITIES, _this] call CRQ_CatalogArrayData) call CRQ_ByteDecode)
+	(([CRQ_CDAT_CAPABILITIES, _this] call CRQ_CatalogArrayData) call CRQ_fnc_ByteDecode)
 };
 CRQ_CatalogUtilAssetTurrets = {
 	private _drivers = 0;
