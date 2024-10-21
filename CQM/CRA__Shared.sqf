@@ -2,7 +2,7 @@
 #include "CRA__Var.sqf"
 
 // TODO undefine me
-#define CRQ_DBG_ENABLE
+//#define CRQ_DBG_ENABLE
 
 #define CRA_VERSION [2024,10,21]
 
