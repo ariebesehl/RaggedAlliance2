@@ -55,7 +55,7 @@ CRA_LocalClientLoading = {
 			format [CRA_LOADING_MESSAGE_INFO_BASIC, pRA_LoadMessage + 1, _stages, (CRA_LOADING_MESSAGE_STAGES#pRA_LoadMessage)]
 		};
 		_message call CRQ_fnc_HUD_InfoText;
-		sleep CRQ_TIME_SYNC;
+		sleep CRQ_BS_TM_SYNC;
 	};
 	CRA_LOADING_MESSAGE_INFO_FINISH call CRQ_fnc_HUD_InfoText;
 	sleep CRA_LOADING_DELAY_EXIT;
@@ -110,7 +110,7 @@ CRA_LocalPlayerInfoNotify = {
 CRA_LocalPlayerMailRead = {
 	private _mailbox = missionNamespace getVariable [CRA_PVAR_PLAYER_MAILBOX, []];
 	(_mailbox#_this) set [0, true];
-	[player, _this] remoteExec ["CRA_PlayerMailRead", 2];
+	[player, _this] remoteExec ["CRA_fnc_PL_MailRead", 2];
 };
 CRA_LocalPlayerRequestSpawn = {
 	CRA_DISPLAY_MAP_MODE_SPAWN call CRA_DisplayMapCreate;
@@ -268,7 +268,7 @@ CRA_DisplayMapExit = {
 				private _selected = _display call CRQ_fnc_UI_MapGetIndex;
 				private _destinations = uiNamespace getVariable [CRA_CVAR_DISPLAY_MAP_DATA, []];
 				if (_selected == -1 || _destinations isEqualTo []) exitWith {true};
-				[player, _destinations#_selected, lRA_PlayerParadrop] remoteExec ["CRA_PlayerRequestSpawn", 2];
+				[player, _destinations#_selected, lRA_PlayerParadrop] remoteExec ["CRA_fnc_PL_RQR_Spawn", 2];
 				false
 			};
 		};
@@ -278,12 +278,12 @@ CRA_DisplayMapExit = {
 			private _selected = _display call CRQ_fnc_UI_MapGetIndex;
 			private _destinations = uiNamespace getVariable [CRA_CVAR_DISPLAY_MAP_DATA, []];
 			if (_selected == -1 || _destinations isEqualTo []) exitWith {};
-			[player, _destinations#_selected] remoteExec ["CRA_PlayerRequestTeleport", 2];
+			[player, _destinations#_selected] remoteExec ["CRA_fnc_PL_RQR_Teleport", 2];
 		};
 		case CRA_DISPLAY_MAP_MODE_PARADROP: {
 			[] call CRQ_fnc_PLL_UI_Exit;
 			if (_type != 1) exitWith {};
-			[player, lRA_PlayerParadrop] remoteExec ["CRA_PlayerRequestParadrop", 2];
+			[player, lRA_PlayerParadrop] remoteExec ["CRA_fnc_PL_RQR_Paradrop", 2];
 		};
 		default {};
 	};

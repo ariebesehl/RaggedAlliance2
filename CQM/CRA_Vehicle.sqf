@@ -141,7 +141,7 @@ CRA_AssetCreate = {
 	if (_crew isNotEqualTo []) then {
 		_crew params ["_group", "_slot"];
 		private _side = (side _group) call CRQ_Side;
-		if (_side == CRQ_SIDE_UNKNOWN) exitWith {};
+		if (_side == CRQ_SD_UNKNOWN) exitWith {};
 		private _capabilities = _vhCaps call CRQ_fnc_ByteDecode;
 		private _crewIndex = switch (true) do {case (_capabilities#3): {2}; case (_capabilities#2): {1}; case (_capabilities#0): {1}; default {0};};
 		private _crewType = CRA_VEHICLE_CREW#_side#_crewIndex;
@@ -222,9 +222,19 @@ CRA_AssetAbandon = {
 	false
 };
 CRA_AssetLoop = {
-	private _fnc_wrecked = {[_this, [true, gCS_TM_Now, -1]] call CRQ_LinkDataBroadcast;};
-	private _fnc_abandon = {[_this, [true, -1, gCS_TM_Now]] call CRQ_LinkDataBroadcast;};
-	private _fnc_suspend = {_this call CRQ_LinkSource;};
+	private _fnc_wrecked = {
+		{private _data = (_x call CRQ_fnc_LNK_Get)#1#_y; _data set [0, true]; _data set [1, gCS_TM_Now];} forEach ((_this#0) call CRQ_fnc_LNK_Get);
+		//[(_this#1), [true, gCS_TM_Now, -1]] call CRQ_LinkDataBroadcast;
+		
+	};
+	private _fnc_abandon = {
+		{private _data = (_x call CRQ_fnc_LNK_Get)#1#_y; _data set [0, true]; _data set [2, gCS_TM_Now];} forEach ((_this#0) call CRQ_fnc_LNK_Get);
+		//[(_this#1), [true, -1, gCS_TM_Now]] call CRQ_LinkDataBroadcast;
+	};
+	private _fnc_suspend = {
+		{((_x call CRQ_fnc_LNK_Get)#0) set [_y, _this#1];} forEach ((_this#0) call CRQ_fnc_LNK_Get);
+		//[_this#2, _this#3] call CRQ_LinkSource;
+	};
 	private _remove = [];
 	{
 		if (_x isEqualType objNull) then {
@@ -233,33 +243,35 @@ CRA_AssetLoop = {
 				_x call CRA_AssetLog;
 				if (gRA_PlayerAsset find _x != -1) exitWith {};
 				if (_x call CRA_AssetAbandon) exitWith {
-					_x call _fnc_abandon;
+					[_x, _x] call _fnc_abandon;
 					_x call CRQ_VehicleDelete;
 					_remove pushBack _forEachIndex;
 				};
 				if (_x getVariable [CRA_SVAR_VEHICLE_HIBERNATE, false]) exitWith {
 					if (_x getVariable [CRA_SVAR_ACTIVITY, 0] <= 0) then {
 						private _hibernated = _x call CRQ_VehicleHibernate;
-						[_x, [_hibernated#1, objNull] call CRQ_LinkVars] call _fnc_suspend;
+						//[_x, _hibernated#1, _x, [_hibernated#1, objNull] call CRQ_LinkVars] call _fnc_suspend;
+						[_x, _hibernated#1] call _fnc_suspend;
 						gRA_Assets set [_forEachIndex, _hibernated];
 						_x call CRQ_VehicleDelete;
 					};
 				};
 			};
-			_x call _fnc_wrecked;
-			//_x call CRQ_WreckRegister;
+			[_x, _x] call _fnc_wrecked;
 			_remove pushBack _forEachIndex;
 		} else {
 			_x params ["_data", "_vars"];
 			_vars call CRA_AssetLog;
-			private _linked = [_vars, locationNull] call CRQ_LinkVars;
+			//private _linked = [_vars, locationNull] call CRQ_LinkVars;
 			if (_vars call CRA_AssetAbandon) exitWith {
-				_linked call _fnc_abandon;
+				//[_vars, _linked] call _fnc_abandon;
+				[_vars] call _fnc_abandon;
 				_remove pushBack _forEachIndex;
 			};
 			if ([_vars, CRA_SVAR_ACTIVITY, 0] call CRQ_VarGet < 1) exitWith {};
 			private _vehicle = _x call CRQ_VehicleThaw;
-			[_linked, _vehicle] call _fnc_suspend;
+			//[_vars, _vehicle, _linked, _vehicle] call _fnc_suspend;
+			[_vars, _vehicle] call _fnc_suspend;
 			gRA_Assets set [_forEachIndex, _vehicle];
 		};
 	} forEach gRA_Assets;
@@ -269,7 +281,7 @@ CRA_AssetLoop = {
 CRA_DepotSpawn = {
 	params ["_location", "_index"];
 	private _owner = _location call CRA_fnc_LC_Owner;
-	if (_owner isEqualTo CRQ_SIDE_UNKNOWN) exitWith {};
+	if (_owner isEqualTo CRQ_SD_UNKNOWN) exitWith {};
 	
 	private _spawn = _location getVariable [CRA_SVAR_LOCATION_ASSET_SPAWN, []];
 	if (!(_index < count _spawn)) exitWith {};
@@ -288,8 +300,15 @@ CRA_DepotSpawn = {
 	[_asset] call CRA_AssetRegister;
 	_asset setVariable [CRA_SVAR_ACTIVITY, _location getVariable [CRA_SVAR_ACTIVITY, 0]];
 	
-	[_location, _index, locationNull] call CRQ_LinkFree;
-	[[_location, _index, [false, -1,-1]], [_asset]] call CRQ_LinkCreate;
+	//[_location, _index, locationNull] call CRQ_LinkFree;
+	//[[_location, _index, [false, -1,-1]], [_asset]] call CRQ_LinkCreate;
+	
+	private _linkID = name _location;
+	(_linkID call CRQ_fnc_LNK_Get) params ["_linkObj", "_linkData"];
+	_linkData set [_index, [false, -1, -1]];
+	[(_linkObj#_index), _linkID] call CRQ_fnc_LNK_Free;
+	[_linkID, _index, _asset] call CRQ_fnc_LNK_Free;
+	[_asset, _linkID, _index] call CRQ_fnc_LNK_Add;
 };
 
 CRA_DepotAnalysis = {
@@ -438,67 +457,75 @@ CRA_DepotBounds = {
 CRA_DepotInit = {
 	gRA_AssetDimensions = [] call CRA_AssetDimensions;
 	gRA_DepotTypes = dCRA_DEPOT_TYPES apply {_x call CRA_DepotBounds};
-	gRA_DepotFind = createHashMap;
-	//{gRA_DepotFind set [toLowerANSI ((_x#0) call CRQ_ClassModel), _forEachIndex];} forEach dCRA_NEW_DEPOT_TYPES;
-	{gRA_DepotFind set [_x#1, _forEachIndex];} forEach gRA_DepotTypes;
+	gRA_DepotModels = createHashMap;
+	{gRA_DepotModels set [_x#1, _forEachIndex];} forEach gRA_DepotTypes;
 	
 	CRA_LOAD_NEXT(0, count dRA_WorldHouses);
-	private _dpCandidates = [];
+	private _candidates = [];
 	{
 		CRA_LOAD_INDEX(_forEachIndex);
-		private _dpIndex = gRA_DepotFind getOrDefault [toLowerANSI (_x call CRQ_ObjectModel), -1];
-		if (_dpIndex != -1 && {((vectorUp _x)#2) / (getObjectScale _x) >= CRA_DEPOT_VECTORUP_MIN}) then {_dpCandidates pushBack [_x, _dpIndex];};
+		private _model = gRA_DepotModels getOrDefault [toLowerANSI (_x call CRQ_ObjectModel), -1];
+		if (_model != -1 && {((vectorUp _x)#2) / (getObjectScale _x) >= CRA_DEPOT_VECTORUP_MIN}) then {_candidates pushBack [_x, _model];};
 	} forEach dRA_WorldHouses;
 	
-	CRA_LOAD_NEXT(0, count _dpCandidates);
-	private _dpObjects = [];
-	//private _start = diag_tickTime;
+	CRA_LOAD_NEXT(0, count _candidates);
+	private _depotTypes = CRA_ASSET_CLASSES apply {createHashMap};
+	private _countObj = 0;
 	{
 		CRA_LOAD_INDEX(_forEachIndex);
-		//private _dpVehicles = [_x#0, dCRA_NEW_DEPOT_TYPES#(_x#1)] call CRA_DepotAnalysis;
-		//if (_dpVehicles isNotEqualTo []) then {_dpObjects pushBack [_x#0, dCRA_NEW_DEPOT_TYPES#(_x#1)#1, _dpVehicles];};
-		private _dpVehicles = [_x#0, gRA_DepotTypes#(_x#1)] call CRA_DepotAnalysis;
-		if (_dpVehicles isNotEqualTo []) then {_dpObjects pushBack [_x#0, gRA_DepotTypes#(_x#1)#2, _dpVehicles];};
-	} forEach _dpCandidates;
-	//systemChat str (diag_tickTime - _start);
-	
-	CRA_LOAD_NEXT(0, count _dpObjects);
-	private _depotGroups = CRA_ASSET_CLASSES apply {[]};
-	{
-		CRA_LOAD_INDEX(_forEachIndex);
-		_x params ["_dpObj", "_dpType", "_dpVehicles"];
-		private _dpGroup = _depotGroups#_dpType;
-		private _dpDist = CRA_DEPOT_GROUPING#_dpType;
-		private _dpPos = _dpObj call CRQ_Pos2D;
-		private _found = _dpGroup findIf {_dpPos distance2D (_x#0) < _dpDist};
-		if (_found != -1) then {
-			private _dpFound = _dpGroup#_found;
-			
-			private _dpFoundSp = _dpFound#2#1;
-			private _spOffset = count _dpFoundSp;
-			_dpFoundSp append (_dpVehicles#1);
-			
-			private _dpFoundVeh = _dpFound#2#0;
-			{
-				private _dpFoundVehSide = _dpFoundVeh#_forEachIndex;
-				{
-					private _veh = _x#0;
-					private _spawn = (_x#1) apply {_x + _spOffset};
-					private _existing = _dpFoundVehSide findIf {_veh == _x#0};
-					if (_existing != -1) then {
-						(_dpFoundVehSide#_existing#1) append _spawn;
-					} else {
-						_dpFoundVehSide pushBack [_veh, _spawn];
-					};
-				} forEach _x;
-			} forEach (_dpVehicles#0);
-			
-			(_dpFound#1) pushBack _dpPos;
-			_dpFound set [0, (_dpFound#1) call CRQ_PosAvg];
-		} else {
-			_dpGroup pushBack [_dpPos, [_dpPos], _dpVehicles];
+		_x params ["_obj", "_model"];
+		([_x#0, gRA_DepotTypes#_model] call CRA_DepotAnalysis) call {
+			if (_this isNotEqualTo []) then {
+				private _type = (gRA_DepotTypes#_model#2);
+				private _tgt = (_depotTypes#_type);
+				_tgt set [count _tgt, [_obj, _type, _this]];
+				_countObj = _countObj + 1;
+			};
 		};
-	} forEach _dpObjects;
+	} forEach _candidates;
+	
+	CRA_LOAD_NEXT(0, 2 * _countObj);
+	private _depotGrp = CRA_ASSET_CLASSES apply {[]};
+	private _loading = 0;
+	{
+		private _tgt = _depotGrp#_forEachIndex;
+		private _proximity = CRA_DEPOT_GROUPING#_forEachIndex;
+		private _depots = _x;
+		private _indexes = _x apply {_x};
+		{
+			private _vehicles = [];
+			{
+				CRA_LOAD_INDEX(_loading);
+				_loading = _loading + 1;
+				(_depots get _x) params ["", "", "_spawn"];
+				if (_vehicles isEqualTo []) then {
+					_vehicles = [_spawn#0, _spawn#1];
+				} else {
+					private _offset = count (_vehicles#1);
+					(_vehicles#1) append (_spawn#1);
+					{
+						private _vSide = _vehicles#0#_forEachIndex;
+						{
+							private _vType = _x#0;
+							private _vSpawn = (_x#1) apply {_offset + _x};
+							private _vExist = _vSide findIf {_vType == (_x#0)};
+							if (_vExist != -1) then {
+								(_vSide#_vExist#1) append _vSpawn;
+							} else {
+								_vSide pushBack [_vType, _vSpawn];
+							};
+						} forEach _x;
+					} forEach (_spawn#0);
+				};
+			} forEach _y;
+			_tgt pushBack [(_y apply {((_depots get _x)#0) call CRQ_Pos2D}) call CRQ_PosAvg, _vehicles];
+		} forEach (([
+			_indexes,
+			{_this},
+			{CRA_LOAD_INDEX(_loading); _loading = _loading + 1; ((_depots get _this)#0) call CRQ_Pos2D},
+			{(_this#1) distance2D (((_depots get (_this#2))#0) call CRQ_Pos2D) < _proximity}
+		] call CRQ_fnc_MAP_Group)#0);
+	} forEach _depotTypes;
 	
 	CRA_LOAD_NEXT(0, 0);
 	private _depots = [];
@@ -507,10 +534,10 @@ CRA_DepotInit = {
 	{
 		private _type = CRA_ASSET_DEPOTS#_forEachIndex;
 		{
-			_depots pushBack [[gRA_LocationIndexDepot + _index, [_x#0, 0], CRA_DEPOT_NAME + str _index, CRA_DEPOT_LABEL], _type, [[[],CRA_DEPOT_SIZE,[],false],[],[]], _x#2];
+			_depots pushBack [[gRA_LocationIndexDepot + _index, [_x#0, 0], CRA_DEPOT_NAME + str _index, CRA_DEPOT_LABEL], _type, [[[],CRA_DEPOT_SIZE,[],false],[],[]], _x#1];
 			_index  = _index + 1;
 		} forEach _x;
-	} forEach _depotGroups;
+	} forEach _depotGrp;
 	CRA_LOAD_NEXT(0, 0);
 	{
 		_depots pushBack ([_index, _x] call CRA_DepotCustomCreate);
@@ -519,7 +546,13 @@ CRA_DepotInit = {
 	CRA_LOAD_NEXT(0, 0);
 	{
 		_x params ["_lcData", "_lcType", "_lcBase", "_dpSpawn"];
-		gRA_Locations pushBack ([_lcData, _lcType, _lcBase, CRQ_SIDE_CIVFOR, [[CRA_SVAR_LOCATION_ASSET_SPAWN, [_dpSpawn]]]] call CRA_LocationGenerate);
+		private _location = [_lcData, _lcType, _lcBase, CRQ_SD_CIVFOR, [[CRA_SVAR_LOCATION_ASSET_SPAWN, [_dpSpawn]]]] call CRA_LocationGenerate;
+		private _linkObj = [];
+		private _linkData = [];
+		{_linkObj pushBack [objNull, _forEachIndex]; _linkData pushBack [false, -1, -1];} forEach _dpSpawn;
+		_linkObj pushBack [_location];
+		[name _location, _linkObj, _linkData] call CRQ_fnc_LNK_Create;
+		gRA_Locations pushBack _location;
 	} forEach _depots;
 };
 CRA_DepotCustomCreate = {

@@ -1,2 +1,2 @@
 
-#include "CRQ\CRQ_Server.sqf";
+#include "CRQ\CRQ__INC__Server.sqf";

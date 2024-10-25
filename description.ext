@@ -30,14 +30,15 @@ ReviveForceRespawnDelay = 3; //time needed to perform force respawn (in secs)
 ReviveBleedOutDelay = 120; //unconscious state duration (in secs)
 
 // PARAMS -- Includes user CQM params
-#include "CRQ\CRQ__DEF__Param.hpp"
+#include "CRQ\CRQ__INC__Param.hpp"
 
 // RESOURCES -- Includes user resources
-#include "CQM\CQM__DEF__Res.hpp"
+#include "CQM\CQM__INC__Res.hpp"
 
 // UI -- Includes user CQM UI
-#include "CRQ\CRQ_Display.hpp"
+#include "CRQ\CRQ__INC__Display.hpp"
 
+// HUD -- D298: WIP
 class RscTitles {
-	#include "CRQ\CRQ__DEF__HUD.hpp"
+	#include "CRQ\CRQ__INC__HUD.hpp"
 };

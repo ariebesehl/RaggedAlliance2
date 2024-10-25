@@ -4,7 +4,7 @@
 // TODO undefine me
 //#define CRQ_DBG_ENABLE
 
-#define CRA_VERSION [2024,10,21]
+#define CRA_VERSION [2024,10,24]
 
 #define CRA_PARADROP_HEIGHT 42
 
