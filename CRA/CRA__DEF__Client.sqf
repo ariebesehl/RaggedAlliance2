@@ -10,9 +10,9 @@
 #define CRA_DISPLAY_MAP_MODE_SPAWN 0
 #define CRA_DISPLAY_MAP_MODE_TELEPORT 1
 #define CRA_DISPLAY_MAP_MODE_PARADROP 2
-#define CRA_DISPLAY_MAP_TITLE_SPAWN "Spawn"
-#define CRA_DISPLAY_MAP_TITLE_TELEPORT "Teleport"
-#define CRA_DISPLAY_MAP_TITLE_PARADROP "Paradrop"
+#define CRA_DISPLAY_MAP_TITLE_SPAWN ["Spawn", "Select spawn location from list or LMB on empty area to set paradrop location, RMB to set direction/move map, MWHEEL to zoom."]
+#define CRA_DISPLAY_MAP_TITLE_TELEPORT ["Teleport", "Select destination from list or map, RMB to move map, MWHEEL to zoom."]
+#define CRA_DISPLAY_MAP_TITLE_PARADROP ["Paradrop", "Select location, LMB to place, RMB to set direction/move map, MWHEEL to zoom."]
 #define CRA_DISPLAY_MAP_LABEL_PARADROP "[--- Paradrop ---]"
 #define CRA_DISPLAY_MAP_CAPTURE_CLICK 100
 #define CRA_DISPLAY_MAP_ICON_SHOW [0,0,0,1]
@@ -20,7 +20,7 @@
 #define CRA_DISPLAY_MAP_RETRIGGER 0.125
 
 #define CRA_LOADING_DELAY_EXIT 2
-#define CRA_LOADING_MESSAGE_STAGES ["Standby...","Depot Candidate","Depot Object","Depot Group","Depot Preparation, Generated","Depot Preparation, Custom","Depot Creation","Base Types","Base Generation","Road-Block Sectors","Road-Block Generation","Outpost Candidate","Outpost Generation","Synchronization"]
+#define CRA_LOADING_MESSAGE_STAGES ["Standby...","Topography Analysis","Topography Finalization","World Structures","Depot Candidate","Depot Object","Depot Group","Depot Preparation, Generated","Depot Preparation, Custom","Depot Creation","Base Types","Base Generation","Road-Block Sectors","Road-Block Generation","Outpost Candidate","Outpost Generation","Synchronization"]
 #define CRA_LOADING_MESSAGE_INFO_BASIC "Loading: [%1/%2] %3"
 #define CRA_LOADING_MESSAGE_INFO_PROGRESS "Loading: [%1/%2] %3 [%4%5]"
 #define CRA_LOADING_MESSAGE_INFO_FINISH "Loading: Done!"

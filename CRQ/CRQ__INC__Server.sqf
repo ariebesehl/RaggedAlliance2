@@ -4,7 +4,7 @@
 #include "CRQ__INC__Shared.sqf"
 
 #include "CRQ__DEF__Server.sqf"
-#include "..\CQM\CQM__FNC__Server.sqf"
+#include "..\CQM\CQM__INC__Server.sqf"
 #include "CRQ__FNC__Server.sqf"
 
 gCS_PM_MS_Year = ["CRQ_PM_MS_StartYY", 29] call BIS_fnc_getParamValue;
@@ -23,7 +23,7 @@ gCS_TM_Now = missionNamespace getVariable ["gCS_TM_Now", [] call CRQ_fnc_TimeNow
 gCS_EN_Light = missionNamespace getVariable ["gCS_EN_Light", false];
 gCS_MN_HNDL = missionNamespace getVariable ["gCS_MN_HNDL", scriptNull];
 gCS_MN_LOOP = missionNamespace getVariable ["gCS_MN_LOOP", (CRQ_MN_LOOP apply {[_x#0, gCS_TM_Now + (_x#1)]})];
-gCS_MN_FNCU = missionNamespace getVariable ["gCS_MN_FNCU", [CQM_MN_LOOP_0,CQM_MN_LOOP_1,CQM_MN_LOOP_2,CQM_MN_LOOP_3,CQM_MN_LOOP_4,CQM_MN_LOOP_5,CQM_MN_LOOP_6,CQM_MN_LOOP_7]];
+gCS_MN_FNCU = missionNamespace getVariable ["gCS_MN_FNCU", [CQM_fnc_MN_Loop_0,CQM_fnc_MN_Loop_1,CQM_fnc_MN_Loop_2,CQM_fnc_MN_Loop_3,CQM_fnc_MN_Loop_4,CQM_fnc_MN_Loop_5,CQM_fnc_MN_Loop_6,CQM_fnc_MN_Loop_7]];
 gCS_MN_FNCS = missionNamespace getVariable ["gCS_MN_FNCS", [
 		{},
 		{},

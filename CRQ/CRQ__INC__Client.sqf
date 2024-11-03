@@ -1,10 +1,13 @@
 
+if (isDedicated) exitWith {};
 #define CRQ_DEFINE_CLIENT 1
 
+if (!isServer) then {
 #include "CRQ__INC__Shared.sqf"
+};
 
 #include "CRQ__DEF__Client.sqf"
-#include "..\CQM\CQM__FNC__Client.sqf"
+#include "..\CQM\CQM__INC__Client.sqf"
 #include "CRQ__FNC__Client.sqf";
 
 gCC_PM_ENL_Grass = (["CRQ_PM_EN_Grass", 25000] call BIS_fnc_getParamValue) / 1000;

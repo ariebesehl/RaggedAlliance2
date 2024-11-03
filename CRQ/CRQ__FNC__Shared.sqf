@@ -128,7 +128,7 @@ CRQ_ArrayRandomize = {
 CRQ_Angle = {
 	private _bigger = selectMax _this;
 	private _smaller = selectMin _this;
-	selectMin [_bigger - _smaller, 360 - _bigger + _smaller]
+	((_bigger - _smaller) min (360 - _bigger + _smaller))
 };
 CRQ_AngleAvg = {
 	private _distX = 0;
@@ -140,26 +140,20 @@ CRQ_AngleAvg = {
 	((_distX atan2 _distY) + 180)
 };
 CRQ_Pos2D = {
-	private _pos = getPosWorld _this;
-	_pos deleteAt 2;
-	_pos
+	_this = getPosWorld _this;
+	_this deleteAt 2;
+	_this
 };
-/*
 CRQ_Pos3D = {
 	private _pos = getPosWorld _this;
-	_pos set [2, (getPosATL _this)#2];
-	_pos
-};
-*/
-CRQ_Pos3D = {
-	private _pos = getPosWorld _this;
+	// _pos set [2, (getPosATL _this)#2]; // D303: This was prev at this time, already long ago
 	_pos set [2, ((getPosATL _this)#2) + (0 min (getTerrainHeightASL _pos))];
 	_pos
 };
 CRQ_PosGroup = {
-	private _pos = getPosWorld (leader _this);
-	_pos deleteAt 2;
-	_pos
+	_this = getPosWorld (leader _this);
+	_this deleteAt 2;
+	_this
 };
 CRQ_PosClosest = {
 	params ["_pos", "_candidates"];
@@ -169,25 +163,9 @@ CRQ_PosClosest = {
 	_index
 };
 CRQ_PosAvg = {
-	private _posX = 0;
-	private _posY = 0;
-	{
-		_posX = _posX + (_x#0);
-		_posY = _posY + (_x#1);
-	} forEach _this;
-	private _num = count _this;
-	if (_num > 0) then {[_posX / _num, _posY / _num]} else {[]};
-};
-CRQ_PosAvgObj = {
-	private _posX = 0;
-	private _posY = 0;
-	{
-		private _pos = getPosWorld _x;
-		_posX = _posX + (_pos#0);
-		_posY = _posY + (_pos#1);
-	} forEach _this;
-	private _num = count _this;
-	if (_num > 0) then {[_posX / _num, _posY / _num]} else {[]};
+	private _pos = [];
+	{_pos = _pos vectorAdd _x;} forEach _this;
+	(count _this) call {_pos apply {_x / _this}}
 };
 CRQ_Vec2D = {
 	[_this call CRQ_Pos2D, getDir _this]
@@ -229,16 +207,16 @@ CRQ_VecUtilSetup = {
 	params ["_vec", ["_radius", CRQ_UT_VU_RADIUS], ["_resolution", CRQ_UT_VU_RESOLUTION]];
 	if (_radius <= 0) then {_radius = CRQ_UT_VU_RADIUS;};
 	if (_resolution <= 0) then {_resolution = CRQ_UT_VU_RESOLUTION;};
-	gCQ_VecUtil = [if (count (_vec#0) > 2) then {_vec} else {[(_vec#0) + [0], _vec#1]}, _radius, _resolution, true, objNull, -1, getTerrainHeightASL (_vec#0)];
+	pCQ_UT_Vec = [if (count (_vec#0) > 2) then {_vec} else {[(_vec#0) + [0], _vec#1]}, _radius, _resolution, true, objNull, -1, getTerrainHeightASL (_vec#0)];
 };
 CRQ_VecUtilValid = {
-	(gCQ_VecUtil#3)
+	(pCQ_UT_Vec#3)
 };
 CRQ_VecUtilObject = {
-	(gCQ_VecUtil#4)
+	(pCQ_UT_Vec#4)
 };
 CRQ_VecUtilIndex = {
-	(gCQ_VecUtil#5)
+	(pCQ_UT_Vec#5)
 };
 gCQ_VecPos = missionNamespace getVariable ["gCQ_VecPos", [{
 	_argPos params [["_posX", 0], ["_posY", 0], ["_posZ", 0]];
@@ -261,12 +239,12 @@ gCQ_VecPos = missionNamespace getVariable ["gCQ_VecPos", [{
 },{
 	_argPos params [["_vecDist", 0], ["_vecDir", 0], ["_vecZ", 0]];
 	_vecDir = _vecDir + (_vec#1);
-	_vec set [0, ((_vec#0) vectorAdd [sin _vecDir * _vecDist, cos _vecDir * _vecDist, _vecZ]) call {_this vectorAdd [0, 0, (gCQ_VecUtil#6) - (getTerrainHeightASL _this)]}];
+	_vec set [0, ((_vec#0) vectorAdd [sin _vecDir * _vecDist, cos _vecDir * _vecDist, _vecZ]) call {_this vectorAdd [0, 0, (pCQ_UT_Vec#6) - (getTerrainHeightASL _this)]}];
 	_vec set [1, (_vec#1) + _argDir];
 },{
-	_argPos params [["_criteria", "meadow"], ["_radius", (gCQ_VecUtil#1)], ["_resolution", (gCQ_VecUtil#2)]];
-	gCQ_VecUtil set [3, false];
-	if (_radius < 0) then {_radius = -_radius * (gCQ_VecUtil#1);};
+	_argPos params [["_criteria", "meadow"], ["_radius", (pCQ_UT_Vec#1)], ["_resolution", (pCQ_UT_Vec#2)]];
+	pCQ_UT_Vec set [3, false];
+	if (_radius < 0) then {_radius = -_radius * (pCQ_UT_Vec#1);};
 	private _found = false;
 	for "_n" from 1 to CRQ_UT_VU_ATTEMPTS_FIND do {
 		private _options = selectBestPlaces [_vec#0, _radius, _criteria, _resolution, 1];
@@ -284,16 +262,16 @@ gCQ_VecPos = missionNamespace getVariable ["gCQ_VecPos", [{
 					};
 				};
 			};
-			gCQ_VecUtil set [3, true];
+			pCQ_UT_Vec set [3, true];
 			_found = true;
 		};
 		if (_found) exitWith {};
 	};
 },{
-	_argPos params [["_clearance", 5], ["_radiusMin", 0], ["_radiusMax", gCQ_VecUtil#1]];
-	gCQ_VecUtil set [3, false];
-	if (_radiusMin < 0) then {_radiusMin = -_radiusMin * (gCQ_VecUtil#1);};
-	if (_radiusMax < 0) then {_radiusMax = -_radiusMax * (gCQ_VecUtil#1);};
+	_argPos params [["_clearance", 5], ["_radiusMin", 0], ["_radiusMax", pCQ_UT_Vec#1]];
+	pCQ_UT_Vec set [3, false];
+	if (_radiusMin < 0) then {_radiusMin = -_radiusMin * (pCQ_UT_Vec#1);};
+	if (_radiusMax < 0) then {_radiusMax = -_radiusMax * (pCQ_UT_Vec#1);};
 	private _radiusVar = _radiusMax - _radiusMin;
 	private _posBase = [_vec#0#0, _vec#0#1, 0];
 	private _attempt = 0;
@@ -307,17 +285,17 @@ gCQ_VecPos = missionNamespace getVariable ["gCQ_VecPos", [{
 			private _posASL = AGLToASL _this;
 			if ((lineIntersectsSurfaces [_posASL, _posASL vectorAdd [0, 0, 50], objNull, objNull, false, 1, "GEOM", "NONE"]) isNotEqualTo []) exitWith {};
 			_vec set [0, _this];
-			gCQ_VecUtil set [3, true];
+			pCQ_UT_Vec set [3, true];
 			_found = true;
 		};
 		if (_found) exitWith {};
 	};
 },{
-	_argPos params [["_types", []], ["_closest", false], ["_radius", gCQ_VecUtil#1]];
-	gCQ_VecUtil set [3, false];
-	gCQ_VecUtil set [4, objNull];
-	gCQ_VecUtil set [5, -1];
-	if (_radius < 0) then {_radius = -_radius * (gCQ_VecUtil#1);};
+	_argPos params [["_types", []], ["_closest", false], ["_radius", pCQ_UT_Vec#1]];
+	pCQ_UT_Vec set [3, false];
+	pCQ_UT_Vec set [4, objNull];
+	pCQ_UT_Vec set [5, -1];
+	if (_radius < 0) then {_radius = -_radius * (pCQ_UT_Vec#1);};
 	private _found = [];
 	private _houses = nearestTerrainObjects [_vec#0, ["HOUSE"], _radius, _closest, true];
 	if (_types isNotEqualTo []) then {
@@ -341,28 +319,26 @@ gCQ_VecPos = missionNamespace getVariable ["gCQ_VecPos", [{
 	};
 	if (_found isEqualTo []) exitWith {};
 	_vec = (_found#0) call CRQ_Vec3D;
-	gCQ_VecUtil set [3, true];
-	gCQ_VecUtil set [4, _found#0];
-	gCQ_VecUtil set [5, _found#1];
+	pCQ_UT_Vec set [3, true];
+	pCQ_UT_Vec set [4, _found#0];
+	pCQ_UT_Vec set [5, _found#1];
 }]];
-/*
-gCQ_VecDir = missionNamespace getVariable ["gCQ_VecDir", [{
-	_vec set [1, _argDir];
-},{
-	_vec set [1, (_vec#1) + _argDir];
-},{
-	_vec set [1, random 360];
-},{
-	private _roads = (_vec#0) nearRoads _radius; // OPTIMIZE 
-	if (_roads isNotEqualTo []) then {
-		_vec set [1, (_vec#0) getDir (_roads#([(_vec#0), _roads] call CRQ_PosClosest))];
-	} else {
-		_vec set [1, random 360];
-	};
-}]];
-*/
+// gCQ_VecDir = missionNamespace getVariable ["gCQ_VecDir", [{
+	// _vec set [1, _argDir];
+// },{
+	// _vec set [1, (_vec#1) + _argDir];
+// },{
+	// _vec set [1, random 360];
+// },{
+	// private _roads = (_vec#0) nearRoads _radius; // OPTIMIZE 
+	// if (_roads isNotEqualTo []) then {
+		// _vec set [1, (_vec#0) getDir (_roads#([(_vec#0), _roads] call CRQ_PosClosest))];
+	// } else {
+		// _vec set [1, random 360];
+	// };
+// }]];
 CRQ_VecUtil = {
-	private _vec = +(gCQ_VecUtil#0);
+	private _vec = +(pCQ_UT_Vec#0);
 	{
 		_x params ["_mode", ["_argPos", []], ["_argDir", 0]];
 		[] call (gCQ_VecPos#_mode); // TODO inhibit continue if Valid == false
@@ -468,12 +444,14 @@ CRQ_WorldTerrainObjects = {
 };
 CRQ_WorldClutter2D = {
 	params ["_vec", "_radius", ["_ignore", []], ["_radiusExtra", CRQ_OBJ_CLUTTER], ["_collision", false]];
-	private _clutter = [];
+	// private _clutter = [];
 	if (_radius isEqualType -1) exitWith {
 		private _pos = _vec#0;
-		{if (_ignore find _x == -1 && {(_pos distance2D _x) < (_radius + ((_x call CRQ_ObjectSize)#0))}) then {_clutter pushBack _x;};} forEach (nearestTerrainObjects [_pos, [], _radius + _radiusExtra, false, true]);
-		_clutter
+		((nearestTerrainObjects [_pos, [], _radius + _radiusExtra, false, true]) select {_ignore find _x == -1 && {(_pos distance2D _x) < (_radius + ((_x call CRQ_ObjectSize)#0))}})
+		// {if (_ignore find _x == -1 && {(_pos distance2D _x) < (_radius + ((_x call CRQ_ObjectSize)#0))}) then {_clutter pushBack _x;};} forEach (nearestTerrainObjects [_pos, [], _radius + _radiusExtra, false, true]);
+		// _clutter
 	};
+	private _clutter = [];
 	private _fnc_Corners = if (_collision) then {CRQ_ObjectCollisionCorners2D} else {CRQ_ObjectCorners2D};
 	private _areaCorners = [_vec, _radius] call CRQ_AreaCorners;
 	private _areaOffsets = _areaCorners apply {(_x vectorMultiply -1)};
@@ -513,7 +491,7 @@ CRQ_ObjectCollisionCorners2D = { // TODO does not work with Razor Wire -- is thi
 	
 	private _model = toLowerANSI (_this call CRQ_ObjectModel);
 	private _scale = getObjectScale _this;
-	private _existing = gCQ_ObjectAreas getOrDefault [_model, []];
+	private _existing = pCQ_OBJ_Footprints getOrDefault [_model, []];
 	if (_existing isNotEqualTo []) exitWith {[_this call CRQ_Vec2D, [(_existing#0) * _scale, (_existing#1) * _scale]] call CRQ_AreaCorners};
 	
 	(getPosWorld _this) params ["_objX", "_objY", "_objZ"];
@@ -551,7 +529,7 @@ CRQ_ObjectCollisionCorners2D = { // TODO does not work with Razor Wire -- is thi
 	} forEach [[_objL, _facL, {[_objX + (_x#0) * _l, _objY + (_x#1) * _l]}, {_l = _f * _objL;}], [_objW, _facW, {[_objX + (_x#0) * _w, _objY + (_x#1) * _w]}, {_w = _f * _objW;}]];
 	
 	_scale = _scale * 2;
-	gCQ_ObjectAreas set [_model, [((_points#0) distance2D (_points#1)) / _scale, ((_points#3) distance2D (_points#0)) / _scale]];
+	pCQ_OBJ_Footprints set [_model, [((_points#0) distance2D (_points#1)) / _scale, ((_points#3) distance2D (_points#0)) / _scale]];
 	
 	_points
 };
@@ -595,17 +573,17 @@ CRQ_ConfigChildren = {
 	private _hierarchy = [[_this]];
 	private _index = 0;
 	private _level = 0;
-	private _nextLevel = 1;
+	private _nextLevel = _level + 1;
 	private _continue = true;
 	while {_continue} do {
 		private _current = "true" configClasses (_hierarchy#_level#_index);
 		_children append _current;
 		if (count (_hierarchy) <= _nextLevel) then {_hierarchy pushBack _current;} else {(_hierarchy#_nextLevel) append _current;};
 		_index = _index + 1;
-		if (count (_hierarchy#_level) <= _index) then {
+		if (count (_hierarchy#_level) <= _index) then { // TODO that count could be optimized away
 			if ((_hierarchy#_nextLevel) isNotEqualTo []) then {
 				_index = 0;
-				_level = _level + 1;
+				_level = _nextLevel;
 				_nextLevel = _nextLevel + 1;
 			} else {
 				_continue = false;
@@ -621,22 +599,21 @@ CRQ_ConfigVehicleTurrets = { // derived from BIS_fnc_getTurrets
 	_turrets
 };
 CRQ_ConfigWeaponBase = { // derived from BIS_fnc_baseWeapon
-	private _predefined = gCQ_CfgWeapons >> (getText (_this >> "baseWeapon"));
+	private _predefined = pCQ_CFG_Weapons >> (getText (_this >> "baseWeapon"));
 	if (isClass _predefined) exitwith {_predefined};
 	private _base = _this;
 	{if (count (_x >> "linkeditems") == 0) exitwith {_base = _x;};} forEach (_this call CRQ_ConfigParents);
 	_base
 };
 CRQ_ConfigWeaponMagazines = {
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this;};
 	private _mags = (getArray (_this >> "magazines"));
-	{{_mags append (getArray _x);} forEach (configProperties [gCQ_CfgMagazineWells >> _x]);} forEach (getArray (_this >> "magazineWell"));
+	{{_mags append (getArray _x);} forEach (configProperties [pCQ_CFG_MagazineWells >> _x]);} forEach (getArray (_this >> "magazineWell"));
 	(_mags arrayIntersect _mags)
 };
 CRQ_ClassModel = {
-	private _path = (getText (gCQ_CfgVehicles >> _this >> "model")) splitString "\";
-	private _last = (count _path - 1);
-	if (_last >= 0) exitWith {_path#_last};
+	private _path = (getText (pCQ_CFG_Vehicles >> _this >> "model")) splitString "\";
+	if (_path isNotEqualTo []) exitWith {_path#-1};
 	""
 };
 CRQ_ClassSize = {
@@ -650,6 +627,9 @@ CRQ_ClassCenter = {
 	private _return = boundingCenter _obj;
 	deleteVehicle _obj;
 	_return
+};
+CRQ_ClassAirborne = {
+	((toLowerANSI (getText (pCQ_CFG_Vehicles >> _type >> "simulation"))) call {_this isEqualTo "airplanex" || {_this isEqualTo "helicopterx" || {_this isEqualTo "helicopterrtd"}}})
 };
 CRQ_ObjectDummy = {
 	private _obj = createSimpleObject [_this , CRQ_OBJ_DUMMY_POS, true];
@@ -679,17 +659,28 @@ CRQ_PropRasterize = {
 	_setup call CRQ_VecUtilSetup;
 	(_sources apply {[_x#0, (_x#1) call CRQ_VecUtil]})
 };
+CRQ_fnc_ClassLights = {
+	if (_this isEqualType "") then {_this = pCQ_CFG_Vehicles >> _this;};
+	("true" configClasses (_this >> "Reflectors")) + ("true" configClasses (_this >> "MarkerLights"))
+};
+CRQ_fnc_ClassLadders = {
+	if (_this isEqualType "") then {_this = pCQ_CFG_Vehicles >> _this;};
+	getArray (_this >> "ladders")
+};
 gCQ_PROP_SIMPLE = missionNamespace getVariable ["gCQ_PROP_SIMPLE", createHashMap];
 CRQ_PropSpawn = {
 	params ["_list", ["_damage", true], ["_simple", false]];
 	(_list apply {
 		_x params ["_type", "_vec"];
 		if (_type isNotEqualTo "") then {
+			if (!(_type in gCQ_PROP_SIMPLE)) then {
+				private _canSimple = true;
+				private _cfg = pCQ_CFG_Vehicles >> _type;
+				{_canSimple = _canSimple && {_cfg call _x};} forEach [{count (_this call CRQ_fnc_ClassLights) < 1}, {count (_this call CRQ_fnc_ClassLadders) < 1}];
+				gCQ_PROP_SIMPLE set [_type, _canSimple];
+			};
 			private _object = objNull;
-			private _cfg = gCQ_CfgVehicles >> _type;
-			// TODO make a generic function off of below
-			if (count ("true" configClasses (_cfg >> "Reflectors")) > 0|| {count ("true" configClasses (_cfg >> "MarkerLights")) > 0}) then {gCQ_PROP_SIMPLE set [_type, false];};
-			private _attempt = (gCQ_PROP_SIMPLE getOrDefault [_type, true]) && {_simple};
+			private _attempt = _simple && {gCQ_PROP_SIMPLE get _type};
 			if (_attempt) then {
 				_object = createSimpleObject [_type, ATLToASL (_vec#0)];
 				_object setDir (_vec#1);
@@ -714,10 +705,10 @@ CRQ_Side = {
 	if (_this isEqualType -1) exitWith {if (_this < 0) exitWith {sideUnknown}; CRQ_SD_TYPES#_this};
 	if (_this isEqualType objNull || {_this isEqualType grpNull || {_this isEqualType locationNull}}) then {_this = side _this;};
 	if (_this isEqualType sideUnknown) exitWith {
-		if (_this isEqualTo opfor) exitWith {CRQ_SD_OPFOR};
-		if (_this isEqualTo independent) exitWith {CRQ_SD_IDFOR};
-		if (_this isEqualTo blufor) exitWith {CRQ_SD_BLUFOR};
-		if (_this isEqualTo civilian) exitWith {CRQ_SD_CIVFOR};
+		if (_this isEqualTo opfor) exitWith {CRQ_SD_OPF};
+		if (_this isEqualTo independent) exitWith {CRQ_SD_IND};
+		if (_this isEqualTo blufor) exitWith {CRQ_SD_BLU};
+		if (_this isEqualTo civilian) exitWith {CRQ_SD_CIV};
 		CRQ_SD_UNKNOWN
 	};
 	CRQ_SD_UNKNOWN
@@ -738,27 +729,27 @@ CRQ_SideLabel = {
 CRQ_SideAlly = {
 	_this = CRQ__BISIDE(_this);
 	private _allies = [];
-	{if (_this getFriend _x >= CRQ_RELATIONS_FRIEND) then {_allies pushBack _forEachIndex;};} forEach CRQ_SD_TYPES;
+	{if (_this getFriend _x >= CRQ_SD_LEVEL_FRIEND) then {_allies pushBack _forEachIndex;};} forEach CRQ_SD_TYPES;
 	_allies
 };
 CRQ_SideEnemy = {
 	_this = CRQ__BISIDE(_this);
 	private _enemies = [];
-	{if (_this getFriend _x < CRQ_RELATIONS_NEUTRAL) then {_enemies pushBack _forEachIndex;};} forEach CRQ_SD_TYPES;
+	{if (_this getFriend _x < CRQ_SD_LEVEL_NEUTRAL) then {_enemies pushBack _forEachIndex;};} forEach CRQ_SD_TYPES;
 	_enemies
 };
 CRQ_SideNeutral = {
 	_this = CRQ__BISIDE(_this);
 	private _neutral = [];
-	{if (_this getFriend _x >= CRQ_RELATIONS_NEUTRAL && {_this getFriend _x < CRQ_RELATIONS_FRIEND}) then {_neutral pushBack _forEachIndex;};} forEach CRQ_SD_TYPES;
+	{if (_this getFriend _x >= CRQ_SD_LEVEL_NEUTRAL && {_this getFriend _x < CRQ_SD_LEVEL_FRIEND}) then {_neutral pushBack _forEachIndex;};} forEach CRQ_SD_TYPES;
 	_neutral
 };
 CRQ_SideRelation = {
 	params ["_self", "_other"];
 	private _relation = CRQ__BISIDE(_self) getFriend CRQ__BISIDE(_other);
-	if (_relation < CRQ_RELATIONS_NEUTRAL) exitWith {CRQ_RELATION_HOSTILE};
-	if (_relation < CRQ_RELATIONS_FRIEND) exitWith {CRQ_RELATION_NEUTRAL};
-	CRQ_RELATION_FRIENDLY
+	if (_relation < CRQ_SD_LEVEL_NEUTRAL) exitWith {CRQ_SD_REL_HOSTILE};
+	if (_relation < CRQ_SD_LEVEL_FRIEND) exitWith {CRQ_SD_REL_NEUTRAL};
+	CRQ_SD_REL_FRIENDLY
 };
 CRQ_SideBilateral = {
 	params ["_side0", "_side1", "_relation"];
@@ -872,20 +863,18 @@ CRQ_InventoryAppend = {
 	(_inventory#1) append (_append#1);
 	_inventory
 };
-/*
-CRQ_InventoryBox = {
-	private _items = itemCargo _this;
-	private _mags = magazinesAmmoCargo _this;
-	private _weapons = weaponsItemsCargo _this;
-	private _containers = [];
-	{_containers pushBack [_x#0, [itemCargo (_x#1), magazinesAmmoCargo (_x#1), weaponsItemsCargo (_x#1), backpackCargo (_x#1)]];} forEach (everyContainer _this);
-	{
-		private _index = _items find (_x#0);
-		if (_index != -1) then {_items deleteAt _index;};
-	} forEach _containers;
-	[[_items, _mags, _weapons], _containers]
-};
-*/
+// CRQ_InventoryBox = {
+	// private _items = itemCargo _this;
+	// private _mags = magazinesAmmoCargo _this;
+	// private _weapons = weaponsItemsCargo _this;
+	// private _containers = [];
+	// {_containers pushBack [_x#0, [itemCargo (_x#1), magazinesAmmoCargo (_x#1), weaponsItemsCargo (_x#1), backpackCargo (_x#1)]];} forEach (everyContainer _this);
+	// {
+		// private _index = _items find (_x#0);
+		// if (_index != -1) then {_items deleteAt _index;};
+	// } forEach _containers;
+	// [[_items, _mags, _weapons], _containers]
+// };
 CRQ_InventoryBox = {
 	private _containers = (everyContainer _this) apply {[_x#0, [itemCargo (_x#1), magazinesAmmoCargo (_x#1), weaponsItemsCargo (_x#1), backpackCargo (_x#1)]]};
 	[[(itemCargo _this) - (_containers apply {_x#0}), magazinesAmmoCargo _this, weaponsItemsCargo _this], _containers]
@@ -1007,7 +996,7 @@ CRQ_InventoryMagRepack = {
 	private _ret = [];
 	{
 		private _total = _y;
-		private _full = getNumber (gCQ_CfgMagazines >> _x >> "count");
+		private _full = getNumber (pCQ_CFG_Magazines >> _x >> "count");
 		private _count = floor (_total / _full);
 		for "_i" from 1 to _count do {_ret pushBack [_x, _full];};
 		private _rest = _total % _full;
@@ -1048,7 +1037,7 @@ CRQ_InventoryWeaponStrip = {
 CRQ_InventoryLoadoutAppend = { // TODO check load state, existing weapon, etc...
 	params ["_loadout", "_inventory"];
 	{
-		(getNumber (gCQ_CfgWeapons >> (_x#0) >> "type")) call {
+		(getNumber (pCQ_CFG_Weapons >> (_x#0) >> "type")) call {
 			if (_this == 1) exitWith {_loadout set [0, _x];};
 			if (_this == 2) exitWith {_loadout set [2, _x];};
 			if (_this == 4) exitWith {_loadout set [1, _x];};
@@ -1070,7 +1059,7 @@ CRQ_InventoryLoadoutAppend = { // TODO check load state, existing weapon, etc...
 	private _container = [4,3,5] select {(_loadout#_x) isNotEqualTo []};
 	{
 		private _target = [];
-		{switch (_x) do {case 801: {_target pushBack 3;}; case 701: {_target pushBack 4;}; case 901: {_target pushBack 5;}; default {};};} forEach (getArray (gCQ_CfgMagazines >> (_x#0) >> "allowedSlots"));
+		{switch (_x) do {case 801: {_target pushBack 3;}; case 701: {_target pushBack 4;}; case 901: {_target pushBack 5;}; default {};};} forEach (getArray (pCQ_CFG_Magazines >> (_x#0) >> "allowedSlots"));
 		if (_target isNotEqualTo []) then {_target = _target arrayIntersect _container;} else {_target = _container;};
 		if (_target isNotEqualTo []) then {(_loadout#(_target#0)#1) pushBack _x;};
 	} forEach ((_inventory#0#1) call CRQ_InventoryMagCompress);
@@ -1099,19 +1088,20 @@ CRQ_InventoryItemCompress = {
 };
 CRQ_VehiclesFind = {
 	params ["_pos", "_radius", ["_mode2D", true]];
-	/*
-	private _vehicles = [];
-	{
-		private _obj = _x;
-		{if (_obj isKindOf _x) exitWith {_vehicles pushBack _obj;};} forEach CRQ_CLASS_VEHICLE;
-	} forEach (_pos nearObjects _radius);
-	*/
+	// private _vehicles = [];
+	// {
+		// private _obj = _x;
+		// {if (_obj isKindOf _x) exitWith {_vehicles pushBack _obj;};} forEach CRQ_CLASS_VEHICLE;
+	// } forEach (_pos nearObjects _radius);
 	nearestObjects [_pos, CRQ_CLASS_VEHICLE, _radius, _mode2D]
 };
+// CRQ_WrecksFind = {
+	// private _wrecks = [];
+	// {if (!alive _x) then {_wrecks pushBack _x;};} forEach (_this call CRQ_VehiclesFind);
+	// _wrecks
+// };
 CRQ_WrecksFind = {
-	private _wrecks = [];
-	{if (!alive _x) then {_wrecks pushBack _x;};} forEach (_this call CRQ_VehiclesFind);
-	_wrecks
+	((_this call CRQ_VehiclesFind) select {!alive _x})
 };
 CRQ_UnitCreate = {
 	params ["_group", "_type", "_vec", ["_loadout", []], ["_skill", -1], ["_damage", 0]];
@@ -1148,9 +1138,6 @@ CRQ_UnitVehicleAssign = {
 	[_unit] orderGetIn true;
 	[] call ([{_unit moveInCommander _vehicle;}, {_unit moveInGunner _vehicle;}, {_unit moveInDriver _vehicle;}, {_unit moveInAny _vehicle;}, {_unit moveInTurret [_vehicle, _turret];}]#_role);
 };
-CRQ_ClassAirborne = {
-	((toLowerANSI (getText (gCQ_CfgVehicles >> _type >> "simulation"))) call {_this isEqualTo "airplanex" || {_this isEqualTo "helicopterx" || {_this isEqualTo "helicopterrtd"}}})
-};
 CRQ_VehicleCreate = {
 	params ["_type", "_vec", ["_inventory", []], ["_state", []], ["_textures", []]];
 	private _airborne = (count (_vec#0) > 2) && {(_vec#0#2) >= CRQ_PT_FL_ALTITUDE && {_type call CRQ_ClassAirborne}};
@@ -1169,17 +1156,16 @@ CRQ_VehicleCreate = {
 		{_vehicle setHitIndex [_x#0, _x#1, false, objNull];} forEach _damage;
 	};
 	if (_textures isNotEqualTo []) then {_vehicle setVariable ["BIS_enableRandomization", false]; {_vehicle setObjectTextureGlobal _x;} forEach _textures;};
-	#ifndef CRQ_DEFINE_CLIENT
 	// TODO disassembled? may be caught by verifying asset is not suddenly null
+	#ifndef CRQ_DEFINE_CLIENT
 	_vehicle addEventHandler ["Killed", CRQ_EHS_VehicleKilled];
 	#endif
 	_vehicle
 };
+
 CRQ_VehicleDelete = {
-	//if (!isNull _this) then {
 	{moveOut _x;} forEach (crew _this);
 	deleteVehicle _this;
-	//};
 };
 CRQ_VehicleThaw = {
 	private _vehicle = (_this#0) call CRQ_VehicleCreate;
@@ -1197,13 +1183,6 @@ CRQ_VehicleHibernate = {
 	{_textures pushBack [_forEachIndex, _x];} forEach (getObjectTextures _this);
 	[[typeOf _this, _this call CRQ_Vec3D, _this call CRQ_InventoryBox, [_damage, [], _fuel], _textures], _this call CRQ_VarRetrieve]
 };
-
-#define CRQ_LNK_NONE createHashMap
-gCQ_LNK_LIST = missionNamespace getVariable ["gCQ_LNK_LIST", createHashMap];
-gCQ_LNK_FNCH = missionNamespace getVariable ["gCQ_LNK_FNCH", [{[_this#0, "CRQP_NGLNK", _this#1] call CRQ_VarGet}, {[_this#0, "CRQP_NGLNK", _this#1] call CRQ_VarSet}, {[_this#0, "CRQP_NGLNK"] call CRQ_VarFree}]];
-gCQ_LNK_FNCO = missionNamespace getVariable ["gCQ_LNK_FNCO", [{(_this#0) getVariable ["CRQP_NGLNK", _this#1]}, {(_this#0) setVariable ["CRQP_NGLNK", _this#1]}, {(_this#0) set ["CRQP_NGLNK", nil]}]];
-#define CRQ_mac_LNK_ANSI_0(ID) (toLowerANSI (ID))
-#define CRQ_mac_LNK_ANSI_1(ID) ID = CRQ_mac_LNK_ANSI_0(ID)
 
 CRQ_fnc_LNK_Create = {
 	params ["_id", ["_objects", []], ["_data", true]];
@@ -1276,39 +1255,39 @@ CRQ_fnc_MAP_Group = {
 	params [["_objects", []], ["_fnc_id", {str _this}], ["_fnc_setup", {[]}], ["_fnc_cond", {false}]];
 	private _mapGroups = createHashMap;
 	private _mapElems = createHashMap;
+	private _last = (count _objects) - 1;
 	{
 		private _refElem = _x;
 		private _refId = _refElem call _fnc_id;
 		private _refGroup = _mapElems getOrDefault [_refId, ""];
 		private _refSetup = _refElem call _fnc_setup;
-		private _merge = [];
 		private _group = _mapGroups getOrDefault [_refGroup, []];
-		{
-			if (_x isNotEqualTo _refElem) then {
-				if ([_refElem, _refSetup, _x] call _fnc_cond) then {
-					private _existing = (_mapElems getOrDefault [_x call _fnc_id, ""]);
-					if (_existing isNotEqualTo "") then {
-						if (_refGroup isEqualTo "") then {
-							_refGroup = _existing;
-							_group = _mapGroups get _refGroup;
-							_group pushBack _refId;
-						} else {
-							if (_refGroup isNotEqualTo _existing) then {
-								_merge pushBackUnique _existing;
-							};
-						};
+		private _merge = [];
+		for "_i" from (_forEachIndex + 1) to _last do {
+			_x = _objects#_i;
+			if ([_x, _refElem, _refSetup] call _fnc_cond) then {
+				private _existing = (_mapElems getOrDefault [_x call _fnc_id, ""]);
+				if (_existing isNotEqualTo "") then {
+					if (_refGroup isEqualTo "") then {
+						_refGroup = _existing;
+						_group = _mapGroups get _refGroup;
+						_group pushBack _refId;
 					} else {
-						if (_refGroup isEqualTo "") then {
-							_group pushBack _refId;
-							_refGroup = _refId;
-							_mapGroups set [_refGroup, _group];
+						if (_refGroup isNotEqualTo _existing) then {
+							_merge pushBackUnique _existing;
 						};
-						_group pushBack (_x call _fnc_id);
-						_mapElems set [_x call _fnc_id, _refGroup];
 					};
+				} else {
+					if (_refGroup isEqualTo "") then {
+						_group pushBack _refId;
+						_refGroup = _refId;
+						_mapGroups set [_refGroup, _group];
+					};
+					_group pushBack (_x call _fnc_id);
+					_mapElems set [_x call _fnc_id, _refGroup];
 				};
 			};
-		} forEach _objects;
+		};
 		if (_refGroup isEqualTo "") then {
 			_group pushBack _refId;
 			_refGroup = _refId;
@@ -1325,8 +1304,112 @@ CRQ_fnc_MAP_Group = {
 			{_mapGroups deleteAt _x;} forEach _merge;
 		};
 	} forEach _objects;
-	[_mapGroups, _mapElems]
+	[_mapElems, _mapGroups]
 };
+CRQ_fnc_MAP_Traversable = { // TODO not perfect if pos distance not remainderlessly divisible by res
+	params ["_pos0", "_pos1", ["_resolution", CRQ_TERRAIN_RESOLUTION]];
+	private _dist = _pos0 distance2D _pos1;
+	private _offset = (_dist % _resolution) / 2;
+	private _dir = _pos0 getDir _pos1;
+	private _height = [];
+	for "_r" from _offset to (_dist - _offset) step _resolution do {_height pushBack (getTerrainHeightASL (_pos0 getPos [_r, _dir]))};
+	_height
+};
+CRQ_fnc_MAP_TerrainPoints = {
+	params [["_traversable", CRQ_TERRAIN_TRAVERSE], ["_resolution", CRQ_TERRAIN_RESOLUTION], ["_fnc_progress", {}]];
+	private _count = (ceil (worldSize / _resolution) + 1)^2;
+	private _index = 0;
+	private _points = createHashMap;
+	private _masses = createHashMap;
+	private _limit = (ceil (worldSize / _resolution)) * _resolution;;
+	for "_posY" from 0 to _limit step _resolution do {
+		for "_posX" from 0 to _limit step _resolution do {
+			private _pos = [_posX, _posY];
+			private _grid = ([[0, 0], [-_resolution, 0], [0, -_resolution]]) apply {str (_pos vectorAdd _x)};
+			private _passable = [];
+			private _cornerASL = [[0, _resolution], [0, 0], [_resolution, 0]] apply {(_pos vectorAdd _x) + [_traversable]};
+			{_passable pushBack (selectMax ([_cornerASL#((_forEachIndex + 1) % 3), _x, _resolution / 3] call CRQ_fnc_MAP_Traversable) >= _traversable);} forEach _cornerASL;
+			if ((_passable#0) || {(_passable#1) || {(_passable#2)}}) then {
+				private _new = [_grid#0];
+				private _prev = [];
+				if (_passable#0) then {
+					private _left = _points getOrDefault [(_grid#1), ""];
+					if (_left isNotEqualTo "") then {_prev pushBack _left;} else {_new pushBack (_grid#1)};
+				};
+				if (_passable#1) then {
+					private _down = _points getOrDefault [(_grid#2), ""];
+					if (_down isNotEqualTo "") then {_prev pushBackUnique _down;} else {_new pushBack (_grid#2)};
+				};
+				if (_prev isEqualTo []) then {
+					_masses set [_grid#0, _new];
+					{_points set [_x, _grid#0];} forEach _new;
+				} else {
+					if (count _prev < 2) then {
+						(_masses get (_prev#0)) append _new;
+						{_points set [_x, _prev#0];} forEach _new;
+					} else {
+						{_new append (_masses deleteAt _x);} forEach _prev;
+						_masses set [_grid#0, _new];
+						{_points set [_x, _grid#0]} forEach _new;
+					};
+				};
+			};
+			_index = _index + 1;
+			(_index / _count) call _fnc_progress;
+		};
+	};
+	[_points, _masses]
+};
+CRQ_fnc_MAP_Runways = {
+	private _runways = [];
+	// getArray (_x >> "ilsAzimuthNumber")
+	{
+		private _pos = getArray (_x >> "ilsPosition");
+		private _dir = _pos getDir (_pos vectorAdd ((getArray (_x >> "ilsDirection")) call {[_this#0, _this#2, _this#1]}));
+		private _reverse = getNumber (_x >> "takeOffReversed") > 0;
+		private _carrier = getNumber (_x >> "isCarrier") > 0;
+		private _draw = getNumber (_x >> "drawTaxiway") > 0;
+		private _taxi = [[],[]];
+		{for "_i" from 0 to (count _x - 1) step 2 do {(_taxi#_forEachIndex) pushBack [_x#_i, _x#(_i + 1)];};} forEach [getArray (_x >> "ilsTaxiIn"), getArray (_x >> "ilsTaxiOff")];
+		_runways pushBack [[[_taxi#0#-1, _taxi#1#0] call CRQ_PosAvg, (_taxi#0#-1) getDir (_taxi#1#0)], [_pos, _dir], [] call CRQ_fnc_ByteEncode, _taxi];
+	} forEach ([pCQ_CFG_World] + ("true" configClasses (pCQ_CFG_World >> "SecondaryAirports")));
+	_runways
+};
+// CRQ_fnc_MAP_Atoll = {
+	// params ["_pos", ["_radius", 500], ["_sgmA", 120], ["_sgmR", 100], ["_ground", 0.25], ["_count", 0]];
+	// private _ret = [];
+	// _pos set [2, 0];
+	// private _scAngle = 360 / _sgmA;
+	// private _scLimitC = 360 - _scAngle;
+	// if (!(_count > 0)) then {_count = floor (0.34 * _sgmA);};
+	// for "_r" from 0 to _radius step (_radius / _sgmR) do {
+		// for "_a" from 0 to _scLimitC step _scAngle do {
+			// private _h = getTerrainHeightASL (_pos getPos [_r, _a]);
+			// if (if (_h >= _ground && {_count = _count - 1; !(_count < 0)}) then {_ret pushBack [_r, _a]; if (_count > 0) then {false} else {true}} else {false}) exitWith {};
+		// };
+	// };
+	// _ret
+// };
+CRQ_fnc_MAP_PosToGrid = {
+	params ["_pos", ["_digits", 3], ["_resolution", 100]];
+	private _char = [];
+	{for "_n" from (_digits - 1) to 0 step -1 do {_char pushBack (str (floor ((_x / (10^_n)) % 10)));};} forEach (_pos apply {floor (_x / _resolution)});
+	(_char joinString "")
+};
+CRQ_fnc_MAP_GridToPos = {
+	params ["_grid", ["_digits", 3], ["_resolution", 100]];
+	[_resolution * (parseNumber (_grid select [0, _digits])), _resolution * (parseNumber (_grid select [_digits, _digits]))]
+};
+// CRQ_fnc_MAP_Islands = {
+	// private _dist = 1.42 * CRQ_TERRAIN_RESOLUTION;
+	// private _seg = CRQ_TERRAIN_RESOLUTION / 4;
+	// ([
+		// (([CRQ_TERRAIN_RESOLUTION, CRQ_TERRAIN_TRAVERSE] call CRQ_fnc_MAP_TerrainPoints)#0),
+		// {[_this, 4, CRQ_TERRAIN_RESOLUTION] call CRQ_fnc_MAP_GridName},
+		// {[]},
+		// {(((_this#0) distance2D (_this#1)) <= _dist) && {[_this#0, _this#1, 10] call CRQ_fnc_MAP_Traversable}}
+	// ] call CRQ_fnc_MAP_Group)
+// };
 CRQ_fnc_RD_Type = {
 	((getRoadInfo _this)#0)
 };
@@ -1384,6 +1467,10 @@ CRQ_RoadPath = {
 		if (_break || {_counter >= _limit}) exitWith {};
 	};
 	_rdPath
+};
+CRQ_fnc_WP_Status = {
+	private _waypoints = waypoints _this;
+	[_waypoints, currentWaypoint _this, count _waypoints - 1]
 };
 CRQ_RoadWaypoints = {
 	private _waypoints = [];

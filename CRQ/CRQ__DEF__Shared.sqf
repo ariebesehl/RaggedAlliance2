@@ -20,30 +20,30 @@
 #define CRQ_UT_VU_RESOLUTION 5
 #define CRQ_UT_VU_ATTEMPTS_FIND 8
 #define CRQ_UT_VU_ATTEMPTS_EMPTY 1024
-#define CRQ_VUP_ABS 0
-#define CRQ_VUP_REL 1
-#define CRQ_VUP_VEC 2
-#define CRQ_VUP_VEC_GROUND 3
-#define CRQ_VUP_VEC_LEVEL 4
-#define CRQ_VUP_FIND 5
-#define CRQ_VUP_EMPTY 6
-#define CRQ_VUP_HOUSE 7
-#define CRQ_VUD_ABS 0
-#define CRQ_VUD_REL 1
-#define CRQ_VUD_RANDOM 2
-#define CRQ_VUD_ROAD 3
+#define CRQ_VU_PABS 0
+#define CRQ_VU_PREL 1
+#define CRQ_VU_PVEC 2
+#define CRQ_VU_PVTL 3
+#define CRQ_VU_PVWL 4
+#define CRQ_VU_PFND 5
+#define CRQ_VU_PEMP 6
+#define CRQ_VU_PHSE 7
+#define CRQ_VU_DABS 0
+#define CRQ_VU_DREL 1
+#define CRQ_VU_DRND 2
+#define CRQ_VU_DROD 3
 
 #define CRQ_SD_TYPES [blufor,independent,opfor,civilian]
 #define CRQ_SD_UNKNOWN -1
-#define CRQ_SD_BLUFOR 0
-#define CRQ_SD_IDFOR 1
-#define CRQ_SD_OPFOR 2
-#define CRQ_SD_CIVFOR 3
-#define CRQ_RELATIONS_NEUTRAL 0.6
-#define CRQ_RELATIONS_FRIEND 0.8
-#define CRQ_RELATION_HOSTILE 0
-#define CRQ_RELATION_NEUTRAL 1
-#define CRQ_RELATION_FRIENDLY 2
+#define CRQ_SD_BLU 0
+#define CRQ_SD_IND 1
+#define CRQ_SD_OPF 2
+#define CRQ_SD_CIV 3
+#define CRQ_SD_LEVEL_NEUTRAL 0.6
+#define CRQ_SD_LEVEL_FRIEND 0.8
+#define CRQ_SD_REL_HOSTILE 0
+#define CRQ_SD_REL_NEUTRAL 1
+#define CRQ_SD_REL_FRIENDLY 2
 
 #define CRQ_CLASS_VEHICLE ["car","tank","helicopter","plane","ship"]
 
@@ -72,3 +72,10 @@
 #define CRQ_WP_RD_SPACING 3
 #define CRQ_WP_RD_ANALYSIS 3 // NO LESS THAN 1
 #define CRQ_WP_RD_ANGLE_MIN 45
+
+#define CRQ_LNK_NONE createHashMap
+#define CRQ_mac_LNK_ANSI_0(ID) (toLowerANSI (ID))
+#define CRQ_mac_LNK_ANSI_1(ID) ID = CRQ_mac_LNK_ANSI_0(ID)
+
+#define CRQ_TERRAIN_TRAVERSE -0.421
+#define CRQ_TERRAIN_RESOLUTION 100

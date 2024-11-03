@@ -3,13 +3,13 @@
 CRQ_CatalogListAny = {
 	if (_this isEqualType -1) then {_this = [_this];};
 	private _indexes = [];
-	{_indexes append (gCQ_CatalogCategory#_x);} forEach _this;
+	{_indexes append (pCQ_CT_Category#_x);} forEach _this;
 	(_indexes arrayIntersect _indexes)
 };
 CRQ_CatalogListMatching = {
 	if (_this isEqualType -1) then {_this = [_this];};
 	private _indexes = [];
-	{if (_forEachIndex > 0) then {_indexes = _indexes arrayIntersect (gCQ_CatalogCategory#_x);} else {_indexes append (gCQ_CatalogCategory#_x);};} forEach _this;
+	{if (_forEachIndex > 0) then {_indexes = _indexes arrayIntersect (pCQ_CT_Category#_x);} else {_indexes append (pCQ_CT_Category#_x);};} forEach _this;
 	_indexes
 };
 CRQ_CatalogListQuality = {
@@ -21,7 +21,7 @@ CRQ_CatalogListQuality = {
 	};
 	private _list = [];
 	{
-		(gCQ_CatalogItem#_x) params ["_itemName", "_itemCategory", "_itemQuality"];
+		(pCQ_CT_Item#_x) params ["_itemName", "_itemCategory", "_itemQuality"];
 		private _quality = 0;
 		{
 			private _index = _itemCategory find _x;
@@ -33,25 +33,25 @@ CRQ_CatalogListQuality = {
 	_list
 };
 CRQ_CatalogFind = {
-	if (_this isEqualType "") exitWith {(gCQ_CatalogFindItem getOrDefault [toLowerANSI _this, [-1]])#0};
+	if (_this isEqualType "") exitWith {(pCQ_CT_FindItem getOrDefault [toLowerANSI _this, [-1]])#0};
 	params ["_name", ["_category", []]];
-	private _result = gCQ_CatalogFindItem getOrDefault [toLowerANSI _name, [-1]];
+	private _result = pCQ_CT_FindItem getOrDefault [toLowerANSI _name, [-1]];
 	if (_category isEqualTo []) exitWith {_result#0};
 	private _filter = [];
-	{if (_x != -1) then {private _match = count ((gCQ_CatalogItem#_x#1) arrayIntersect _category); if (_match > 0) then {_filter pushBack [_match, _x];};};} forEach _result;
+	{if (_x != -1) then {private _match = count ((pCQ_CT_Item#_x#1) arrayIntersect _category); if (_match > 0) then {_filter pushBack [_match, _x];};};} forEach _result;
 	if (_filter isNotEqualTo []) exitWith {_filter sort false; _filter#0#1};
 	-1
 	/*if (_category isEqualTo []) then {
-		(gCQ_CatalogItem findIf {_name == (_x#0)})
+		(pCQ_CT_Item findIf {_name == (_x#0)})
 	} else {
 		private _indexes = [];
 		if (count _category > 1) then {
-			{_indexes append (gCQ_CatalogCategory#_x);} forEach _category;
+			{_indexes append (pCQ_CT_Category#_x);} forEach _category;
 			_indexes = _indexes arrayIntersect _indexes;
 		} else {
-			_indexes = (gCQ_CatalogCategory#(_category#0));
+			_indexes = (pCQ_CT_Category#(_category#0));
 		};
-		private _found = _indexes findIf {_name == (gCQ_CatalogItem#_x#0)};
+		private _found = _indexes findIf {_name == (pCQ_CT_Item#_x#0)};
 		if (_found != -1) then {_indexes#_found} else {-1};
 	};*/
 };
@@ -101,7 +101,7 @@ CRQ_CatalogQualityMapItem = {
 };
 CRQ_CatalogDataItem = {
 	params ["_index", "_attribute"];
-	([_attribute, gCQ_CatalogItem#_index#3] call CRQ_CatalogArrayData)
+	([_attribute, pCQ_CT_Item#_index#3] call CRQ_CatalogArrayData)
 };
 CRQ_CatalogArrayData = {
 	params ["_attribute", ["_data", []]];
@@ -109,15 +109,15 @@ CRQ_CatalogArrayData = {
 	if (_index != -1) then {_data#_index#1} else {dCRQ_CDAT_DEFAULTS#_attribute};
 };
 CRQ_CatalogRegister = {
-	gCQ_CatalogCounterItem = gCQ_CatalogCounterItem + 1;
+	pCQ_CT_CounterItem = pCQ_CT_CounterItem + 1;
 	
-	gCQ_CatalogItem pushBack _this;
-	{(gCQ_CatalogCategory#_x) pushBack gCQ_CatalogCounterItem;} forEach (_this#1);
+	pCQ_CT_Item pushBack _this;
+	{(pCQ_CT_Category#_x) pushBack pCQ_CT_CounterItem;} forEach (_this#1);
 	
 	private _name = toLowerANSI (_this#0);
-	gCQ_CatalogFindItem set [_name, (gCQ_CatalogFindItem getOrDefault [_name, []]) + [gCQ_CatalogCounterItem], false];
+	pCQ_CT_FindItem set [_name, (pCQ_CT_FindItem getOrDefault [_name, []]) + [pCQ_CT_CounterItem], false];
 	
-	gCQ_CatalogCounterItem
+	pCQ_CT_CounterItem
 };
 
 CRQ_CatalogQualityData = {
@@ -129,18 +129,18 @@ CRQ_CatalogQualityInit = {
 	for "_i" from 0 to (CRQ_CATALOG_CATEGORIES - 1) do {
 		/*private _defined = dCQM_QUALITY_PARAMS findIf {_i == (_x#0)};
 		if (_defined != -1) then {
-			gCQ_CatalogQualityParams pushBack (dCQM_QUALITY_PARAMS#_defined#1);
+			pCQ_CT_QualityParams pushBack (dCQM_QUALITY_PARAMS#_defined#1);
 		} else {
-			gCQ_CatalogQualityParams pushBack [];
+			pCQ_CT_QualityParams pushBack [];
 		};*/
-		gCQ_CatalogQualityParams pushBack (dCQM_QUALITY_PARAMS getOrDefault [_i, []]);
+		pCQ_CT_QualityParams pushBack (dCQM_QUALITY_PARAMS getOrDefault [_i, []]);
 	};
 };
 CRQ_CatalogQualityCalculate = {
 	{
 		_x params ["_itemName", "_itemCategory", "_itemQuality", "_itemData"];
 		if (count _itemCategory != count _itemQuality) then {_x set [2, [_itemCategory, _itemData] call CRQ_CatalogQualityAnalysis];};
-	} forEach gCQ_CatalogItem;
+	} forEach pCQ_CT_Item;
 };
 CRQ_CatalogQualityAnalysis = {
 	params ["_itemCategory", "_itemData"];
@@ -148,7 +148,7 @@ CRQ_CatalogQualityAnalysis = {
 	private _crossReference = [];
 	{
 		private _categoryQuality = 0;
-		private _categoryParams = gCQ_CatalogQualityParams#_x;//_x call CRQ_CatalogQualityCategory;
+		private _categoryParams = pCQ_CT_QualityParams#_x;//_x call CRQ_CatalogQualityCategory;
 		if (_categoryParams isNotEqualTo []) then {
 			private _qualityXref = [CRQ_QDAT_XREF, _categoryParams] call CRQ_CatalogQualityData;
 			if (_qualityXref isNotEqualTo []) exitWith {
@@ -273,10 +273,10 @@ CRQ_CatalogQualityAnalysis = {
 CRQ_CatalogInit = {
 	params ["_identity", ["_items", false]];
 	
-	for "_i" from 1 to CRQ_CATALOG_CATEGORIES do {gCQ_CatalogCategory pushBack [];};
+	for "_i" from 1 to CRQ_CATALOG_CATEGORIES do {pCQ_CT_Category pushBack [];};
 	
 	if (_identity) then {[] call CRQ_CatalogIdentityInit;};
-	missionNamespace setVariable ["pCQ_CatalogItem", gCQ_CatalogItem apply {[_x#0]}, true];
+	missionNamespace setVariable ["pCQ_CT_Client", pCQ_CT_Item apply {[_x#0]}, true];
 	
 	[] call CRQ_CatalogQualityInit;
 	
@@ -295,7 +295,7 @@ CRQ_CatalogInit = {
 	private _throw = [];
 	private _put = [];
 	private _weapons = [];
-	private _glasses = ("getNumber (_x >> 'scope') == 2" configClasses gCQ_CfgGlasses);
+	private _glasses = ("getNumber (_x >> 'scope') == 2" configClasses pCQ_CFG_Glasses);
 	private _helmets = [];
 	private _vests = [];
 	private _backpacks = [];
@@ -339,16 +339,16 @@ CRQ_CatalogInit = {
 			};
 			default {};
 		};
-	} forEach ("getNumber (_x >> 'scope') == 2" configClasses gCQ_CfgWeapons);
+	} forEach ("getNumber (_x >> 'scope') == 2" configClasses pCQ_CFG_Weapons);
 	{
 		_x params ["_source", "_target"];
 		{
 			{
-				private _config = gCQ_CfgMagazines >> _x;
+				private _config = pCQ_CFG_Magazines >> _x;
 				if (getNumber (_config >> "scope") == 2) then {_target pushBack _config;};
 			} forEach (getArray (_source >> _x >> "magazines"))
 		} forEach (getArray (_source >> "muzzles"));
-	} forEach [[gCQ_CfgWeaponThrow, _throw], [gCQ_CfgWeaponPut, _put]];
+	} forEach [[pCQ_CFG_WeaponThrow, _throw], [pCQ_CFG_WeaponPut, _put]];
 	private _vehicleClasses = CRQ_CLASS_VEHICLE + ["StaticWeapon"];
 	{
 		if (getNumber (_x >> "isBackpack") > 0) then {
@@ -358,7 +358,7 @@ CRQ_CatalogInit = {
 			private _name = configName _x;
 			{if (_name isKindOf _x) exitWith {_vehicles pushBack _config;};} forEach _vehicleClasses;
 		};
-	} forEach ("getNumber (_x >> 'scope') == 2" configClasses gCQ_CfgVehicles);
+	} forEach ("getNumber (_x >> 'scope') == 2" configClasses pCQ_CFG_Vehicles);
 	
 	_firstaid call CRQ_CatalogFirstAidInit;
 	_medkit call CRQ_CatalogMedkitInit;
@@ -401,7 +401,7 @@ CRQ_CatalogIdentityInit = {
 };
 CRQ_CatalogIdentityGenerate = {
 	private _name = [CRQ_CATALOG_ID_NAME_HOSTILE,CRQ_CATALOG_ID_NAME_NEUTRAL,CRQ_CATALOG_ID_NAME_FRIENDLY,CRQ_CATALOG_ID_NAME]#_this;
-	[selectRandom (gCQ_CatalogCategory#_name), selectRandom (gCQ_CatalogCategory#CRQ_CATALOG_ID_FACE), selectRandom (gCQ_CatalogCategory#CRQ_CATALOG_ID_VOICE), CQM_IDENTITY_PITCH_MIN + random CQM_IDENTITY_PITCH_VARIANCE];
+	[selectRandom (pCQ_CT_Category#_name), selectRandom (pCQ_CT_Category#CRQ_CATALOG_ID_FACE), selectRandom (pCQ_CT_Category#CRQ_CATALOG_ID_VOICE), CQM_IDENTITY_PITCH_MIN + random CQM_IDENTITY_PITCH_VARIANCE];
 };
 CRQ_CatalogIdentityRetrieve = {
 	private _identity = [];
@@ -418,9 +418,9 @@ CRQ_CatalogIdentityBroadcast = {
 	params ["_unit", "_identity"];
 	_identity params ["_name", "_face", "_voice", "_pitch"];
 	private _rasterized = [];
-	_rasterized pushBack (if (_face != -1) then {(pCQ_CatalogItem#_face#0)} else {""});
-	_rasterized pushBack (if (_voice != -1) then {(pCQ_CatalogItem#_voice#0)} else {""});
-	_rasterized pushBack (if (_name != -1) then {[(pCQ_CatalogItem#_name#0), "", ""]} else {["", "", ""]});
+	_rasterized pushBack (if (_face != -1) then {(pCQ_CT_Client#_face#0)} else {""});
+	_rasterized pushBack (if (_voice != -1) then {(pCQ_CT_Client#_voice#0)} else {""});
+	_rasterized pushBack (if (_name != -1) then {[(pCQ_CT_Client#_name#0), "", ""]} else {["", "", ""]});
 	_rasterized pushBack "";
 	_rasterized pushBack _pitch;
 	[_unit, _rasterized] call CRQ_IdentityApply;
@@ -597,10 +597,10 @@ CRQ_CatalogTerminalInit = {
 		private _categories = [];
 		if (CQM_ITEM_TERMINAL_EXCLUDE findIf {_name == _x} == -1 && {_categories isEqualTo [] || {CQM_ITEM_TERMINAL_INCLUDE findIf {_name == _x} != -1}}) then {
 			switch ([CRQ_CDAT_SIDE, _data] call CRQ_CatalogArrayData) do {
-				case CRQ_SD_BLUFOR: {_categories pushBack CRQ_CATALOG_TERMINAL_BLUFOR;};
-				case CRQ_SD_IDFOR: {_categories pushBack CRQ_CATALOG_TERMINAL_OPFOR;};
-				case CRQ_SD_OPFOR: {_categories pushBack CRQ_CATALOG_TERMINAL_IDFOR;};
-				case CRQ_SD_CIVFOR: {_categories pushBack CRQ_CATALOG_TERMINAL_CIVFOR;};
+				case CRQ_SD_BLU: {_categories pushBack CRQ_CATALOG_TERMINAL_BLUFOR;};
+				case CRQ_SD_IND: {_categories pushBack CRQ_CATALOG_TERMINAL_OPFOR;};
+				case CRQ_SD_OPF: {_categories pushBack CRQ_CATALOG_TERMINAL_IDFOR;};
+				case CRQ_SD_CIV: {_categories pushBack CRQ_CATALOG_TERMINAL_CIVFOR;};
 				default {};
 			};
 		};
@@ -839,13 +839,13 @@ CRQ_CatalogArrayDataBase = {
 };
 CRQ_CatalogAssetAnalysis = {
 	private _name = if (_this isEqualType "") then {_this} else {configName _this};
-	if (_this isEqualType "") then {_this = gCQ_CfgVehicles >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Vehicles >> _this;};
 	private _data = [];
 	private _side = switch (getNumber (_x >> "side")) do {
-		case 0: {CRQ_SD_OPFOR};
-		case 1: {CRQ_SD_BLUFOR};
-		case 2: {CRQ_SD_IDFOR};
-		case 3: {CRQ_SD_CIVFOR};
+		case 0: {CRQ_SD_OPF};
+		case 1: {CRQ_SD_BLU};
+		case 2: {CRQ_SD_IND};
+		case 3: {CRQ_SD_CIV};
 		default {CRQ_SD_UNKNOWN};
 	};
 	
@@ -861,7 +861,7 @@ CRQ_CatalogAssetAnalysis = {
 			private _wpIndex = [_wpName, [CRQ_CATALOG_ARMAMENT]] call CRQ_CatalogFind;
 			if (_wpIndex == -1) then {
 				if ([_wpName, [CRQ_CATALOG_ARMAMENT_OTHER]] call CRQ_CatalogFind != -1) exitWith {};
-				private _wpCfg = gCQ_CfgWeapons >> _wpName;
+				private _wpCfg = pCQ_CFG_Weapons >> _wpName;
 				if (!isClass _wpCfg || {getNumber (_wpCfg >> "type") == 0}) exitWith {};
 				private _wpData = [CRQ_BITYPE_ARMAMENT, _wpCfg] call CRQ_CatalogWeaponAnalysis;
 				([CRQ_BITYPE_ARMAMENT, _wpData] call CRQ_CatalogUtilWeaponType) params ["_wpCategories", "_wpParams"];
@@ -871,7 +871,7 @@ CRQ_CatalogAssetAnalysis = {
 			};
 			
 			if (_wpIndex != -1) then {
-				private _wpData = (gCQ_CatalogItem#_wpIndex#3) call CRQ_CatalogArrayDataBase;
+				private _wpData = (pCQ_CT_Item#_wpIndex#3) call CRQ_CatalogArrayDataBase;
 				([CRQ_BITYPE_ARMAMENT, _wpData, _wpMagIndex] call CRQ_CatalogUtilWeaponType) params ["_wpCategories", "_wpParams"];
 				_wpData append _wpParams;
 				_armament pushBack [_wpIndex, _wpCategories, [_wpCategories, _wpData] call CRQ_CatalogQualityAnalysis];
@@ -906,7 +906,7 @@ CRQ_CatalogAssetAnalysis = {
 };
 CRQ_CatalogWeaponAnalysis = {
 	params ["_type", "_weapon"];
-	if (_weapon isEqualType "") then {_weapon = gCQ_CfgWeapons >> _weapon;};
+	if (_weapon isEqualType "") then {_weapon = pCQ_CFG_Weapons >> _weapon;};
 	private _data = [];
 	private _cpDisabled = getNumber (_weapon >> "enableAttack") < 1;
 	private _cpUnderwater = (getNumber (_weapon >> "canShootInWater")) > 0;
@@ -952,7 +952,7 @@ CRQ_CatalogWeaponAnalysis = {
 	_data
 };
 CRQ_CatalogBackpackAnalysis = {
-	if (_this isEqualType "") then {_this = gCQ_CfgVehicles >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Vehicles >> _this;};
 	if (getNumber (_this >> "isBackpack") != 1) exitWith {[]};
 	private _data = [];
 	private _load = getNumber (_this >> "maximumLoad");
@@ -966,24 +966,24 @@ CRQ_CatalogBackpackAnalysis = {
 		private _primary = if (isNumber _cfgAsmPri) then {getNumber _cfgAsmPri} else {-1};
 		if (_primary != 1) exitWith {};
 		private _assembleTo = getText _cfgAsmTo;
-		if (_assembleTo isEqualTo "" || {getNumber (gCQ_CfgVehicles >> _assembleTo >> "scope") != 2}) exitWith {};
+		if (_assembleTo isEqualTo "" || {getNumber (pCQ_CFG_Vehicles >> _assembleTo >> "scope") != 2}) exitWith {};
 		_data pushBack [CRQ_CDAT_ASM_TARGET, _assembleTo];
 		private _basesRaw = if (isText _cfgAsmBase) then {[getText _cfgAsmBase]} else {getArray _cfgAsmBase};
 		private _basesFiltered = []; // TODO this might potentially make bags unassembleable if all bases are not scope 2...
-		{if (_x isNotEqualTo "" && {getNumber (gCQ_CfgVehicles >> _x >> "scope") == 2}) then {_basesFiltered pushBack _x;};} forEach _basesRaw;
+		{if (_x isNotEqualTo "" && {getNumber (pCQ_CFG_Vehicles >> _x >> "scope") == 2}) then {_basesFiltered pushBack _x;};} forEach _basesRaw;
 		if (_basesFiltered isNotEqualTo []) then {_data pushBack [CRQ_CDAT_ASM_BASE, _basesFiltered];};
 	};
 	_data
 };
 CRQ_CatalogVestAnalysis = {
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this;};
 	if (getNumber (_this >> "ItemInfo" >> "type") != CRQ_BITYPE_VEST) exitWith {[]};
 	private _data = [];
 	private _cfgContainer = _this >> "ItemInfo" >> "containerClass";
 	private _cfgProtection = _this >> "ItemInfo" >> "HitpointsProtectionInfo";
 	private _cfgType = _this >> "ItemInfo" >> "vestType";
 	if (isText _cfgContainer) then {
-		private _load = getNumber (gCQ_CfgVehicles >> (getText _cfgContainer) >> "maximumLoad");
+		private _load = getNumber (pCQ_CFG_Vehicles >> (getText _cfgContainer) >> "maximumLoad");
 		if (_load > 0) then {_data pushBack [CRQ_CDAT_LOAD, _load];};
 	};
 	if (isClass _cfgProtection) then {
@@ -1016,7 +1016,7 @@ CRQ_CatalogVestAnalysis = {
 	_data
 };
 CRQ_CatalogHelmetAnalysis = {
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this;};
 	if (getNumber (_this >> "ItemInfo" >> "type") != 605) exitWith {[]};
 	private _data = [];
 	private _cfgProtection = _this >> "ItemInfo" >> "HitpointsProtectionInfo";
@@ -1050,7 +1050,7 @@ CRQ_CatalogHelmetAnalysis = {
 	if (isArray _cfgSubItems) then {
 		private _visionModes = CRQ_VISION_NORMAL;
 		{
-			private _cfgItem = gCQ_CfgWeapons >> _x;
+			private _cfgItem = pCQ_CFG_Weapons >> _x;
 			if (_forEachIndex > 0) then {
 				[_visionModes, _cfgItem call CRQ_CatalogUtilVisionModes] call CRQ_fnc_ByteOr;
 			} else {
@@ -1062,7 +1062,7 @@ CRQ_CatalogHelmetAnalysis = {
 	_data
 };
 CRQ_CatalogNVGAnalysis = {
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this;};
 	//if (getNumber (_this >> "ItemInfo" >> "type") != 616) exitWith {[]}; // TODO unsure if 616 truly is for NVG
 	private _data = [];
 	private _visionModes = _this call CRQ_CatalogUtilVisionModes;
@@ -1070,7 +1070,7 @@ CRQ_CatalogNVGAnalysis = {
 	_data
 };
 CRQ_CatalogBinocularAnalysis = {
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this;};
 	private _data = [];
 	private _zoom = _this call CRQ_CatalogUtilWeaponOpticsZoom;
 	if (_zoom isNotEqualTo []) then {_data pushBack [CRQ_CDAT_ZOOM_MAX, _zoom#1];};
@@ -1083,14 +1083,14 @@ CRQ_CatalogBinocularAnalysis = {
 	_data
 };
 CRQ_CatalogTerminalAnalysis = {
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this;};
 	if (getNumber (_this >> "ItemInfo" >> "type") != CRQ_BITYPE_TERMINAL) exitWith {[]};
 	private _data = [];
 	private _side = switch (getNumber (_this >> "ItemInfo" >> "side")) do {
-		case 0: {CRQ_SD_OPFOR};
-		case 1: {CRQ_SD_BLUFOR};
-		case 2: {CRQ_SD_IDFOR};
-		case 3: {CRQ_SD_CIVFOR};
+		case 0: {CRQ_SD_OPF};
+		case 1: {CRQ_SD_BLU};
+		case 2: {CRQ_SD_IND};
+		case 3: {CRQ_SD_CIV};
 		default {CRQ_SD_UNKNOWN};
 	};
 	if (_side != CRQ_SD_UNKNOWN) then {_data pushBack [CRQ_CDAT_SIDE, _side];};
@@ -1111,7 +1111,7 @@ CRQ_CatalogWeaponAttachmentInit = {
 	};
 	
 	private _weaponAttachments = [CRQ_CDAT_ATTACHMENTS, _weaponData] call CRQ_CatalogArrayData;
-	private _cfgAttachments = gCQ_CfgWeapons >> _weaponName >> "WeaponSlotsInfo";
+	private _cfgAttachments = pCQ_CFG_Weapons >> _weaponName >> "WeaponSlotsInfo";
 	{
 		private _cfgSlot = _cfgAttachments >> (_x#0) >> "compatibleItems";
 		if (!isNull _cfgSlot) then {
@@ -1129,7 +1129,7 @@ CRQ_CatalogWeaponAttachmentInit = {
 };
 CRQ_CatalogAttachmentRegister = {
 	private _name = if (_this isEqualType "") then {_this} else {configName _this};
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this;};
 	private _existing = _name call CRQ_CatalogFind;
 	if (_existing != -1) exitWith {_existing};
 	private _categories = [];
@@ -1172,7 +1172,7 @@ CRQ_CatalogAttachmentRegister = {
 	};
 };
 CRA_CatalogOpticAnalysis = {
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this};
 	if (!isClass _this || {getNumber (_this >> "ItemInfo" >> "type") != CRQ_BITYPE_OPTIC}) exitWith {[]};
 	private _data = [];
 	private _rangefinder = _this call CRQ_CatalogUtilWeaponRangefinder;
@@ -1207,7 +1207,7 @@ CRA_CatalogOpticAnalysis = {
 	_data
 };
 CRQ_CatalogLaserAnalysis = {
-	_this = if (_this isEqualType "") then {gCQ_CfgWeapons >> _this >> "ItemInfo"} else {_this >> "ItemInfo"};
+	_this = if (_this isEqualType "") then {pCQ_CFG_Weapons >> _this >> "ItemInfo"} else {_this >> "ItemInfo"};
 	if (!isClass _this || {getNumber (_this >> "type") != CRQ_BITYPE_LASER}) exitWith {[]};
 	private _data = [];
 	private _type = CRQ_LASER_NONE;
@@ -1217,7 +1217,7 @@ CRQ_CatalogLaserAnalysis = {
 	_data
 };
 CRQ_CatalogMuzzleAnalysis = {
-	_this = if (_this isEqualType "") then {gCQ_CfgWeapons >> _this >> "ItemInfo"} else {_this >> "ItemInfo"};
+	_this = if (_this isEqualType "") then {pCQ_CFG_Weapons >> _this >> "ItemInfo"} else {_this >> "ItemInfo"};
 	if (!isClass _this || {getNumber (_this >> "type") != CRQ_BITYPE_MUZZLE}) exitWith {[]};
 	private _data = [];
 	private _type = CRQ_MUZZLE_NONE;
@@ -1226,7 +1226,7 @@ CRQ_CatalogMuzzleAnalysis = {
 	_data
 };
 CRQ_CatalogBipodAnalysis = {
-	_this = if (_this isEqualType "") then {gCQ_CfgWeapons >> _this >> "ItemInfo"} else {_this >> "ItemInfo"};
+	_this = if (_this isEqualType "") then {pCQ_CFG_Weapons >> _this >> "ItemInfo"} else {_this >> "ItemInfo"};
 	if (!isClass _this || {getNumber (_this >> "type") != CRQ_BITYPE_BIPOD}) exitWith {[]};
 	private _data = [];
 	private _type = CRQ_UNDERBARREL_NONE;
@@ -1240,7 +1240,7 @@ CRQ_CatalogMagazineRegister = {
 	private _mgIndex = [];
 	{
 		private _name = if (_x isEqualType "") then {_x} else {configName _x};
-		if (_x isEqualType "") then {_x = gCQ_CfgMagazines >> _x;};
+		if (_x isEqualType "") then {_x = pCQ_CFG_Magazines >> _x;};
 		if (isClass _x) then {
 			private _existing = _name call CRQ_CatalogFind;
 			if (_existing != -1) then {
@@ -1254,7 +1254,7 @@ CRQ_CatalogMagazineRegister = {
 	_mgIndex
 };
 CRQ_CatalogMagazineAnalysis = {
-	if (_this isEqualType "") then {_this = gCQ_CfgMagazines >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Magazines >> _this;};
 	
 	private _data = [];
 	
@@ -1268,7 +1268,7 @@ CRQ_CatalogMagazineAnalysis = {
 		private _amIndex = [_mgAmmo, true] call CRQ_CatalogAmmoRegister;
 		if (_amIndex == -1) exitWith {};
 		_data pushBack [CRQ_CDAT_MAG_AMMO, _amIndex];
-		private _amData = gCQ_CatalogAmmo#_amIndex#3;
+		private _amData = pCQ_CT_Ammo#_amIndex#3;
 		_data pushBack [CRQ_CDAT_0, [CRQ_CDAT_0, _amData] call CRQ_CatalogArrayData];
 		_data pushBack [CRQ_CDAT_1, [CRQ_CDAT_1, _amData] call CRQ_CatalogArrayData];
 	};
@@ -1278,23 +1278,23 @@ CRQ_CatalogMagazineAnalysis = {
 CRQ_CatalogAmmoRegister = {
 	params ["_ammo", "_extended"];
 	private _name = if (_ammo isEqualType "") then {_ammo} else {configName _ammo};
-	if (_ammo isEqualType "") then {_ammo = gCQ_CfgAmmo >> _ammo;};
+	if (_ammo isEqualType "") then {_ammo = pCQ_CFG_Ammo >> _ammo;};
 	
 	if (!isClass _ammo) exitWith {-1};
 	
 	private _lcName = toLowerANSI _name;
-	private _existing = gCQ_CatalogFindAmmo getOrDefault [_lcName, -1];//findIf {_name == (_x#0)};
+	private _existing = pCQ_CT_FindAmmo getOrDefault [_lcName, -1];//findIf {_name == (_x#0)};
 	if (_existing != -1) exitWith {_existing};
 	
 	private _data = _ammo call CRQ_CatalogAmmoAnalysisBasic; // due to recursion, MUST call prior to increment
 	
-	gCQ_CatalogCounterAmmo = gCQ_CatalogCounterAmmo + 1;
-	gCQ_CatalogAmmo pushBack _data;
-	gCQ_CatalogFindAmmo set [_lcName, gCQ_CatalogCounterAmmo];
+	pCQ_CT_CounterAmmo = pCQ_CT_CounterAmmo + 1;
+	pCQ_CT_Ammo pushBack _data;
+	pCQ_CT_FindAmmo set [_lcName, pCQ_CT_CounterAmmo];
 	
-	if (_extended) then {gCQ_CatalogCounterAmmo call CRQ_CatalogAmmoAnalysisExtended;};
+	if (_extended) then {pCQ_CT_CounterAmmo call CRQ_CatalogAmmoAnalysisExtended;};
 	
-	gCQ_CatalogCounterAmmo
+	pCQ_CT_CounterAmmo
 };
 CRQ_CatalogAmmoAnalysisExtended = {
 	private _ammo = _this call CRQ_CatalogUtilAmmoDeploy;
@@ -1302,11 +1302,11 @@ CRQ_CatalogAmmoAnalysisExtended = {
 	private _envelope = _ammo apply {_x#1};
 	private _type = _ammo call (dCRQ_AMMO_TYPES getOrDefault [_envelope, {-1}]);
 	{if ((_x#0) find _type != -1) exitWith {_lethality = _ammo call (_x#1);};} forEach dCRQ_AMMO_LETHALITY;
-	(gCQ_CatalogAmmo#_this#3) append [[CRQ_CDAT_0, _type],[CRQ_CDAT_1, _lethality]];
+	(pCQ_CT_Ammo#_this#3) append [[CRQ_CDAT_0, _type],[CRQ_CDAT_1, _lethality]];
 };
 CRQ_CatalogAmmoAnalysisBasic = {
 	private _name = if (_this isEqualType "") then {_this} else {configName _this};
-	if (_this isEqualType "") then {_this = gCQ_CfgAmmo >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Ammo >> _this;};
 	private _data = [];
 	
 	private _subMunition = (_this >> "submunitionAmmo") call {
@@ -1340,7 +1340,7 @@ CRQ_CatalogAmmoAnalysisBasic = {
 	[_name, _type, 0, _data]
 };
 CRQ_CatalogUtilAmmoGuidance = {
-	if (_this isEqualType "") then {_this = gCQ_CfgAmmo >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Ammo >> _this;};
 	// TODO there's irLock, laserLock, lockType, weaponLockSystem, manualControl and Components as a subclass...
 	private _cfgGuidance = _this >> "weaponLockSystem";
 	if (isNumber _cfgGuidance) exitWith {getNumber _cfgGuidance};
@@ -1348,7 +1348,7 @@ CRQ_CatalogUtilAmmoGuidance = {
 	0
 };
 CRQ_CatalogUtilAmmoFX = { // TODO properly flag this
-	if (_this isEqualType "") then {_this = gCQ_CfgAmmo >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Ammo >> _this;};
 	private _cfgSmoke = configFile >> (getText (_this >> "effectsSmoke"));
 	if (!isClass _cfgSmoke) exitWith {0};
 	private _smoke = false;
@@ -1363,7 +1363,7 @@ CRQ_CatalogUtilAmmoFX = { // TODO properly flag this
 	([_smoke, _illumination] call CRQ_fnc_ByteEncode)
 };
 CRQ_CatalogUtilAmmoTrigger = {
-	if (_this isEqualType "") then {_this = gCQ_CfgAmmo >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Ammo >> _this;};
 	switch (toLowerANSI (getText (_this >> "mineTrigger"))) do {
 		//case "rangetrigger": {0}; // default for everything
 		//case "rangetriggerdrone": {0};
@@ -1385,11 +1385,11 @@ CRQ_CatalogUtilAmmoTrigger = {
 };
 CRQ_CatalogUtilWeaponRangefinder = {
 	private _name = if (_this isEqualType "") then {_this} else {configName _this};
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this;};
 	if ((CRQ_UTIL_RANGEFINDER_EXCLUDE findIf {_name == _x}) != -1) exitWith {false};
 	private _IGUI = getText (_this >> "weaponInfoType");
 	if (_IGUI isEqualTo "") exitWith {false};
-	private _config = gCQ_CfgIGUI >> _IGUI;
+	private _config = pCQ_CFG_IGUI >> _IGUI;
 	if (!isClass _config) exitWith {false};
 	private _rangefinder = false;
 	{
@@ -1414,7 +1414,7 @@ CRQ_CatalogUtilVisionModes = {
 	(_normal + _nvg + _ti)
 };
 CRQ_CatalogUtilWeaponVisionModes = {
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this;};
 	private _visionModes = 0;
 	{
 		if (_forEachIndex > 0) then {
@@ -1426,7 +1426,7 @@ CRQ_CatalogUtilWeaponVisionModes = {
 	_visionModes
 };
 CRQ_CatalogUtilWeaponOpticsZoom = {
-	if (_this isEqualType "") then {_this = gCQ_CfgWeapons >> _this;};
+	if (_this isEqualType "") then {_this = pCQ_CFG_Weapons >> _this;};
 	private _cfgMin = _this >> "opticsZoomMax";
 	private _cfgMax = _this >> "opticsZoomMin";
 	if (!isNumber _cfgMin || {!isNumber _cfgMax}) exitWith {[]};
@@ -1437,7 +1437,7 @@ CRQ_CatalogUtilWeaponOpticsZoom = {
 	[0.25 / _min, 0.25 / _max]
 };
 CRQ_CatalogUtilWeaponMagAll = {
-	if (_this isEqualType -1) then {_this = gCQ_CatalogItem#_this#3;};
+	if (_this isEqualType -1) then {_this = pCQ_CT_Item#_this#3;};
 	private _mags = [];
 	{_mags append _x;} forEach ([CRQ_CDAT_MAGAZINES, _this] call CRQ_CatalogArrayData);
 	_mags
@@ -1445,13 +1445,13 @@ CRQ_CatalogUtilWeaponMagAll = {
 CRQ_CatalogUtilAmmoDeploy = {
 	private _ammo = [];
 	while {_this != -1} do {
-		_ammo pushBack (gCQ_CatalogAmmo#_this);
-		_this = [CRQ_CDAT_AMMO_SUBMUNITION, gCQ_CatalogAmmo#_this#3] call CRQ_CatalogArrayData;
+		_ammo pushBack (pCQ_CT_Ammo#_this);
+		_this = [CRQ_CDAT_AMMO_SUBMUNITION, pCQ_CT_Ammo#_this#3] call CRQ_CatalogArrayData;
 	};
 	_ammo
 };
 CRQ_CatalogUtilMagazineAmmo = {
-	if (_this isEqualType -1) then {_this = gCQ_CatalogItem#_this#3;};
+	if (_this isEqualType -1) then {_this = pCQ_CT_Item#_this#3;};
 	(([CRQ_CDAT_MAG_AMMO, _this] call CRQ_CatalogArrayData) call CRQ_CatalogUtilAmmoDeploy)
 };
 CRQ_CatalogUtilThrowType = {
@@ -1501,12 +1501,12 @@ CRQ_CatalogUtilWeaponType = {
 				if (_disabled || {_priMags isEqualTo []}) exitWith {_categories pushBack CRQ_CATALOG_WEAPON_DUMMY;};
 				
 				private _priAmmo = [];
-				{_priAmmo pushBackUnique ([CRQ_CDAT_0, gCQ_CatalogItem#_x#3] call CRQ_CatalogArrayData);} forEach _priMags;
+				{_priAmmo pushBackUnique ([CRQ_CDAT_0, pCQ_CT_Item#_x#3] call CRQ_CatalogArrayData);} forEach _priMags;
 				if (_priAmmo isEqualTo [CRQ_MAG_FLARE]) exitWith {_categories pushBack CRQ_CATALOG_WEAPON_FLARE;};
 				if (_priAmmo isNotEqualTo [CRQ_MAG_BULLET_SINGLE] && {_priAmmo find CRQ_MAG_BULLET_BUCK == -1}) exitWith {};
 				
-				private _refMag = gCQ_CatalogItem#(_priMags#0);
-				private _refAmmo = gCQ_CatalogAmmo#([CRQ_CDAT_MAG_AMMO, _refMag#3] call CRQ_CatalogArrayData);
+				private _refMag = pCQ_CT_Item#(_priMags#0);
+				private _refAmmo = pCQ_CT_Ammo#([CRQ_CDAT_MAG_AMMO, _refMag#3] call CRQ_CatalogArrayData);
 				
 				private _amLeth = [CRQ_CDAT_1, _refAmmo#3] call CRQ_CatalogArrayData;
 				private _amSpeed = [CRQ_CDAT_AMMO_SPEED, _refAmmo#3] call CRQ_CatalogArrayData;
@@ -1526,7 +1526,7 @@ CRQ_CatalogUtilWeaponType = {
 				if (_priAmmo find CRQ_MAG_BULLET_BUCK != -1) exitWith {_categories pushBack CRQ_CATALOG_WEAPON_SG;};
 				if (count _mags > 1) exitWith {
 					private _secAmmo = [];
-					{_secAmmo pushBackUnique ([CRQ_CDAT_0, gCQ_CatalogItem#_x#3] call CRQ_CatalogArrayData);} forEach (_mags#1);
+					{_secAmmo pushBackUnique ([CRQ_CDAT_0, pCQ_CT_Item#_x#3] call CRQ_CatalogArrayData);} forEach (_mags#1);
 					if (_secAmmo find CRQ_MAG_SHELL_GRENADE_HE != -1) exitWith {_categories pushBack CRQ_CATALOG_WEAPON_ARGL;};
 					_categories pushBack CRQ_CATALOG_WEAPON_ARSO;
 				};
@@ -1560,7 +1560,7 @@ CRQ_CatalogUtilWeaponType = {
 			private _mgLeth = 0;
 			private _mgAmmo = [];
 			{
-				private _mgData = gCQ_CatalogItem#_x#3;
+				private _mgData = pCQ_CT_Item#_x#3;
 				_mgAmmo pushBackUnique ([CRQ_CDAT_0, _mgData] call CRQ_CatalogArrayData);
 				_mgLeth = _mgLeth max ([CRQ_CDAT_1, _mgData] call CRQ_CatalogArrayData);
 			} forEach _mags;
@@ -1584,7 +1584,7 @@ CRQ_CatalogUtilWeaponType = {
 			private _mgLeth = 0;
 			private _mgAmmo = [];
 			{
-				private _mgData = gCQ_CatalogItem#_x#3;
+				private _mgData = pCQ_CT_Item#_x#3;
 				_mgAmmo pushBackUnique ([CRQ_CDAT_0, _mgData] call CRQ_CatalogArrayData);
 				_mgLeth = _mgLeth max ([CRQ_CDAT_1, _mgData] call CRQ_CatalogArrayData);
 			} forEach _mags;
@@ -1614,7 +1614,7 @@ CRQ_CatalogUtilWeaponType = {
 	[_categories, _params]
 };
 CRQ_CatalogUtilWeaponCapabilities = {
-	if (_this isEqualType -1) then {_this = gCQ_CatalogItem#_this#3;};
+	if (_this isEqualType -1) then {_this = pCQ_CT_Item#_this#3;};
 	(([CRQ_CDAT_CAPABILITIES, _this] call CRQ_CatalogArrayData) call CRQ_fnc_ByteDecode)
 };
 CRQ_CatalogUtilAssetTurrets = {
@@ -1690,7 +1690,7 @@ CRQ_CatalogUtilAssetType = {
 			_categories pushBack CRQ_CATALOG_ASSET_VEHICLE;
 		};
 		case (_name isKindOf "ship"): {
-			if (getText (gCQ_CfgVehicles >> _name >> "simulation") != "submarinex") then {
+			if (getText (pCQ_CFG_Vehicles >> _name >> "simulation") != "submarinex") then {
 				_categories pushBack CRQ_CATALOG_ASSET_BOAT;
 			} else {
 				_categories pushBack CRQ_CATALOG_ASSET_SUB;
@@ -1725,9 +1725,9 @@ CRQ_CatalogUtilAssetType = {
 	_categories pushBack (if ([CRQ_CDAT_AUTONOMOUS, _data] call CRQ_CatalogArrayData) then {CRQ_CATALOG_ASSET_AUTONOMOUS} else {CRQ_CATALOG_ASSET_MANNED});
 	
 	_categories pushBack (switch ([CRQ_CDAT_SIDE, _data] call CRQ_CatalogArrayData) do {
-		case CRQ_SD_BLUFOR: {CRQ_CATALOG_ASSET_BLUFOR};
-		case CRQ_SD_IDFOR: {CRQ_CATALOG_ASSET_IDFOR};
-		case CRQ_SD_OPFOR: {CRQ_CATALOG_ASSET_OPFOR};
+		case CRQ_SD_BLU: {CRQ_CATALOG_ASSET_BLUFOR};
+		case CRQ_SD_IND: {CRQ_CATALOG_ASSET_IDFOR};
+		case CRQ_SD_OPF: {CRQ_CATALOG_ASSET_OPFOR};
 		default {CRQ_CATALOG_ASSET_CIVFOR};
 	});
 	
@@ -1735,34 +1735,34 @@ CRQ_CatalogUtilAssetType = {
 };
 CRQ_DBG_RPGList = {
 	private _list = [CRQ_CATALOG_WEAPON_AT call CRQ_CatalogListAny, CRQ_CATALOG_WEAPON] call CRQ_CatalogListQuality;
-	(_list apply {[_x#0, (gCQ_CatalogItem#(_x#1))]})
+	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1))]})
 };
 CRQ_DBG_OpticsList = {
 	private _list = [CRQ_CATALOG_ATTACHMENT_OPTIC call CRQ_CatalogListAny, CRQ_CATALOG_ATTACHMENT_OPTIC] call CRQ_CatalogListQuality;
-	(_list apply {[_x#0, (gCQ_CatalogItem#(_x#1))]})
+	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1))]})
 };
 /*
-gCQ_CatalogTemp = missionNamespace getVariable ["gCQ_CatalogTemp", []];
-gCQ_CatalogTemp2 = missionNamespace getVariable ["gCQ_CatalogTemp2", []];
+pCQ_CT_Temp = missionNamespace getVariable ["pCQ_CT_Temp", []];
+pCQ_CT_Temp2 = missionNamespace getVariable ["pCQ_CT_Temp2", []];
 CRQ_DBG_CategoryAny = {
 	private _index = _this call CRQ_CatalogListAny;
 	private _list = [];
-	{_list pushBack (gCQ_CatalogItem#_x);} forEach _index;
+	{_list pushBack (pCQ_CT_Item#_x);} forEach _index;
 	_list
 };
 CRQ_DBG_CategoryMatching = {
 	private _index = _this call CRQ_CatalogListMatching;
 	private _list = [];
-	{_list pushBack (gCQ_CatalogItem#_x);} forEach _index;
+	{_list pushBack (pCQ_CT_Item#_x);} forEach _index;
 	_list
 };
 CRQ_DBG_WeaponsList = {
 	private _list = [CRQ_CATALOG_WEAPON call CRQ_CatalogListAny, CRQ_CATALOG_WEAPON] call CRQ_CatalogListQuality;
-	(_list apply {[_x#0, (gCQ_CatalogItem#(_x#1)#0)]})
+	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
 };
 CRQ_DBG_ArmamentList = {
 	private _list = [CRQ_CATALOG_ARMAMENT call CRQ_CatalogListAny, CRQ_CATALOG_ARMAMENT] call CRQ_CatalogListQuality;
-	(_list apply {[_x#0, (gCQ_CatalogItem#(_x#1)#0)]})
+	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
 };
 CRQ_DBG_TestSpeed = {
 	([[CRQ_CATALOG_WEAPON_FIREARM] call CRQ_CatalogListAny, [CRQ_CATALOG_WEAPON_FIREARM]] call CRQ_CatalogListQuality)
@@ -1771,13 +1771,13 @@ CRQ_DBG_VehicleArmed = {
 	private _itemList = [CRQ_CATALOG_ASSET_WHEELED,CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_MANNED] call CRQ_CatalogListMatching;
 	_itemList append ([CRQ_CATALOG_ASSET_TRACKED,CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_MANNED] call CRQ_CatalogListMatching);
 	private _quality = [_itemList, [CRQ_CATALOG_ASSET_ARMED]] call CRQ_CatalogListQuality;
-	(_quality apply {[_x#0, gCQ_CatalogItem#(_x#1)#0]})
+	(_quality apply {[_x#0, pCQ_CT_Item#(_x#1)#0]})
 	//private _qualityList = [_itemList, [CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_ARMORED],[0.5,0.5]] call CRQ_CatalogListQuality;
-	//(_qualityList apply {[_x#0, (gCQ_CatalogItem#(_x#1)#0)]})
+	//(_qualityList apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
 };
 CRQ_DBG_ListStatic = {
 	private _list = [[CRQ_CATALOG_ASSET_STATIC,CRQ_CATALOG_ASSET_MANNED] call CRQ_CatalogListMatching, [CRQ_CATALOG_ASSET_ARMED]] call CRQ_CatalogListQuality;
-	(_list apply {[_x#0, (gCQ_CatalogItem#(_x#1)#0)]})
+	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
 };
 CRQ_DBG_ListArmed = {
 	private _list = [];
@@ -1788,6 +1788,6 @@ CRQ_DBG_ListArmed = {
 			_list append ([[_type,CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_MANNED,_side] call CRQ_CatalogListMatching, [CRQ_CATALOG_ASSET_ARMED]] call CRQ_CatalogListQuality);
 		} forEach [CRQ_CATALOG_ASSET_BLUFOR,CRQ_CATALOG_ASSET_IDFOR,CRQ_CATALOG_ASSET_OPFOR,CRQ_CATALOG_ASSET_CIVFOR];
 	} forEach [CRQ_CATALOG_ASSET_WHEELED,CRQ_CATALOG_ASSET_TRACKED,CRQ_CATALOG_ASSET_WINGED,CRQ_CATALOG_ASSET_BOAT,CRQ_CATALOG_ASSET_ROTOR,CRQ_CATALOG_ASSET_STATIC];
-	(_list apply {[_x#0, (gCQ_CatalogItem#(_x#1)#0)]})
+	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
 };
 */

@@ -1,14 +1,4 @@
 
-#include "CRA__DEF__Client.sqf"
-
-dCRA_TEXT_INDEX = missionNamespace getVariable ["dCRA_TEXT_INDEX", CRA_TEXT_INDEX];
-
-lRA_PlayerTheme = missionNamespace getVariable ["lRA_PlayerTheme", "ORIG"];
-lRA_MusicPlayer = missionNamespace getVariable ["lRA_MusicPlayer", scriptNull];
-lRA_SoundUI = missionNamespace getVariable ["lRA_SoundUI", createHashMap];
-lRA_DisplayLaptopInit = missionNamespace getVariable ["lRA_DisplayLaptopInit", -1];
-lRA_PlayerParadrop = missionNamespace getVariable ["lRA_PlayerParadrop", []];
-
 CRA_LocalActionRelayTransmit = {
 	_this remoteExec ["CRA_ActionRelayReceive", 2];
 };
@@ -216,46 +206,44 @@ CRA_DisplayLaptopMessageExit = {
 };
 CRA_DisplayMapCreate = {
 	if (lRA_PlayerParadrop isEqualTo []) then {lRA_PlayerParadrop = [player call CRQ_Pos2D, getDir player];};
-	(_this call {
-		switch (_this) do {
-			case CRA_DISPLAY_MAP_MODE_SPAWN: {
-				private _destinations = pRA_LocationSafe + [-1];
-				reverse _destinations;
-				private _labels = _destinations apply {if (_x != -1) then {pRA_Locations#_x#0} else {CRA_DISPLAY_MAP_LABEL_PARADROP}};
-				[CRA_DISPLAY_MAP_MODE_SPAWN, _destinations, CRA_DISPLAY_MAP_TITLE_SPAWN, _labels] + (if (count _destinations > 1) then {
-					private _pos = pRA_Locations#(_destinations#1)#1;
-					["tele", CRA_PATH_UI_TELEPORT, [_pos, 0], CRA_DISPLAY_MAP_ICON_SHOW] call CRQ_fnc_UI_MapIconAdd;
-					["para", CRA_PATH_UI_PARADROP, lRA_PlayerParadrop, CRA_DISPLAY_MAP_ICON_HIDE] call CRQ_fnc_UI_MapIconAdd;
-					[1, _pos, "tele", "para"]
-				} else {
-					["tele", CRA_PATH_UI_TELEPORT, lRA_PlayerParadrop, CRA_DISPLAY_MAP_ICON_HIDE] call CRQ_fnc_UI_MapIconAdd;
-					["para", CRA_PATH_UI_PARADROP, lRA_PlayerParadrop, CRA_DISPLAY_MAP_ICON_SHOW] call CRQ_fnc_UI_MapIconAdd;
-					[0, lRA_PlayerParadrop#0, "tele", "para"]
-				})
-			};
-			case CRA_DISPLAY_MAP_MODE_TELEPORT: {
-				[] call CRQ_fnc_PLL_UI_Enter;
-				private _destinations = +pRA_LocationSafe;
-				if (_destinations isEqualTo []) exitWith {[]};
-				reverse _destinations;
-				private _labels = _destinations apply {pRA_Locations#_x#0};
-				private _pos = pRA_Locations#(_destinations#0)#1;
+	(switch (_this) do {
+		case CRA_DISPLAY_MAP_MODE_SPAWN: {
+			private _destinations = pRA_LocationSafe + [-1];
+			reverse _destinations;
+			private _labelList = _destinations apply {if (_x != -1) then {pRA_Locations#_x#0} else {CRA_DISPLAY_MAP_LABEL_PARADROP}};
+			[CRA_DISPLAY_MAP_MODE_SPAWN, _destinations, CRA_DISPLAY_MAP_TITLE_SPAWN, _labelList] + (if (count _destinations > 1) then {
+				private _pos = pRA_Locations#(_destinations#1)#1;
 				["tele", CRA_PATH_UI_TELEPORT, [_pos, 0], CRA_DISPLAY_MAP_ICON_SHOW] call CRQ_fnc_UI_MapIconAdd;
-				[CRA_DISPLAY_MAP_MODE_TELEPORT, _destinations, CRA_DISPLAY_MAP_TITLE_TELEPORT, _labels, -1, _pos, "tele", ""]
-			};
-			case CRA_DISPLAY_MAP_MODE_PARADROP: {
-				[] call CRQ_fnc_PLL_UI_Enter;
+				["para", CRA_PATH_UI_PARADROP, lRA_PlayerParadrop, CRA_DISPLAY_MAP_ICON_HIDE] call CRQ_fnc_UI_MapIconAdd;
+				[1, _pos, ["tele", "para"]]
+			} else {
+				["tele", CRA_PATH_UI_TELEPORT, lRA_PlayerParadrop, CRA_DISPLAY_MAP_ICON_HIDE] call CRQ_fnc_UI_MapIconAdd;
 				["para", CRA_PATH_UI_PARADROP, lRA_PlayerParadrop, CRA_DISPLAY_MAP_ICON_SHOW] call CRQ_fnc_UI_MapIconAdd;
-				[CRA_DISPLAY_MAP_MODE_PARADROP, [], CRA_DISPLAY_MAP_TITLE_PARADROP, [], -1, lRA_PlayerParadrop#0, "", "para"]
-			};
-			default {[]};
+				[0, lRA_PlayerParadrop#0, ["tele", "para"]]
+			})
 		};
-	}) params [["_mode", -1], ["_data", []], ["_title", ""], ["_labels", []], ["_index", -1], ["_pos", []], ["_iconTele", ""], ["_iconPara", ""]];
+		case CRA_DISPLAY_MAP_MODE_TELEPORT: {
+			[] call CRQ_fnc_PLL_UI_Enter;
+			private _destinations = +pRA_LocationSafe;
+			if (_destinations isEqualTo []) exitWith {[]};
+			reverse _destinations;
+			private _labelList = _destinations apply {pRA_Locations#_x#0};
+			private _pos = pRA_Locations#(_destinations#0)#1;
+			["tele", CRA_PATH_UI_TELEPORT, [_pos, 0], CRA_DISPLAY_MAP_ICON_SHOW] call CRQ_fnc_UI_MapIconAdd;
+			[CRA_DISPLAY_MAP_MODE_TELEPORT, _destinations, CRA_DISPLAY_MAP_TITLE_TELEPORT, _labelList, -1, _pos, "tele", ""]
+		};
+		case CRA_DISPLAY_MAP_MODE_PARADROP: {
+			[] call CRQ_fnc_PLL_UI_Enter;
+			["para", CRA_PATH_UI_PARADROP, lRA_PlayerParadrop, CRA_DISPLAY_MAP_ICON_SHOW] call CRQ_fnc_UI_MapIconAdd;
+			[CRA_DISPLAY_MAP_MODE_PARADROP, [], CRA_DISPLAY_MAP_TITLE_PARADROP, [], -1, lRA_PlayerParadrop#0, ["", "para"]]
+		};
+		default {[]};
+	}) params [["_mode", -1], ["_data", []], ["_labelCtrl", []], ["_labelList", []], ["_index", -1], ["_pos", []], ["_iconMap", []]];
 	if (_mode == -1) exitWith {};
 	uiNamespace setVariable [CRA_CVAR_DISPLAY_MAP_MODE, _mode];
 	uiNamespace setVariable [CRA_CVAR_DISPLAY_MAP_DATA, _data];
-	uiNamespace setVariable [CRA_CVAR_DISPLAY_MAP_ICON, [_iconTele, _iconPara]];
-	[findDisplay 46, _title, _labels, _index, _pos] call CRQ_fnc_UI_MapCreate;
+	uiNamespace setVariable [CRA_CVAR_DISPLAY_MAP_ICON, _iconMap];
+	[_labelCtrl, _labelList, _index, _pos] call CRQ_fnc_UI_MapCreate;
 	openMap [false, true];
 };
 CRA_DisplayMapExit = {

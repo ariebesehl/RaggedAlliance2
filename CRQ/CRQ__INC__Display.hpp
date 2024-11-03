@@ -1,8 +1,10 @@
 
 import RscStructuredText;
 import RscText;
+import RscTitle;
 import RscPicture;
 import RscButton;
+import RscButtonMenu;
 import RscListBox;
 import RscListNBox;
 import RscMapControl;
@@ -88,7 +90,7 @@ import RscActivePictureKeepAspect;
 #define CRQ_UI_DM_TILE_X_15 (CRQ_UI_DM_TASKB_X + 15 * CRQ_UI_DM_TILE_W)
 #define CRQ_UI_DM_TILE_Y (CRQ_UI_DM_TASKB_Y)
 
-class CRQ_UI_CT_BUTTON: RscButton {
+class CRQ_UI_CT_BUTTON: RscButtonMenu {
 	idc = -1;
 };
 class CRQ_UI_CT_CANCEL: CRQ_UI_CT_BUTTON {
@@ -114,14 +116,10 @@ class CRQ_UI_CT_CONFIRM: CRQ_UI_CT_OK {
 class CRQ_UI_CT_YES: CRQ_UI_CT_OK {
 	text = "Yes";
 };
-class CRQ_UI_CT_FAKE_BUTTON : RscButton {
-	idc = -1;
-	onButtonClick = "{}";
-};
 class CRQ_UI_CT_INFO_DESC: RscStructuredText {
 	idc = -1;
 	text = "";
-	colorBackground[] = CQM_GUI_COLOR_INFO;
+	//colorBackground[] = CQM_GUI_COLOR_INFO;
 	x = CRQ_UI_DM_ROOT_X + 0.36 * CRQ_UI_DM_ROOT_W;
 	y = CRQ_UI_DM_ROOT_Y + 0.85 * CRQ_UI_DM_ROOT_H;
 	w = CRQ_UI_DM_ROOT_W * 0.28;
@@ -140,16 +138,16 @@ class CRQ_UI_CT_MAP_ROOT: RscMapControl {
 	h = CRQ_UI_DM_MAP_H;
 };
 class CRQ_UI_CT_MAP_CANCEL: CRQ_UI_CT_EXIT {
-	colorBackground[] = CQM_GUI_COLOR_BTTN;
+	//colorBackground[] = CQM_GUI_COLOR_BTTN;
 	x = CRQ_UI_DM_MAP_X + CRQ_UI_DM_MAP_W * 0.015;
 	y = CRQ_UI_DM_MAP_Y + CRQ_UI_DM_MAP_H * 0.95;
 	w = CRQ_UI_DM_MAP_W * 0.15;
 	h = CRQ_UI_DM_MAP_H * 0.025;
 };
-class CRQ_UI_CT_MAP_TITLE: CRQ_UI_CT_FAKE_BUTTON {
-	text = "TITLE";
-	style = "0x2";
-	colorBackground[] = CQM_GUI_COLOR_TITLE;
+class CRQ_UI_CT_MAP_TITLE: RscTitle {
+	idc = -1;
+	onButtonClick = "{}";
+	colorBackground[] = {"(profilenamespace getvariable ['GUI_BCG_RGB_R',0.13])","(profilenamespace getvariable ['GUI_BCG_RGB_G',0.54])","(profilenamespace getvariable ['GUI_BCG_RGB_B',0.21])","(profilenamespace getvariable ['GUI_BCG_RGB_A',0.8])"};
 	x = CRQ_UI_DM_MAP_X + CRQ_UI_DM_MAP_W * 0.835;
 	y = CRQ_UI_DM_MAP_Y + CRQ_UI_DM_MAP_H * 0.025;
 	w = CRQ_UI_DM_MAP_W * 0.15;
@@ -157,7 +155,7 @@ class CRQ_UI_CT_MAP_TITLE: CRQ_UI_CT_FAKE_BUTTON {
 };
 class CRQ_UI_CT_MAP_LIST: RscListBox {
 	idc = -1;
-	colorBackground[] = CQM_GUI_COLOR_LIST;
+	//colorBackground[] = CQM_GUI_COLOR_LIST;
 	x = CRQ_UI_DM_MAP_X + CRQ_UI_DM_MAP_W * 0.835;
 	y = CRQ_UI_DM_MAP_Y + CRQ_UI_DM_MAP_H * 0.050;
 	w = CRQ_UI_DM_MAP_W * 0.15;
@@ -175,7 +173,7 @@ class CRQ_UI_CT_MAP_INFO: RscStructuredText {
 	h = CRQ_UI_DM_MAP_H * 0.100;
 };
 class CRQ_UI_CT_MAP_OK: CRQ_UI_CT_OK {
-	colorBackground[] = CQM_GUI_COLOR_BTTN;
+	//colorBackground[] = CQM_GUI_COLOR_BTTN;
 	x = CRQ_UI_DM_MAP_X + CRQ_UI_DM_MAP_W * 0.835;
 	y = CRQ_UI_DM_MAP_Y + CRQ_UI_DM_MAP_H * 0.95;
 	w = CRQ_UI_DM_MAP_W * 0.15;
@@ -269,6 +267,7 @@ class CRQ_UI_CT_TILE_15: CRQ_UI_CT_TILE_0 {x = CRQ_UI_DM_TILE_X_15; text = CQM_G
 class CRQ_GUI_DISP_LAPTOP_ROOT {
 	idd = CRQ_UI_ID_LAPTOP_ROOT;
 	onUnload = "_this call CRQ_DisplayLaptopExit;";
+	movingEnable = 0;
 	class ControlsBackground {
 		class CRQ_GUI_DISP_LAPTOP_DESKTOP : CRQ_UI_CT_WIN_DESKTOP {
 			idc = CRQ_UI_ID_LAPTOP_DESKTOP;
@@ -301,6 +300,7 @@ class CRQ_GUI_DISP_LAPTOP_ROOT {
 class CRQ_GUI_DISP_MAP_ROOT {
 	idd = CRQ_UI_ID_MAP_ROOT;
 	onUnload = "_this call CRQ_fnc_UI_MapExit";
+	movingEnable = 0;
 	class ControlsBackground {
 		class CRQ_GUI_DISP_MAP_MAP: CRQ_UI_CT_MAP_ROOT {
 			idc = CRQ_UI_ID_MAP_MAP;
@@ -309,14 +309,14 @@ class CRQ_GUI_DISP_MAP_ROOT {
 		};
 	};
 	class Controls {
-		class CRQ_GUI_DISP_MAP_TITLE: CRQ_UI_CT_MAP_TITLE {
-			idc = CRQ_UI_ID_MAP_TITLE;
-			// moving = true;
-		};
 		class CRQ_GUI_DISP_MAP_LIST: CRQ_UI_CT_MAP_LIST {
 			idc = CRQ_UI_ID_MAP_LIST;
 			onLBSelChanged = "_this call CRQ_fnc_UI_MapSelectList;";
 			onLBDblClick = CRQ_UI_CMD_BUTTON_OK;
+		};
+		class CRQ_GUI_DISP_MAP_TITLE: CRQ_UI_CT_MAP_TITLE {
+			idc = CRQ_UI_ID_MAP_TITLE;
+			// moving = true;
 		};
 		class CRQ_GUI_DISP_MAP_INFO: CRQ_UI_CT_MAP_INFO {
 			idc = CRQ_UI_ID_MAP_INFO;

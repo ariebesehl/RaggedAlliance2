@@ -10,7 +10,7 @@ CRQ_EHS_VehicleKilled = {
 	(gCS_GC_Queue#1) pushBack (_this#0);
 };
 CRQ_EHS_ClientDisconnect = {
-	_this call CQM_ClientDisconnect;
+	_this call CQM_fnc_CL_Disconnect;
 	false
 };
 CRQ_EHS_ClientRespawn = {
@@ -79,11 +79,11 @@ CRQ_fnc_CL_Connect = { // TODO there is now getUserInfo that includes clientStat
 	params ["_unit", "_id", "_uid", "_name", "_jip"];
 	[_unit, objNull] call CRQ_fnc_CL_Spawn;
 	if (_jip) then {(owner _unit) spawn CRQ_fnc_AC_Sync;};
-	_this call CQM_CL_CONN;
+	_this call CQM_fnc_CL_Connect;
 };
 CRQ_fnc_CL_Spawn = {
 	params ["_unit", "_corpse"];
-	_this call CQM_CL_SPAWN;
+	_this call CQM_fnc_CL_Spawn;
 	remoteExec ["CRQ_fnc_CLL_SpawnResolve", owner _unit];
 };
 CRQ_fnc_PL_Incapacitated = {
@@ -127,7 +127,7 @@ CRQ_fnc_GC_DisposeObject = {
 };
 CRQ_fnc_GC_ListRegister = {
 	if (_this isEqualTo objNull) exitWith {};
-	private _unit = if (_this call CRQ_fnc_ObjectIsUnit) then {if ((group _this) isNotEqualTo grpNull) then {[_this] join gCS_GC_Group;}; true} else {false};
+	private _unit = if (_this call CRQ_fnc_ObjectIsUnit) then {if ((group _this) isNotEqualTo grpNull) then {[_this] joinSilent gCS_GC_Group;}; true} else {false};
 	if ([_this, "CRQS_GCT"] call CRQ_fnc_VarAvailable) then {_this setVariable ["CRQS_GCT", gCS_TM_Now];};
 	if ([_this, "CRQS_GCH"] call CRQ_fnc_VarAvailable) then {_this setVariable ["CRQS_GCH", false];};
 	private _target = if (_unit) then {gCS_GC_Items#0} else {gCS_GC_Items#1};
@@ -159,8 +159,8 @@ CRQ_fnc_GC_CollectorLoop = {
 CRQ_fnc_GC_CollectorInit = {
 	(gCS_GC_Items#0#1) resize [gCS_PM_GC_CountCorpse, objNull];
 	(gCS_GC_Items#1#1) resize [gCS_PM_GC_CountWreck, objNull];
-	gCS_GC_Group = CRQ_SD_CIVFOR call CRQ_GroupCreate;
-	gCS_GC_Group setGroupIdGlobal [CQM_CORPSE_GROUP];
+	gCS_GC_Group = CRQ_SD_CIV call CRQ_GroupCreate;
+	gCS_GC_Group setGroupIdGlobal [CQM_GC_GROUP];
 };
 CRQ_fnc_CL_SyncConnect = {
 	publicVariable "pCQ_CL_Connect";
@@ -280,13 +280,13 @@ CRQ_fnc_DT_ParamsGenerate = {
 CRQ_fnc_DT_Loop = {
 	private _dtNow = dayTime;
 	if (_dtNow < gCS_DT_Now) then {gCS_DT_Params = [date] call CRQ_fnc_DT_ParamsGenerate;};
-	if (_dtNow >= (gCS_DT_Params#5) && {gCS_DT_Now < (gCS_DT_Params#5)}) then {[] call CQM_DT_NIGHT;};
-	if (_dtNow > (gCS_DT_Params#0) && {gCS_DT_Now <= (gCS_DT_Params#0)}) then {[] call CQM_DT_DAY;};
+	if (_dtNow >= (gCS_DT_Params#5) && {gCS_DT_Now < (gCS_DT_Params#5)}) then {[] call CQM_fnc_DT_Night;};
+	if (_dtNow > (gCS_DT_Params#0) && {gCS_DT_Now <= (gCS_DT_Params#0)}) then {[] call CQM_fnc_DT_Day;};
 	gCS_DT_Now = _dtNow;
 };
 CRQ_fnc_EN_LightsLoop = {
 	if (gCS_EN_Light isEqualTo ([] call CRQ_Lights)) exitWith {};
-	if (gCS_EN_Light) then {[] call CQM_EN_LT_OFF; gCS_EN_Light = false;} else {[] call CQM_EN_LT_ON; gCS_EN_Light = true;};
+	if (gCS_EN_Light) then {[] call CQM_fnc_EN_LightsOff; gCS_EN_Light = false;} else {[] call CQM_fnc_EN_LightsOn; gCS_EN_Light = true;};
 };
 
 CRQ_fnc_AI_Init = {
@@ -346,12 +346,12 @@ CRQ_fnc_MN_Init = {
 		skipTime (gCS_DT_Start - dayTime);
 		[] call CRQ_fnc_CL_Init;
 		[] call CRQ_fnc_AI_Init;
-		[] call CQM_MN_INIT_ZERO;
+		[] call CQM_fnc_MN_InitZero;
 	};
 	private _fnc_post = {
 		skipTime (gCS_DT_Start - dayTime); // TODO find out why -autoInit ignores above preInit
 		[] call CRQ_fnc_GC_CollectorInit;
-		[] call CQM_MN_INIT_MAIN;
+		[] call CQM_fnc_MN_InitMain;
 		gCS_DT_Now = dayTime;
 		gCS_EN_Light = call CRQ_Lights;
 	};

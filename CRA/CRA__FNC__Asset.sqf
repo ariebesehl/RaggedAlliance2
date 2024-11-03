@@ -1,28 +1,13 @@
 
-dCRA_DEPOT_TYPES = missionNamespace getVariable ["dCRA_DEPOT_TYPES", CRA_DEPOT_TYPES];
-dCRA_ASSET_INVENTORY = missionNamespace getVariable ["dCRA_ASSET_INVENTORY", CRA_ASSET_INVENTORY];
-
-gRA_SettingDepotRespawnWreck = ["CRA_VehicleRespawnWreck", 180] call BIS_fnc_getParamValue;
-gRA_SettingDepotRespawnAbandon = ["CRA_VehicleRespawnAbandon", 0] call BIS_fnc_getParamValue;
-gRA_SettingDepotAbandonMode = ["CRA_VehicleAbandonMode", 0] call BIS_fnc_getParamValue;
-gRA_SettingDepotAbandonTime = ["CRA_VehicleAbandonTime", 180] call BIS_fnc_getParamValue;
-
-gRA_AssetIndex = missionNamespace getVariable ["gRA_AssetIndex", []];
-gRA_AssetDimensions = missionNamespace getVariable ["gRA_AssetDimensions", []];
-
-gRA_DepotTypes = missionNamespace getVariable ["gRA_DepotTypes", []];
-gRA_fnc_DepotAbandonMode = missionNamespace getVariable ["gRA_fnc_DepotAbandonMode", {true}];
-
-gRA_Assets = [];
-
-CRA_AssetInit = {
+CRA_fnc_AS_InitZero = {
 	for "_side" from 0 to ((count CRA_ASSET_SIDES) - 1) do {
 		private _assetSide = [];
 		for "_class" from 0 to ((count CRA_ASSET_CLASSES) - 1) do {
 			_assetSide pushBack ((CRA_ASSET_TYPES#_class) apply {[]});
 		};
-		gRA_AssetIndex pushBack _assetSide;
+		gRA_AS_Catalog pushBack _assetSide;
 	};
+	
 	private _assetsUnique = [];
 	{
 		private _side = _forEachIndex;
@@ -35,62 +20,49 @@ CRA_AssetInit = {
 			{
 				_x params ["_type", "_categories", ["_quality", []], ["_weight", []]];
 				{
-					private _index = (gCQ_CatalogItem#(_x#1)) call _type;
+					private _index = (pCQ_CT_Item#(_x#1)) call _type;
 					if (_index != -1) then {(_classTypes#_index#1) pushBack _x; _assetsUnique pushBackUnique (_x#1);};
 				} forEach ([([_catSide, _catClass] + _categories) call CRQ_CatalogListMatching, _quality, _weight] call CRQ_CatalogListQuality);
 			} forEach (CRA_ASSET_TYPE_ASSETS#_class);
 			
 			{
 				(_x#1) sort true;
-				//(gRA_AssetIndex#_side#_class) set [_forEachIndex, [_x#0, _x#1] call CRQ_CatalogQualityMapGenerate];
-				(gRA_AssetIndex#_side#_class) set [_forEachIndex, _x call CRQ_CatalogQualityMapGenerate];
+				//(gRA_AS_Catalog#_side#_class) set [_forEachIndex, [_x#0, _x#1] call CRQ_CatalogQualityMapGenerate];
+				(gRA_AS_Catalog#_side#_class) set [_forEachIndex, _x call CRQ_CatalogQualityMapGenerate];
 			} forEach _classTypes;
 			
 		} forEach CRA_ASSET_CLASSES;
 	} forEach CRA_ASSET_SIDES;
-	{_x call CRA_AssetFinalize;} forEach _assetsUnique;
-	gRA_fnc_DepotAbandonMode = [
+	{
+		private _asset = (pCQ_CT_Item#_x);
+		_asset params ["_name", "_category", "_quality", "_data"];
+		private _capabilities = [CRQ_CDAT_CAPABILITIES, _data] call CRQ_CatalogArrayData;
+		private _load = [CRQ_CDAT_LOAD, _data] call CRQ_CatalogArrayData;
+		_asset set [4, ([CRQ_CDAT_SIZE, _data] call CRQ_CatalogArrayData) + [[CRQ_CDAT_CENTER, _data] call CRQ_CatalogArrayData]];
+		_asset set [5, _capabilities];
+		_asset set [6, [CRQ_CDAT_SEATS, _data] call CRQ_CatalogArrayData];
+		if (_load > 0) then {
+			private _factorLoad = (sqrt (_load)) / 20;
+			private _caps = _capabilities call CRQ_fnc_ByteDecode;
+			private _inventory = [[],[],[],[]];
+			{
+				_x params ["_index", "_item", "_mod", "_count", "_fnc_factor"];
+				private _factor = [_factorLoad, _caps, _asset] call _fnc_factor;
+				if (_factor > 0) then {(_inventory#_index) pushBack [_item, _mod, _count apply {_x * _factor}];};
+			} forEach dCRA_ASSET_INVENTORY;
+			_asset set [7, _inventory];
+		};
+	} forEach _assetsUnique;
+	
+	gRA_AS_FuncAbandonMode = [
 		{false},
 		{(_this#0) || (_this#1)},
 		{(_this#0) && (_this#1)},
 		{(_this#0)},
 		{(_this#1)}
-	]#gRA_SettingDepotAbandonMode;
+	]#gRA_PM_AS_AbandonMode;
 };
-CRA_AssetFinalize = {
-	private _asset = (gCQ_CatalogItem#_this);
-	_asset params ["_name", "_category", "_quality", "_data"];
-	private _capabilities = [CRQ_CDAT_CAPABILITIES, _data] call CRQ_CatalogArrayData;
-	private _load = [CRQ_CDAT_LOAD, _data] call CRQ_CatalogArrayData;
-	_asset set [4, ([CRQ_CDAT_SIZE, _data] call CRQ_CatalogArrayData) + [[CRQ_CDAT_CENTER, _data] call CRQ_CatalogArrayData]];
-	_asset set [5, _capabilities];
-	_asset set [6, [CRQ_CDAT_SEATS, _data] call CRQ_CatalogArrayData];
-	if (_load <= 0) exitWith {};
-	private _factorLoad = (sqrt (_load)) / 20;
-	private _caps = _capabilities call CRQ_fnc_ByteDecode;
-	private _inventory = [[],[],[],[]];
-	{
-		_x params ["_index", "_item", "_mod", "_count", "_fnc_factor"];
-		private _factor = [_factorLoad, _caps, _asset] call _fnc_factor;
-		if (_factor > 0) then {(_inventory#_index) pushBack [_item, _mod, _count apply {_x * _factor}];};
-	} forEach dCRA_ASSET_INVENTORY;
-	_asset set [7, _inventory];
-};
-CRA_AssetList = {
-	params ["_args", ["_bounds", [0,1]]];
-	private _vehicles = [];
-	while {true} do {
-		{_vehicles append ([_bounds, gRA_AssetIndex#(_x#0)#(_x#1)#(_x#2)] call CRQ_CatalogQualityMapItem);} forEach _args;
-		if (_vehicles isNotEqualTo [] || {(_bounds#0) <= 0}) exitWith {};
-		_bounds set [0, 0 max ((_bounds#0) - 0.0625)];
-	};
-	_vehicles
-};
-CRA_AssetRandom = {
-	private _assets = _this call CRA_AssetList;
-	if (_assets isNotEqualTo []) then {selectRandom _assets} else {-1};
-};
-CRA_AssetDimensions = {
+CRA_fnc_AS_InitMain = {
 	private _dimensions = CRA_ASSET_CLASSES apply {[]};
 	{
 		private _side = _forEachIndex;
@@ -98,7 +70,7 @@ CRA_AssetDimensions = {
 			private _class = _forEachIndex;
 			{
 				{
-					(gCQ_CatalogItem#_x#4) params ["_radius", "_size", "_center"];
+					(pCQ_CT_Item#_x#4) params ["_radius", "_size", "_center"];
 					private _index = (_dimensions#_class) findIf {_size isEqualTo (_x#2)};
 					if (_index == -1) then {
 						_index = count (_dimensions#_class);
@@ -108,12 +80,26 @@ CRA_AssetDimensions = {
 				} forEach (_x#0);
 			} forEach _x;
 		} forEach _x;
-	} forEach gRA_AssetIndex;
-	(_dimensions apply {[_x, [], {(_x#1)}, "DESCEND"] call BIS_fnc_sortBy})
+	} forEach gRA_AS_Catalog;
+	gRA_AS_Dimensions = _dimensions apply {[_x, [], {(_x#1)}, "DESCEND"] call BIS_fnc_sortBy};
 };
-CRA_AssetCreate = {
+CRA_fnc_AS_Available = {
+	params ["_args", ["_bounds", [0,1]]];
+	private _vehicles = [];
+	while {true} do {
+		{_vehicles append ([_bounds, gRA_AS_Catalog#(_x#0)#(_x#1)#(_x#2)] call CRQ_CatalogQualityMapItem);} forEach _args;
+		if (_vehicles isNotEqualTo [] || {(_bounds#0) <= 0}) exitWith {};
+		_bounds set [0, 0 max ((_bounds#0) - 0.0625)];
+	};
+	_vehicles
+};
+CRA_fnc_AS_Random = {
+	private _assets = _this call CRA_fnc_AS_Available;
+	if (_assets isNotEqualTo []) then {selectRandom _assets} else {-1};
+};
+CRA_fnc_AS_Create = {
 	params ["_index", "_vec", ["_crew", []]];
-	(gCQ_CatalogItem#_index) params ["_vhName", "_vhCategory", "_vhQuality", "_vhData", "_vhDim", "_vhCaps", "_vhSeats", ["_vhInventory", []]];
+	(pCQ_CT_Item#_index) params ["_vhName", "_vhCategory", "_vhQuality", "_vhData", "_vhDim", "_vhCaps", "_vhSeats", ["_vhInventory", []]];
 	
 	private _inventory = [[[],[],[]],[]];
 	
@@ -125,15 +111,15 @@ CRA_AssetCreate = {
 				_x params ["_itemCategory", "_itemQuality", "_itemCount"];
 				private _count = floor (random _itemCount);
 				for "_i" from 1 to _count do {
-					private _item = [_itemCategory, _itemQuality call CRA_ItemQuality] call CRA_ItemRandom;
+					private _item = [_itemCategory, _itemQuality call CRA_fnc_IT_Quality] call CRA_fnc_IT_Random;
 					if (_item != -1) then {(_indexInventory#_index) pushBack _item;};
 				};
 			} forEach _x;
 		} forEach _vhInventory;
-		{(_inventory#0#0) pushBack (gCQ_CatalogItem#_x#0);} forEach (_indexInventory#0);
-		{private _mag = gCQ_CatalogItem#_x; (_inventory#0#1) pushBack [_mag#0, _mag#4];} forEach (_indexInventory#1); // TODO test me!
-		{(_inventory#1) pushBack [gCQ_CatalogItem#_x#0, [[],[],[],[]]];} forEach (_indexInventory#3);
-		{[_inventory, [_x, false, false] call CRA_ItemWeaponRasterize] call CRQ_InventoryAppend;} forEach (_indexInventory#2);
+		{(_inventory#0#0) pushBack (pCQ_CT_Item#_x#0);} forEach (_indexInventory#0);
+		{private _mag = pCQ_CT_Item#_x; (_inventory#0#1) pushBack [_mag#0, _mag#4];} forEach (_indexInventory#1); // TODO test me!
+		{(_inventory#1) pushBack [pCQ_CT_Item#_x#0, [[],[],[],[]]];} forEach (_indexInventory#3);
+		{[_inventory, [_x, false, false] call CRA_fnc_IT_WeaponRasterize] call CRQ_InventoryAppend;} forEach (_indexInventory#2);
 	};
 		
 	private _vehicle = [_vhName, _vec, _inventory] call CRQ_VehicleCreate;
@@ -154,7 +140,7 @@ CRA_AssetCreate = {
 		private _vhDir = _vec#1;
 		private _vhRadius = -(_vhDim#0);
 		private _unitVec = [(_vec#0) vectorAdd [sin _vhDir * _vhRadius, cos _vhDir * _vhRadius, 0], _vhDir];
-		private _relation = _group call CRA_SideRelation;
+		private _relation = _group call CRA_fnc_SD_RelationPlayer;
 		{
 			private _role = [CRQ_CREW_COMMANDER,CRQ_CREW_GUNNER,CRQ_CREW_DRIVER,CRQ_CREW_CARGO]#_forEachIndex;
 			for "_i" from 1 to _x do {
@@ -168,32 +154,32 @@ CRA_AssetCreate = {
 	};
 	_vehicle
 };
-CRA_AssetRegister = {
+CRA_fnc_AS_Register = {
 	params ["_asset", ["_touched", false], ["_abandon", true], ["_hibernate", true], ["_vecLast", []], ["_timeLast", gCS_TM_Now]];
 	_asset setVariable [CRA_SVAR_VEC, if (_vecLast isNotEqualTo []) then {_vecLast} else {_asset call CRQ_Vec2D}];
 	_asset setVariable [CRA_SVAR_VEHICLE_TIME_LAST, _timeLast];
 	_asset setVariable [CRA_SVAR_VEHICLE_TOUCHED, _touched];
 	_asset setVariable [CRA_SVAR_VEHICLE_ABANDON, _abandon];
 	_asset setVariable [CRA_SVAR_VEHICLE_HIBERNATE, _hibernate];
-	gRA_Assets pushBack _asset;
+	gRA_AS_List pushBack _asset;
 };
-CRA_AssetAbandonEnable = {
+CRA_fnc_AS_AbandonEnable = {
 	_this setVariable [CRA_SVAR_VEHICLE_ABANDON, true];
 };
-CRA_AssetAbandonDisable = {
+CRA_fnc_AS_AbandonDisable = {
 	_this setVariable [CRA_SVAR_VEHICLE_ABANDON, false];
 };
-CRA_AssetHibernateEnable = {
+CRA_fnc_AS_HibernateEnable = {
 	_this setVariable [CRA_SVAR_VEHICLE_HIBERNATE, true];
 };
-CRA_AssetHibernateDisable = {
+CRA_fnc_AS_HibernateDisable = {
 	_this setVariable [CRA_SVAR_VEHICLE_HIBERNATE, false];
 };
-CRA_AssetLog = {
+CRA_fnc_AS_Log = {
 	if (_this isEqualType objNull) then {
 		private _vec = _this call CRQ_Vec2D;
 		
-		private _actBase = (_this getVariable [CRA_SVAR_ACTIVITY_BASE, gRA_ProgressActivation]) call {if (_this < 0) then {-_this * gRA_ProgressActivation} else {_this}};
+		private _actBase = (_this getVariable [CRA_SVAR_ACTIVITY_BASE, gRA_PG_Activation]) call {if (_this < 0) then {-_this * gRA_PG_Activation} else {_this}};
 		private _activity = [_vec, _actBase, _this getVariable [CRA_SVAR_ACTIVITY, 0], CRA_ACTIVITY_MIN, CRA_ACTIVITY_MAX] call CRA_PlayerActivity;
 		_this setVariable [CRA_SVAR_ACTIVITY, _activity];
 		
@@ -207,42 +193,39 @@ CRA_AssetLog = {
 	} else {
 		private _vec = [_this, CRA_SVAR_VEC, []] call CRQ_VarGet;
 		if (_vec isEqualTo []) exitWith {};
-		private _actBase = ([_this, CRA_SVAR_ACTIVITY_BASE, gRA_ProgressActivation] call CRQ_VarGet) call {if (_this < 0) then {-_this * gRA_ProgressActivation} else {_this}};
+		private _actBase = ([_this, CRA_SVAR_ACTIVITY_BASE, gRA_PG_Activation] call CRQ_VarGet) call {if (_this < 0) then {-_this * gRA_PG_Activation} else {_this}};
 		private _activity = [_vec, _actBase, [_this, CRA_SVAR_ACTIVITY, 0] call CRQ_VarGet, CRA_ACTIVITY_MIN, CRA_ACTIVITY_MAX] call CRA_PlayerActivity;
 		[_this, CRA_SVAR_ACTIVITY, _activity] call CRQ_VarSet;
 	};
 };
-CRA_AssetAbandon = {
-	(if (_this isEqualType objNull) then {
-		[_this getVariable [CRA_SVAR_VEHICLE_TOUCHED, false], _this getVariable [CRA_SVAR_VEHICLE_TIME_LAST, -1], _this getVariable [CRA_SVAR_ACTIVITY, 0], _this getVariable [CRA_SVAR_VEHICLE_ABANDON, false]]
-	} else {
-		[[_this, CRA_SVAR_VEHICLE_TOUCHED, false] call CRQ_VarGet, [_this, CRA_SVAR_VEHICLE_TIME_LAST, -1] call CRQ_VarGet, [_this, CRA_SVAR_ACTIVITY, 0] call CRQ_VarGet, [_this, CRA_SVAR_VEHICLE_ABANDON, false] call CRQ_VarGet]
-	}) params ["_touched", "_lastUsed", "_activity", "_abandon"];
-	if (_abandon && {_touched}) exitWith {[_lastUsed != -1 && {([_lastUsed, gCS_TM_Now] call CRQ_fnc_TimeDelta) >= gRA_SettingDepotAbandonTime}, _activity <= 0] call gRA_fnc_DepotAbandonMode};
+CRA_fnc_AS_Abandon = {
+	([
+		[CRA_SVAR_VEHICLE_TOUCHED, false],
+		[CRA_SVAR_VEHICLE_TIME_LAST, -1],
+		[CRA_SVAR_ACTIVITY, 0],
+		[CRA_SVAR_VEHICLE_ABANDON, false]
+	] apply (if (_this isEqualType objNull) then {{_this getVariable _x}} else {{([_this] + _x) call CRQ_VarGet}})) params ["_touched", "_lastUsed", "_activity", "_abandon"];
+	if (_abandon && {_touched}) exitWith {[_lastUsed != -1 && {([_lastUsed, gCS_TM_Now] call CRQ_fnc_TimeDelta) >= gRA_PM_AS_AbandonTime}, _activity <= 0] call gRA_AS_FuncAbandonMode};
 	false
 };
-CRA_AssetLoop = {
+CRA_fnc_AS_Loop = {
 	private _fnc_wrecked = {
 		{private _data = (_x call CRQ_fnc_LNK_Get)#1#_y; _data set [0, true]; _data set [1, gCS_TM_Now];} forEach ((_this#0) call CRQ_fnc_LNK_Get);
-		//[(_this#1), [true, gCS_TM_Now, -1]] call CRQ_LinkDataBroadcast;
-		
 	};
 	private _fnc_abandon = {
 		{private _data = (_x call CRQ_fnc_LNK_Get)#1#_y; _data set [0, true]; _data set [2, gCS_TM_Now];} forEach ((_this#0) call CRQ_fnc_LNK_Get);
-		//[(_this#1), [true, -1, gCS_TM_Now]] call CRQ_LinkDataBroadcast;
 	};
 	private _fnc_suspend = {
 		{((_x call CRQ_fnc_LNK_Get)#0) set [_y, _this#1];} forEach ((_this#0) call CRQ_fnc_LNK_Get);
-		//[_this#2, _this#3] call CRQ_LinkSource;
 	};
 	private _remove = [];
 	{
 		if (_x isEqualType objNull) then {
 			if (_x isEqualTo objNull) exitWith {_remove pushBack _forEachIndex};
 			if (alive _x) exitWith {
-				_x call CRA_AssetLog;
-				if (gRA_PlayerAsset find _x != -1) exitWith {};
-				if (_x call CRA_AssetAbandon) exitWith {
+				_x call CRA_fnc_AS_Log;
+				if (gRA_PL_Asset find _x != -1) exitWith {};
+				if (_x call CRA_fnc_AS_Abandon) exitWith {
 					[_x, _x] call _fnc_abandon;
 					_x call CRQ_VehicleDelete;
 					_remove pushBack _forEachIndex;
@@ -252,7 +235,7 @@ CRA_AssetLoop = {
 						private _hibernated = _x call CRQ_VehicleHibernate;
 						//[_x, _hibernated#1, _x, [_hibernated#1, objNull] call CRQ_LinkVars] call _fnc_suspend;
 						[_x, _hibernated#1] call _fnc_suspend;
-						gRA_Assets set [_forEachIndex, _hibernated];
+						gRA_AS_List set [_forEachIndex, _hibernated];
 						_x call CRQ_VehicleDelete;
 					};
 				};
@@ -261,22 +244,19 @@ CRA_AssetLoop = {
 			_remove pushBack _forEachIndex;
 		} else {
 			_x params ["_data", "_vars"];
-			_vars call CRA_AssetLog;
-			//private _linked = [_vars, locationNull] call CRQ_LinkVars;
-			if (_vars call CRA_AssetAbandon) exitWith {
-				//[_vars, _linked] call _fnc_abandon;
+			_vars call CRA_fnc_AS_Log;
+			if (_vars call CRA_fnc_AS_Abandon) exitWith {
 				[_vars] call _fnc_abandon;
 				_remove pushBack _forEachIndex;
 			};
 			if ([_vars, CRA_SVAR_ACTIVITY, 0] call CRQ_VarGet < 1) exitWith {};
 			private _vehicle = _x call CRQ_VehicleThaw;
-			//[_vars, _vehicle, _linked, _vehicle] call _fnc_suspend;
 			[_vars, _vehicle] call _fnc_suspend;
-			gRA_Assets set [_forEachIndex, _vehicle];
+			gRA_AS_List set [_forEachIndex, _vehicle];
 		};
-	} forEach gRA_Assets;
+	} forEach gRA_AS_List;
 	reverse _remove;
-	{gRA_Assets deleteAt _x;} forEach _remove;
+	{gRA_AS_List deleteAt _x;} forEach _remove;
 };
 CRA_DepotSpawn = {
 	params ["_location", "_index"];
@@ -291,17 +271,14 @@ CRA_DepotSpawn = {
 	(selectRandom (_spawn#0#_owner)) params ["_vhIndex", "_spIndex"];
 	(_spawn#1#(selectRandom _spIndex)) params ["_spPos", "_spDir"];
 	
-	(gCQ_CatalogItem#_vhIndex#4) params ["_vhRadius"];
+	(pCQ_CT_Item#_vhIndex#4) params ["_vhRadius"];
 	
 	[_spPos, _vhRadius, [_spPos, _vhRadius] call CRQ_WrecksFind] call CRQ_ClearArea;
 	
-	private _asset = [_vhIndex, [_spPos, selectRandom _spDir]] call CRA_AssetCreate;
+	private _asset = [_vhIndex, [_spPos, selectRandom _spDir]] call CRA_fnc_AS_Create;
 	
-	[_asset] call CRA_AssetRegister;
+	[_asset] call CRA_fnc_AS_Register;
 	_asset setVariable [CRA_SVAR_ACTIVITY, _location getVariable [CRA_SVAR_ACTIVITY, 0]];
-	
-	//[_location, _index, locationNull] call CRQ_LinkFree;
-	//[[_location, _index, [false, -1,-1]], [_asset]] call CRQ_LinkCreate;
 	
 	private _linkID = name _location;
 	(_linkID call CRQ_fnc_LNK_Get) params ["_linkObj", "_linkData"];
@@ -361,7 +338,7 @@ CRA_DepotAnalysis = {
 						_vhMaxR = _vhMaxR max _vhRadius;
 						_vhMaxZ = _vhMaxZ max _vhZ;
 					};
-				} forEach (gRA_AssetDimensions#_dpType);
+				} forEach (gRA_AS_Dimensions#_dpType);
 				
 				if (_spVehicles isEqualTo [[],[],[],[]]) exitWith {};
 				private _spIndex = count (_dpVehicles#1);
@@ -415,7 +392,7 @@ CRA_DepotAnalysis = {
 						_vhMaxR = _vhMaxR max _vhRadius;
 						_vhMaxZ = _vhMaxZ max _vhZ;
 					};
-				} forEach (gRA_AssetDimensions#_dpType);
+				} forEach (gRA_AS_Dimensions#_dpType);
 			};
 			
 			//case CRA_DEPOT_POS_OUTSIDE: { // TODO verify this
@@ -455,18 +432,20 @@ CRA_DepotBounds = {
 	[_class, _model, _type, _size, _rasterized]
 };
 CRA_DepotInit = {
-	gRA_AssetDimensions = [] call CRA_AssetDimensions;
 	gRA_DepotTypes = dCRA_DEPOT_TYPES apply {_x call CRA_DepotBounds};
 	gRA_DepotModels = createHashMap;
 	{gRA_DepotModels set [_x#1, _forEachIndex];} forEach gRA_DepotTypes;
-	
-	CRA_LOAD_NEXT(0, count dRA_WorldHouses);
+	private _cntHouse = 0;
+	{_cntHouse = _cntHouse + count _x;} forEach gRA_MAP_House;
+	CRA_LOAD_NEXT(0, _cntHouse);
 	private _candidates = [];
 	{
-		CRA_LOAD_INDEX(_forEachIndex);
-		private _model = gRA_DepotModels getOrDefault [toLowerANSI (_x call CRQ_ObjectModel), -1];
-		if (_model != -1 && {((vectorUp _x)#2) / (getObjectScale _x) >= CRA_DEPOT_VECTORUP_MIN}) then {_candidates pushBack [_x, _model];};
-	} forEach dRA_WorldHouses;
+		{
+			CRA_LOAD_INDEX(_forEachIndex);
+			private _model = gRA_DepotModels getOrDefault [toLowerANSI (_x call CRQ_ObjectModel), -1];
+			if (_model != -1 && {((vectorUp _x)#2) / (getObjectScale _x) >= CRA_DEPOT_VECTORUP_MIN}) then {_candidates pushBack [_x, _model];};
+		} forEach _x;
+	} forEach gRA_MAP_House;
 	
 	CRA_LOAD_NEXT(0, count _candidates);
 	private _depotTypes = CRA_ASSET_CLASSES apply {createHashMap};
@@ -523,18 +502,18 @@ CRA_DepotInit = {
 			_indexes,
 			{_this},
 			{CRA_LOAD_INDEX(_loading); _loading = _loading + 1; ((_depots get _this)#0) call CRQ_Pos2D},
-			{(_this#1) distance2D (((_depots get (_this#2))#0) call CRQ_Pos2D) < _proximity}
-		] call CRQ_fnc_MAP_Group)#0);
+			{(_this#2) distance2D (((_depots get (_this#0))#0) call CRQ_Pos2D) < _proximity}
+		] call CRQ_fnc_MAP_Group)#1);
 	} forEach _depotTypes;
 	
 	CRA_LOAD_NEXT(0, 0);
 	private _depots = [];
 	private _index = 0;
-	gRA_LocationIndexDepot = count gRA_Locations;
+	gRA_LC_IndexDepot = count gRA_LC_List;
 	{
 		private _type = CRA_ASSET_DEPOTS#_forEachIndex;
 		{
-			_depots pushBack [[gRA_LocationIndexDepot + _index, [_x#0, 0], CRA_DEPOT_NAME + str _index, CRA_DEPOT_LABEL], _type, [[[],CRA_DEPOT_SIZE,[],false],[],[]], _x#1];
+			_depots pushBack [[gRA_LC_IndexDepot + _index, [_x#0, 0], str _index, ""], _type, [[[],CRA_DEPOT_SIZE,[],false],[],[]], _x#1];
 			_index  = _index + 1;
 		} forEach _x;
 	} forEach _depotGrp;
@@ -546,13 +525,13 @@ CRA_DepotInit = {
 	CRA_LOAD_NEXT(0, 0);
 	{
 		_x params ["_lcData", "_lcType", "_lcBase", "_dpSpawn"];
-		private _location = [_lcData, _lcType, _lcBase, CRQ_SD_CIVFOR, [[CRA_SVAR_LOCATION_ASSET_SPAWN, [_dpSpawn]]]] call CRA_LocationGenerate;
+		private _location = [_lcData, _lcType, _lcBase, CRQ_SD_CIV, [[CRA_SVAR_LOCATION_ASSET_SPAWN, [_dpSpawn]]]] call CRA_LocationGenerate;
 		private _linkObj = [];
 		private _linkData = [];
 		{_linkObj pushBack [objNull, _forEachIndex]; _linkData pushBack [false, -1, -1];} forEach _dpSpawn;
 		_linkObj pushBack [_location];
 		[name _location, _linkObj, _linkData] call CRQ_fnc_LNK_Create;
-		gRA_Locations pushBack _location;
+		gRA_LC_List pushBack _location;
 	} forEach _depots;
 };
 CRA_DepotCustomCreate = {
@@ -560,60 +539,19 @@ CRA_DepotCustomCreate = {
 	(_this#1) params ["_dpVec", "_dpData", ["_dpProps", []]];
 	private _dpBounds = _dpData call {
 		if (_this isEqualType -1) exitWith {
-			_dpProps = [[gRA_DepotTypes#_this#0,[[CRQ_VUP_REL]]]] + _dpProps;
+			_dpProps = [[gRA_DepotTypes#_this#0,[[CRQ_VU_PREL]]]] + _dpProps;
 			gRA_DepotTypes#_this
 		};
 		if (_this isEqualType []) exitWith {
-			if ((_this#0) isEqualType "") then {_dpProps = [[_this#0,[[CRQ_VUP_REL]]]] + _dpProps;};
+			if ((_this#0) isEqualType "") then {_dpProps = [[_this#0,[[CRQ_VU_PREL]]]] + _dpProps;};
 			_this call CRA_DepotBounds
 		};
 		[]
 	};
 	[
-		[gRA_LocationIndexDepot + _index, _dpVec, CRA_DEPOT_NAME + str _index, CRA_DEPOT_LABEL],
+		[gRA_LC_IndexDepot + _index, _dpVec, str _index, ""],
 		CRA_ASSET_DEPOTS#(_dpBounds#2),
 		[[[] ,[[(_dpBounds#3#1#0) / 2, (_dpBounds#3#1#1) / 2], [0, 0]], [], true], [], _dpProps],
 		[_dpVec, _dpBounds] call CRA_DepotAnalysis
 	]
 };
-
-/*
-CRA_DBG_Depot = {
-	private _lines = [];
-	private _types = ["CRA_ASSET_WHEELED","CRA_ASSET_TRACKED","CRA_ASSET_WINGED","CRA_ASSET_BOAT","CRA_ASSET_ROTOR","CRA_ASSET_STATIC"];
-	private _vec = ["CRQ_VUP_ABS","CRQ_VUP_REL","CRQ_VUP_VEC","CRQ_VUP_VEC_GROUND","CRQ_VUP_VEC_LEVEL"];
-	private _spType = ["CRA_DEPOT_POS_INSIDE","CRA_DEPOT_POS_OUTSIDE","CRA_DEPOT_POS_BOAT"];
-	private _fnc_Vec = {
-		private _line = "[";
-		{
-			_line = _line + "[" + (_vec#(_x#0));
-			if (count _x > 1) then {_line = _line + "," + str (_x#1);};
-			if (count _x > 2) then {_line = _line + "," + str (_x#2);};
-			_line = _line + (if (_forEachIndex < (count _this - 1)) then {"],"} else {"]"});
-		} forEach _this;
-		(_line + "]")
-	};
-	{
-		private _line = "[" + ("'" + (_x#0) + "'") + "," + (_types#(_x#2)) + ",[";
-		private _spawn = "";
-		private _spLast = count (_x#4) - 1;
-		{
-			private _spLine = "[" + (_spType#(_x#1)) + ",";
-			_spLine = _spLine + (switch (_x#1) do {
-				case CRA_DEPOT_POS_INSIDE: {((_x#0) call _fnc_Vec) + ",[" + str (_x#3) + "," + str ((_x#2) apply {(round (_x * 100)) / 100}) + "]"};
-				case CRA_DEPOT_POS_BOAT: {([[CRQ_VUP_VEC,_x#2]] call _fnc_Vec) + ",[" + str (_x#3) + "," + str (_x#2#1) + "]"};
-				default {""};
-			});
-			_spLine = _spLine + "]" + (if (_forEachIndex < _spLast) then {","} else {""});
-			_spawn = _spawn + _spLine;
-		} forEach (_x#4);
-		_line = _line + _spawn;
-		_line = _line + "]]";
-		_lines pushBack _line;
-	} forEach gRA_DepotTypes;
-	private _last = count gRA_DepotTypes - 1;
-	private _output = "[";
-	{_output = _output + _x + (if (_forEachIndex < _last) then {",\"} else {"]"}) + (toString [10]);} forEach _lines;
-	_output
-};
-*/

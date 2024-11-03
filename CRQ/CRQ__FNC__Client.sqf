@@ -78,10 +78,10 @@ CRQ_fnc_CLL_SpawnResolve = {
 	[_restore, _timeout] spawn CQM_fnc_CLL_Spawn;
 };
 CRQ_fnc_PLL_UI_Enter = {
-	player playMoveNow "HubSpectator_stand";
+	//player playMoveNow "HubSpectator_stand";
 };
 CRQ_fnc_PLL_UI_Exit = {
-	player switchMove "AmovPercMstpSlowWrflDnon"; // TODO pick correct animation
+	//player switchMove "AmovPercMstpSlowWrflDnon"; // TODO pick correct animation
 };
 CRQ_fnc_PLL_Incapacitated = {
 	player getVariable ["BIS_revive_incapacitated", false]
@@ -127,13 +127,18 @@ CRQ_DisplayLaptopTile = {
 	_this call CQM_fnc_UI_LaptopTile;
 };
 CRQ_fnc_UI_MapCreate = {
-	params ["_root", "_title", "_list", ["_index", -1], ["_pos", []]];
-	private _display = _root createDisplay "CRQ_GUI_DISP_MAP_ROOT";
-	(_display displayCtrl CRQ_UI_ID_MAP_TITLE) ctrlSetText _title;
+	params [["_labels", []], ["_list", []], ["_index", -1], ["_pos", []]];
+	createDialog "CRQ_GUI_DISP_MAP_ROOT";
+	private _display = findDisplay CRQ_UI_ID_MAP_ROOT;
+	{(_display displayCtrl (CRQ_UI_ID_MAP_TITLE + _forEachIndex)) ctrlSetText _x;} forEach _labels;
 	if (_pos isNotEqualTo []) then {[_display, _pos, 0] call CRQ_fnc_UI_MapPos;};
 	private _ctrlList = _display displayCtrl CRQ_UI_ID_MAP_LIST;
 	if (_list isEqualTo []) then {
 		_ctrlList ctrlShow false;
+		private _ctrlTitle = _display displayCtrl CRQ_UI_ID_MAP_TITLE;
+		private _ctrlInfo = _display displayCtrl CRQ_UI_ID_MAP_INFO;
+		_ctrlTitle ctrlSetPositionY (((ctrlPosition _ctrlInfo)#1) - ((ctrlPosition _ctrlTitle)#3));
+		_ctrlTitle ctrlCommit 0;
 	} else {
 		{_ctrlList lbAdd _x;} forEach _list;
 		if (_index >= 0) then {_ctrlList lbSetCurSel _index;};

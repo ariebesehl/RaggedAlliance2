@@ -1,10 +1,10 @@
 
-#include "CRA__Var.sqf"
+#include "CRA__DEF__Var.sqf"
 
 // TODO undefine me
 //#define CRQ_DBG_ENABLE
 
-#define CRA_VERSION [2024,10,24]
+#define CRA_VERSION [2024,10,28]
 
 #define CRA_PARADROP_HEIGHT 42
 
