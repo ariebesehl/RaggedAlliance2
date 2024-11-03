@@ -1,8 +1,8 @@
 
-#ifdef CRQ_DBG_ENABLE
+#ifdef CRA_DBG_ENABLE
 #define CRA_LC_HIDE "Name"
 #else
-#define CRA_LC_HIDE "Name"
+#define CRA_LC_HIDE "Invisible"
 #endif
 #define CRA_LC_REJUVENATION 0.01 // TODO: reimplement?
 

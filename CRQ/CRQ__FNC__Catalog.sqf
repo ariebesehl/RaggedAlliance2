@@ -1741,53 +1741,53 @@ CRQ_DBG_OpticsList = {
 	private _list = [CRQ_CATALOG_ATTACHMENT_OPTIC call CRQ_CatalogListAny, CRQ_CATALOG_ATTACHMENT_OPTIC] call CRQ_CatalogListQuality;
 	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1))]})
 };
-/*
-pCQ_CT_Temp = missionNamespace getVariable ["pCQ_CT_Temp", []];
-pCQ_CT_Temp2 = missionNamespace getVariable ["pCQ_CT_Temp2", []];
-CRQ_DBG_CategoryAny = {
-	private _index = _this call CRQ_CatalogListAny;
-	private _list = [];
-	{_list pushBack (pCQ_CT_Item#_x);} forEach _index;
-	_list
-};
-CRQ_DBG_CategoryMatching = {
-	private _index = _this call CRQ_CatalogListMatching;
-	private _list = [];
-	{_list pushBack (pCQ_CT_Item#_x);} forEach _index;
-	_list
-};
-CRQ_DBG_WeaponsList = {
-	private _list = [CRQ_CATALOG_WEAPON call CRQ_CatalogListAny, CRQ_CATALOG_WEAPON] call CRQ_CatalogListQuality;
-	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
-};
-CRQ_DBG_ArmamentList = {
-	private _list = [CRQ_CATALOG_ARMAMENT call CRQ_CatalogListAny, CRQ_CATALOG_ARMAMENT] call CRQ_CatalogListQuality;
-	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
-};
-CRQ_DBG_TestSpeed = {
-	([[CRQ_CATALOG_WEAPON_FIREARM] call CRQ_CatalogListAny, [CRQ_CATALOG_WEAPON_FIREARM]] call CRQ_CatalogListQuality)
-};
-CRQ_DBG_VehicleArmed = {
-	private _itemList = [CRQ_CATALOG_ASSET_WHEELED,CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_MANNED] call CRQ_CatalogListMatching;
-	_itemList append ([CRQ_CATALOG_ASSET_TRACKED,CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_MANNED] call CRQ_CatalogListMatching);
-	private _quality = [_itemList, [CRQ_CATALOG_ASSET_ARMED]] call CRQ_CatalogListQuality;
-	(_quality apply {[_x#0, pCQ_CT_Item#(_x#1)#0]})
-	//private _qualityList = [_itemList, [CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_ARMORED],[0.5,0.5]] call CRQ_CatalogListQuality;
-	//(_qualityList apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
-};
-CRQ_DBG_ListStatic = {
-	private _list = [[CRQ_CATALOG_ASSET_STATIC,CRQ_CATALOG_ASSET_MANNED] call CRQ_CatalogListMatching, [CRQ_CATALOG_ASSET_ARMED]] call CRQ_CatalogListQuality;
-	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
-};
-CRQ_DBG_ListArmed = {
-	private _list = [];
-	{
-		private _type = _x;
-		{
-			private _side = _x;
-			_list append ([[_type,CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_MANNED,_side] call CRQ_CatalogListMatching, [CRQ_CATALOG_ASSET_ARMED]] call CRQ_CatalogListQuality);
-		} forEach [CRQ_CATALOG_ASSET_BLUFOR,CRQ_CATALOG_ASSET_IDFOR,CRQ_CATALOG_ASSET_OPFOR,CRQ_CATALOG_ASSET_CIVFOR];
-	} forEach [CRQ_CATALOG_ASSET_WHEELED,CRQ_CATALOG_ASSET_TRACKED,CRQ_CATALOG_ASSET_WINGED,CRQ_CATALOG_ASSET_BOAT,CRQ_CATALOG_ASSET_ROTOR,CRQ_CATALOG_ASSET_STATIC];
-	(_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
-};
-*/
+#ifdef CRQ_DBG_ENABLE
+// pCQ_CT_Temp = missionNamespace getVariable ["pCQ_CT_Temp", []];
+// pCQ_CT_Temp2 = missionNamespace getVariable ["pCQ_CT_Temp2", []];
+// CRQ_DBG_CategoryAny = {
+	// private _index = _this call CRQ_CatalogListAny;
+	// private _list = [];
+	// {_list pushBack (pCQ_CT_Item#_x);} forEach _index;
+	// _list
+// };
+// CRQ_DBG_CategoryMatching = {
+	// private _index = _this call CRQ_CatalogListMatching;
+	// private _list = [];
+	// {_list pushBack (pCQ_CT_Item#_x);} forEach _index;
+	// _list
+// };
+// CRQ_DBG_WeaponsList = {
+	// private _list = [CRQ_CATALOG_WEAPON call CRQ_CatalogListAny, CRQ_CATALOG_WEAPON] call CRQ_CatalogListQuality;
+	// (_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
+// };
+// CRQ_DBG_ArmamentList = {
+	// private _list = [CRQ_CATALOG_ARMAMENT call CRQ_CatalogListAny, CRQ_CATALOG_ARMAMENT] call CRQ_CatalogListQuality;
+	// (_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
+// };
+// CRQ_DBG_TestSpeed = {
+	// ([[CRQ_CATALOG_WEAPON_FIREARM] call CRQ_CatalogListAny, [CRQ_CATALOG_WEAPON_FIREARM]] call CRQ_CatalogListQuality)
+// };
+// CRQ_DBG_VehicleArmed = {
+	// private _itemList = [CRQ_CATALOG_ASSET_WHEELED,CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_MANNED] call CRQ_CatalogListMatching;
+	// _itemList append ([CRQ_CATALOG_ASSET_TRACKED,CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_MANNED] call CRQ_CatalogListMatching);
+	// private _quality = [_itemList, [CRQ_CATALOG_ASSET_ARMED]] call CRQ_CatalogListQuality;
+	// (_quality apply {[_x#0, pCQ_CT_Item#(_x#1)#0]})
+	// //private _qualityList = [_itemList, [CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_ARMORED],[0.5,0.5]] call CRQ_CatalogListQuality;
+	// //(_qualityList apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
+// };
+// CRQ_DBG_ListStatic = {
+	// private _list = [[CRQ_CATALOG_ASSET_STATIC,CRQ_CATALOG_ASSET_MANNED] call CRQ_CatalogListMatching, [CRQ_CATALOG_ASSET_ARMED]] call CRQ_CatalogListQuality;
+	// (_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
+// };
+// CRQ_DBG_ListArmed = {
+	// private _list = [];
+	// {
+		// private _type = _x;
+		// {
+			// private _side = _x;
+			// _list append ([[_type,CRQ_CATALOG_ASSET_ARMED,CRQ_CATALOG_ASSET_MANNED,_side] call CRQ_CatalogListMatching, [CRQ_CATALOG_ASSET_ARMED]] call CRQ_CatalogListQuality);
+		// } forEach [CRQ_CATALOG_ASSET_BLUFOR,CRQ_CATALOG_ASSET_IDFOR,CRQ_CATALOG_ASSET_OPFOR,CRQ_CATALOG_ASSET_CIVFOR];
+	// } forEach [CRQ_CATALOG_ASSET_WHEELED,CRQ_CATALOG_ASSET_TRACKED,CRQ_CATALOG_ASSET_WINGED,CRQ_CATALOG_ASSET_BOAT,CRQ_CATALOG_ASSET_ROTOR,CRQ_CATALOG_ASSET_STATIC];
+	// (_list apply {[_x#0, (pCQ_CT_Item#(_x#1)#0)]})
+// };
+#endif

@@ -1,4 +1,7 @@
 
+#define CRQ_VERSION [2024,11,03]
+//#define CRQ_DBG_ENABLE // TODO Undefine me!
+
 #define CRQ__BISIDE(INPUT) (INPUT call {\
 	if (_this isEqualType -1) exitWith {if (_this < 0) then {sideUnknown} else {CRQ_SD_TYPES select _this};};\
 	if (_this isEqualType objNull || {_this isEqualType grpNull || {_this isEqualType locationNull}}) exitWith {side _this};\
