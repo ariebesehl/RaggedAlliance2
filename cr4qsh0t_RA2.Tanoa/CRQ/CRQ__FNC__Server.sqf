@@ -20,21 +20,21 @@ CRQ_EHS_ClientRespawn = {
 };
 CRQ_SyncArrayCRCFull = {
 	params ["_name", "_array"];
-	private _crc = _array apply {_x call CRQ_CRC};
+	private _crc = _array apply {_x call CRQ_fnc_CRC};
 	private _existing = gCS_SyncArrays getOrDefault [_name, []];
 	if (_existing isNotEqualTo []) then {
 		_existing set [0, _crc];
-		_existing set [1, _crc call CRQ_CRC];
+		_existing set [1, _crc call CRQ_fnc_CRC];
 	} else {
-		gCS_SyncArrays set [_name, [_crc, _crc call CRQ_CRC]];
+		gCS_SyncArrays set [_name, [_crc, _crc call CRQ_fnc_CRC]];
 	};
 };
 CRQ_SyncArrayCRCIndex = {
 	params ["_name", "_index", "_data"];
 	private _existing = gCS_SyncArrays getOrDefault [_name, []];
 	if (_existing isEqualTo []) exitWith {};
-	(_existing#0) set [_index, _data call CRQ_CRC];
-	(_existing) set [1, (_existing#0) call CRQ_CRC];
+	(_existing#0) set [_index, _data call CRQ_fnc_CRC];
+	(_existing) set [1, (_existing#0) call CRQ_fnc_CRC];
 };
 
 CRQ_SyncArrayClear = {

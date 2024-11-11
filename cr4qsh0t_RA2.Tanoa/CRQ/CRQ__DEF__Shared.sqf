@@ -1,5 +1,5 @@
 
-#define CRQ_VERSION [2024,11,03]
+#define CRQ_VERSION [2024,11,05]
 //#define CRQ_DBG_ENABLE // TODO Undefine me!
 
 #define CRQ__BISIDE(INPUT) (INPUT call {\

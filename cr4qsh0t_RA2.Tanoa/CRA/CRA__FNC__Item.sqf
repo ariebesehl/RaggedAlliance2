@@ -1,25 +1,4 @@
 
-CRA_fnc_IT_Init = {
-	for "_i" from 1 to CRA_ITEM_COUNT do {gRA_IT_Catalog pushBack [];};
-	{
-		_x params ["_index", "_categories", ["_steps", 0], ["_quality", []], ["_weights", []]];
-		private _items = [_categories call CRQ_CatalogListAny, _quality, _weights] call CRQ_CatalogListQuality;
-		gRA_IT_Catalog set [_index, [_steps, _items] call CRQ_CatalogQualityMapGenerate];
-	} forEach CRA_ITEM_CATEGORIES;
-	{
-		private _mag = pCQ_CT_Item#_x;
-		_mag set [4, 1 max ([CRQ_CDAT_MAG_COUNT, _mag#3] call CRQ_CatalogArrayData)];
-	} forEach ([CRQ_CATALOG_THROW, CRQ_CATALOG_PUT, CRQ_CATALOG_MAGAZINE_HANDHELD] call CRQ_CatalogListAny);
-	{
-		private _weapon = pCQ_CT_Item#_x;
-		_weapon params ["", "_wpCat", "", "_wpData"];
-		private _cfgIndex = CRA_WEAPON_CONFIGS findIf {_wpCat find (_x#0) != -1};
-		_weapon set [4, [CRQ_CDAT_MAGAZINES, _wpData] call CRQ_CatalogArrayData];
-		_weapon set [5, [CRQ_CDAT_ATTACHMENTS, _wpData] call CRQ_CatalogArrayData];
-		_weapon set [6, if (_cfgIndex != -1) then {CRA_WEAPON_CONFIGS#_cfgIndex#1} else {CRA_WEAPON_CONFIG_DEFAULT}];
-		_weapon set [7, [CRQ_CDAT_SLOT, _wpData] call CRQ_CatalogArrayData];
-	} forEach ([CRQ_CATALOG_BINOCULAR,CRQ_CATALOG_WEAPON] call CRQ_CatalogListAny);
-};
 CRA_fnc_IT_Quality = {
 	if (_this isEqualType -1) then {
 		((0 max (1 min ((gRA_PG_Equipment call CRQ_CatalogQualityRandom) + _this))) call CRQ_CatalogQualityBounds)
@@ -192,4 +171,25 @@ CRA_UnitLoadoutGenerate = {
 	[_loadout, _weaponInventory] call CRQ_InventoryLoadoutAppend;
 	
 	_loadout
+};
+CRA_fnc_IT_InitZero = {
+	for "_i" from 1 to CRA_ITEM_COUNT do {gRA_IT_Catalog pushBack [];};
+	{
+		_x params ["_index", "_categories", ["_steps", 0], ["_quality", []], ["_weights", []]];
+		private _items = [_categories call CRQ_CatalogListAny, _quality, _weights] call CRQ_CatalogListQuality;
+		gRA_IT_Catalog set [_index, [_steps, _items] call CRQ_CatalogQualityMapGenerate];
+	} forEach CRA_ITEM_CATEGORIES;
+	{
+		private _mag = pCQ_CT_Item#_x;
+		_mag set [4, 1 max ([CRQ_CDAT_MAG_COUNT, _mag#3] call CRQ_CatalogArrayData)];
+	} forEach ([CRQ_CATALOG_THROW, CRQ_CATALOG_PUT, CRQ_CATALOG_MAGAZINE_HANDHELD] call CRQ_CatalogListAny);
+	{
+		private _weapon = pCQ_CT_Item#_x;
+		_weapon params ["", "_wpCat", "", "_wpData"];
+		private _cfgIndex = CRA_WEAPON_CONFIGS findIf {_wpCat find (_x#0) != -1};
+		_weapon set [4, [CRQ_CDAT_MAGAZINES, _wpData] call CRQ_CatalogArrayData];
+		_weapon set [5, [CRQ_CDAT_ATTACHMENTS, _wpData] call CRQ_CatalogArrayData];
+		_weapon set [6, if (_cfgIndex != -1) then {CRA_WEAPON_CONFIGS#_cfgIndex#1} else {CRA_WEAPON_CONFIG_DEFAULT}];
+		_weapon set [7, [CRQ_CDAT_SLOT, _wpData] call CRQ_CatalogArrayData];
+	} forEach ([CRQ_CATALOG_BINOCULAR,CRQ_CATALOG_WEAPON] call CRQ_CatalogListAny);
 };

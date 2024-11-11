@@ -61,22 +61,31 @@ CRQ_fnc_ByteAnd = {
 	((_this#1) call CRQ_fnc_ByteDecode) params [["_b1_0", false], ["_b1_1", false], ["_b1_2", false], ["_b1_3", false], ["_b1_4", false], ["_b1_5", false], ["_b1_6", false], ["_b1_7", false]];
 	([_b0_0 && _b1_0, _b0_1 && _b1_1, _b0_2 && _b1_2, _b0_3 && _b1_3, _b0_4 && _b1_4, _b0_5 && _b1_5, _b0_6 && _b1_6, _b0_7 && _b1_7] call CRQ_fnc_ByteEncode)
 };
-CRQ_CRC = {
+CRQ_fnc_CRC = {
 	params ["_data", ["_crc", CRQ_BS_CRC_IV]];
 	{_crc = (_crc + _x) % CRQ_BS_CRC_MOD;} forEach (toArray (str _data));
 	_crc
+};
+CRQ_fnc_ArrayIncrement = {
+	params ["_array", "_index", ["_increment", 1]];
+	_array set [_index, (_array#_index) + _increment];
+};
+CRQ_fnc_ArrayRandomize = {
+	private _reservoir = [];
+	{_reservoir pushBack _forEachIndex;} forEach _this;
+	(_this apply {_this#(_reservoir deleteAt (floor (random (count _reservoir))))})
 };
 CRQ_CacheLoad = {
 	params ["_source", "_target", "_default", ["_crc", CRQ_BS_CRC_IV]];
 	private _var = profileNamespace getVariable [_source, _default];
 	missionNamespace setVariable [_target, _var];
-	([_var, _crc] call CRQ_CRC)
+	([_var, _crc] call CRQ_fnc_CRC)
 };
 CRQ_CacheSave = {
 	params ["_source", "_target", "_default", ["_crc", CRQ_BS_CRC_IV]];
 	private _var = missionNamespace getVariable [_source, _default];
 	profileNamespace setVariable [_target, _var];
-	([_var, _crc] call CRQ_CRC)
+	([_var, _crc] call CRQ_fnc_CRC)
 };
 CRQ_fnc_VarAvailable = {
 	(isNil {(_this#0) getVariable [(_this#1), nil]})
@@ -113,17 +122,6 @@ CRQ_ISO8601Full = {
 	params ["_date", ["_sepDate", "-"], ["_sepTime", ":"], ["_sepISO", " "]];
 	_date params ["_year", "_month", "_day", ["_hour", 0], ["_minute", 0], ["_second", 0]];
 	(str _year + _sepDate + (if (_month < 10) then {"0" + str _month} else {str _month}) + _sepDate + (if (_day < 10) then {"0" + str _day} else {str _day}) + _sepISO + (if (_hour < 10) then {"0" + str _hour} else {str _hour}) + _sepTime + (if (_minute < 10) then {"0" + str _minute} else {str _minute}) + _sepTime + (if (_second < 10) then {"0" + str _second} else {str _second}))
-};
-CRQ_ArrayIncrement = {
-	params ["_array", "_index", ["_increment", 1]];
-	_array set [_index, (_array#_index) + _increment];
-};
-CRQ_ArrayRandomize = {
-	private _reservoir = [];
-	{_reservoir pushBack _forEachIndex;} forEach _this;
-	private _randomized = [];
-	{_randomized pushBack (_this#(_reservoir deleteAt (floor (random (count _reservoir)))));} forEach _this;
-	_randomized
 };
 CRQ_Angle = {
 	private _bigger = selectMax _this;

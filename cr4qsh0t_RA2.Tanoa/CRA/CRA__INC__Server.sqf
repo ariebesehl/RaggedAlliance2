@@ -7,6 +7,7 @@
 
 #include "CRA__FNC__Item.sqf"
 #include "CRA__FNC__Asset.sqf"
+#include "CRA__FNC__Location.sqf"
 #include "CRA__FNC__Main.sqf"
 
 dCRA_SD_COUNT = missionNamespace getVariable ["dCRA_SD_COUNT", CRQ_SD_TYPES apply {0}];
@@ -87,9 +88,12 @@ dCRA_BASE_1_6_4 = missionNamespace getVariable ["dCRA_BASE_1_6_4",CRA_BASE_1_6_4
 dCRA_BASE_1_6_5 = missionNamespace getVariable ["dCRA_BASE_1_6_5",CRA_BASE_1_6_5];
 dCRA_BASE_INDEX = missionNamespace getVariable ["dCRA_BASE_INDEX",CRA_BASE_INDEX];
 
+
+dCRA_BS_INST_NULL = missionNamespace getVariable ["dCRA_LC_INST_NULL",CRA_BS_INST_TYPES apply {objNull}];
 dCRA_LC_TYPES = missionNamespace getVariable ["dCRA_LC_TYPES", CRA_LC_TYPES];
 dCRA_LC_SCAN = missionNamespace getVariable ["dCRA_LC_SCAN", CRA_LC_SCAN];
 dCRA_LC_OVERRIDE = missionNamespace getVariable ["dCRA_LC_OVERRIDE", CRA_LC_OVERRIDE];
+
 dCRA_GP_WP_LOCATION = missionNamespace getVariable ["dCRA_GP_WP_LOCATION", CRA_GP_WP_LOCATION];
 dCRA_SQUADS = missionNamespace getVariable ["dCRA_SQUADS", CRA_SQUADS];
 dCRA_PLAYER_IDENTITY = missionNamespace getVariable ["dCRA_PLAYER_IDENTITY", CRA_PLAYER_IDENTITY];
@@ -111,7 +115,7 @@ dRA_WaypointCount = missionNamespace getVariable ["dRA_WaypointCount", dCRA_GP_W
 gRA_PM_SystemHotLoad = [false,true] select (["CRA_PM_SystemHotloading", 0] call BIS_fnc_getParamValue);
 gRA_PM_SystemClutterDetect = [false,true] select (["CRA_PM_SystemClutterDetect", 0] call BIS_fnc_getParamValue);
 gRA_PM_LC_RB_Mode = ["CRA_PM_LC_RB_Mode", 0] call BIS_fnc_getParamValue;
-gRA_PM_LC_RB_Density = (["CRA_PM_LC_RB_Density", 11] call BIS_fnc_getParamValue) + 1;
+gRA_PM_LC_RB_Density = ((["CRA_PM_LC_RB_Density", 11] call BIS_fnc_getParamValue) % CRA_LCRB_DENSITY) + 1;
 gRA_PM_PL_Start = [false,true] select (["CRA_PM_PL_Start", 0] call BIS_fnc_getParamValue);
 gRA_PM_PL_Identity = [false,true] select (["CRA_PM_PL_Identity", 0] call BIS_fnc_getParamValue);
 gRA_PM_PG_MissionMode = ["CRA_PM_PG_Mode", 1] call BIS_fnc_getParamValue;
@@ -249,7 +253,6 @@ gRA_AS_Dimensions = missionNamespace getVariable ["gRA_AS_Dimensions", []];
 gRA_IT_Catalog = missionNamespace getVariable ["gRA_IT_Catalog", []];
 
 gRA_Temp = missionNamespace getVariable ["gRA_Temp", []];
-gRA_Temp2 = missionNamespace getVariable ["gRA_Temp2", []];
 
 /*
 // D301: Commented-out stuff from CRA_Main.sqf
@@ -272,7 +275,7 @@ CRA_PathGen = {
 			_path0 deleteAt (_length - 1);
 			gRA_PathResult = _path0 + _path1;
 		};
-	} forEach (_roads call CRQ_ArrayRandomize);
+	} forEach (_roads call CRQ_fnc_ArrayRandomize);
 };
 gRA_PathAgent = objNull;
 gRA_PathAgentResult = [];
