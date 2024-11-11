@@ -1585,7 +1585,7 @@ CRA_CivilianAssetCreate = {
 	[_group getVariable "CRAS_ID", [[_asset, 0], [_group]], [[false, -1, -1]]] call CRQ_fnc_LNK_Create;
 	
 	[_asset, true, false, false, _vec] call CRA_fnc_AS_Register;
-	// TODO why on asset, not group? attempting to disable day 295...
+	// TODO why on asset, not group? attempting to disable D295...
 	//_asset disableAi "AUTOTARGET";
 	//_asset disableAi "TARGET";
 	// TODO these were previously commented out
