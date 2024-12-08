@@ -3,7 +3,7 @@ CRA_Temp = {
 	private _location = if (_this isEqualType -1) then {gRA_LC_List#(gRA_LC_IndexBase + _this)} else {_this};
 	private _units = _location getVariable [CRA_SVAR_LOCATION_UNIT_PERSONNEL, []];
 	{_x setDamage 1;} forEach _units;
-	{[_x, _location] call CRA_PlayerTeleport;} forEach gRA_PL_Units;
+	{[_x, _location] call CRA_fnc_PL_Teleport;} forEach gRA_PL_SYS_UnitExec;
 };
 CRA_Temp2 = {
 	(gRA_LC_List apply {[_x getVariable ["CRA_SVAR_LC_INDEX",-1], text _x]})
@@ -12,8 +12,10 @@ CRA_ActionRelayReceive = {
 	params ["_object", "_invoker", "_id", "_args"];
 	//_args params ["_type", "_typeArgs"];
 	switch (_args#0) do {
-		case CRA_ACTION_ID_PLAYER_TELEPORT: {remoteExec ["CRA_LocalPlayerRequestTeleport", owner _invoker];};
-		case CRA_ACTION_ID_PLAYER_PARADROP: {remoteExec ["CRA_LocalPlayerRequestParadrop", owner _invoker];};
+		// case CRA_ACTION_ID_PLAYER_TELEPORT: {remoteExec ["CRA_fnc_PLL_RQR_Teleport", owner _invoker];};
+		// case CRA_ACTION_ID_PLAYER_PARADROP: {remoteExec ["CRA_fnc_PLL_RQR_Paradrop", owner _invoker];};
+		case CRA_ACTION_ID_PLAYER_TELEPORT: {_invoker call CRA_fnc_PL_RQT_Teleport;};
+		case CRA_ACTION_ID_PLAYER_PARADROP: {_invoker call CRA_fnc_PL_RQT_Paradrop;};
 		case CRA_ACTION_ID_MILITIA_TRAIN: {["Train Militia: Coming soon!"] remoteExec ["systemChat", owner _invoker];};
 		case CRA_ACTION_ID_INTEL_GATHER: {_args call CRA_PlayerActionBase;};
 		case CRA_ACTION_ID_INVENTORY_SORT: {_args call CRA_PlayerActionBase;};
@@ -116,10 +118,10 @@ CRA_fnc_PG_InitZero = {
 	gRA_PG_CoeffEnemyCountPlayer = 1 / (1 max (playableSlotsNumber (CRA_PLAYER_SIDE call CRQ_Side) - 1));
 	gRA_PG_FuncEnemyCountPlayer = [
 		{gRA_PM_PG_EnemyCountPlayerInit},
-		{[gRA_PM_PG_EnemyCountPlayerInit, gRA_PG_SpanEnemyCountPlayer, gRA_PM_PG_EnemyCountPlayerFactor, (((gRA_PL_Count) - 1) max 0) * gRA_PG_CoeffEnemyCountPlayer] call CRA_fnc_PG_GrowthLinear},
-		{[gRA_PM_PG_EnemyCountPlayerInit, gRA_PG_SpanEnemyCountPlayer, gRA_PM_PG_EnemyCountPlayerFactor, (((gRA_PL_Count) - 1) max 0) * gRA_PG_CoeffEnemyCountPlayer] call CRA_fnc_PG_GrowthParabolic},
-		{[gRA_PM_PG_EnemyCountPlayerFinal, -gRA_PG_SpanEnemyCountPlayer, gRA_PM_PG_EnemyCountPlayerFactor, 1 - (((gRA_PL_Count) - 1) max 0) * gRA_PG_CoeffEnemyCountPlayer] call CRA_fnc_PG_GrowthLinear},
-		{[gRA_PM_PG_EnemyCountPlayerFinal, -gRA_PG_SpanEnemyCountPlayer, gRA_PM_PG_EnemyCountPlayerFactor, 1 - (((gRA_PL_Count) - 1) max 0) * gRA_PG_CoeffEnemyCountPlayer] call CRA_fnc_PG_GrowthParabolic}
+		{[gRA_PM_PG_EnemyCountPlayerInit, gRA_PG_SpanEnemyCountPlayer, gRA_PM_PG_EnemyCountPlayerFactor, (((gRA_PL_SYS_Count) - 1) max 0) * gRA_PG_CoeffEnemyCountPlayer] call CRA_fnc_PG_GrowthLinear},
+		{[gRA_PM_PG_EnemyCountPlayerInit, gRA_PG_SpanEnemyCountPlayer, gRA_PM_PG_EnemyCountPlayerFactor, (((gRA_PL_SYS_Count) - 1) max 0) * gRA_PG_CoeffEnemyCountPlayer] call CRA_fnc_PG_GrowthParabolic},
+		{[gRA_PM_PG_EnemyCountPlayerFinal, -gRA_PG_SpanEnemyCountPlayer, gRA_PM_PG_EnemyCountPlayerFactor, 1 - (((gRA_PL_SYS_Count) - 1) max 0) * gRA_PG_CoeffEnemyCountPlayer] call CRA_fnc_PG_GrowthLinear},
+		{[gRA_PM_PG_EnemyCountPlayerFinal, -gRA_PG_SpanEnemyCountPlayer, gRA_PM_PG_EnemyCountPlayerFactor, 1 - (((gRA_PL_SYS_Count) - 1) max 0) * gRA_PG_CoeffEnemyCountPlayer] call CRA_fnc_PG_GrowthParabolic}
 	]#gRA_PM_PG_EnemyCountPlayerMode;
 	
 	gRA_PG_FuncVarianceEnemyCount = [
@@ -152,183 +154,230 @@ CRA_fnc_PG_Award = {
 	gRA_PG_Gain = gRA_PG_Gain + _this;
 	[] call CRA_fnc_PG_Calculate;
 };
-CRA_PlayerInit = {
-	private _last = (playableSlotsNumber (CRA_PLAYER_SIDE call CRQ_Side)) - 1;
-	for "_i" from 0 to _last do {
-		private _var = CRA_PLAYER_VAR + str _i;
-		gRA_PL_Reg pushBack false;
-		gRA_PL_Init pushBack false;
-		gRA_PL_Dist pushBack false;
-		gRA_PL_PrePos pushBack [];
-		gRA_PL_Index set [_var, _i];
-		gRA_PL_Var pushBack _var;
-		gRA_PL_Inventory pushBack [];
-		gRA_PL_Mail pushBack [];
-		gRA_PL_Asset pushBack objNull;
-	};
-};
-CRA_PlayerGetIndex = {
-	(gRA_PL_Index getOrDefault [vehicleVarName _this, -1])
-};
-CRA_PlayerGetUnit = {
-	missionNamespace getVariable [gRA_PL_Var#_this, objNull]
-};
-CRA_PlayerGetOwner = {
-	(owner (_this call CRA_PlayerGetUnit))
-};
-CRA_fnc_PL_MailRead = {
-	params ["_unit", "_mailIndex"];
-	private _playerIndex = _unit call CRA_PlayerGetIndex;
-	if (_playerIndex == -1) exitWith {};
-	(gRA_PL_Mail#_playerIndex#_mailIndex) set [0, true];
-};
-CRA_PlayerMailSend = {
-	params ["_recipient", "_mail"];
-	//_mail params ["_read", "_attachment", "_date", "_sender", "_subject", "_text"];
-	if (_recipient isEqualTo []) then {_recipient = gRA_PL_Index apply {_y};};
+CRA_fnc_PL_InitZero = {
+	gRA_PL_MapIndex = createHashMap;
+	private _index = 0;
 	{
-		private _mailbox = (gRA_PL_Mail#_x);
-		private _index = count _mailbox;
-		_mailbox pushBack (+_mail);
-		private _owner = _x call CRA_PlayerGetOwner;
-		if (_owner != 0) then {[CRA_PVAR_PLAYER_MAILBOX, _index, _mail, _owner] call CRQ_SyncArrayIndex;};
-	} forEach _recipient;
+		private _side = _forEachIndex;
+		private _vars = [];
+		private _data = [];
+		for "_i" from 0 to (_x - 1) do {
+			private _name = toLowerANSI(CRA_PLAYER_VAR + str _index);
+			gRA_PL_MapIndex set [_name, [_side, _i]];
+			_vars pushBack _name;
+			_index = _index + 1;
+			_data pushBack (createHashMapFromArray [
+				["_stInit", false],
+				["_stTrvl", false],
+				["_stExec", false],
+				["_unit", objNull],
+				["_inv", []],
+				["_mail", []],
+				["_cache", []]
+			]);
+		};
+		gRA_PL_MapVars set [_side, _vars];
+		gRA_PL_Data set [_side, _data];
+	} forEach (CRQ_SD_TYPES apply {playableSlotsNumber _x});
+};
+CRA_fnc_PL_InitMain = {
+	[
+		gRA_PL_MapIndex apply {_y},
+		[false, [], date, [CRA_TEXT_GENERIC_DICT,[CRA_DICT_PROTAGONIST_MAIL]], [CRA_TEXT_MAIL_SUBJECT_GREET,[-1]], [CRA_TEXT_MAIL_TEXT_GREET,[-1,CRA_DICT_ANTAGONIST_SHORT,-1,CRA_DICT_PROTAGONIST_FULL]]]
+	] call CRA_fnc_PL_MailSend;
 };
 CRA_fnc_PL_Loop = {
-	gRA_PL_Units = (allPlayers select {gRA_PL_Init#(_x call CRA_PlayerGetIndex)});
-	gRA_PL_Count = count gRA_PL_Units;
-	gRA_PL_Pos = (gRA_PL_Units apply {_x call CRQ_Pos2D});//TODO all necessary for  + (gRA_PL_PrePos select {_x isNotEqualTo []});
+	private _plAssets = gRA_PL_SYS_Asset select {_x isNotEqualTo objNull}; // TODO: And is alive?
+	gRA_PL_SYS_Pos = [];
+	gRA_PL_SYS_UnitInit = [];
+	gRA_PL_SYS_UnitExec = [];
 	{
-		private _asset = objectParent _x;
-		if (_asset isNotEqualTo objNull) then {
-			private _index = _x call CRA_PlayerGetIndex;
-			if (_index < 0) exitWith {};
-			gRA_PL_Asset set [_index, _asset];
-		};
-	} forEach gRA_PL_Units;
+		private _plSide = _forEachIndex;
+		{
+			(values _x) params (keys _x);
+			if (_stInit && {_unit isNotEqualTo objNull}) then {
+				gRA_PL_SYS_UnitInit pushBack _unit;
+				private _pos = _unit call CRQ_Pos2D;
+				gRA_PL_SYS_Pos pushBack (if (_stTrvl) then {
+					if (_pos distance2D (_cache#0) > 50) then {
+						_cache#0
+					} else {
+						_unit call CRA_fnc_PL_Show;
+						_x set ["_stTrvl", false];
+						_x set ["_cache", []];
+						_pos
+					};
+				} else {
+					if (_stExec) then {gRA_PL_SYS_UnitExec pushBack _unit;};
+					private _asset = _unit call CRA_fnc_AS_Player;
+					if (_asset isNotEqualTo objNull) then {_plAssets pushBackUnique _asset;};
+					_pos
+				});
+			};
+		} forEach _x;
+	} forEach gRA_PL_Data;
+	gRA_PL_SYS_Count = count gRA_PL_SYS_UnitInit;
+	gRA_PL_SYS_Asset = (count _plAssets) call {_plAssets select ([[0, _this], [_this - CRA_PLAYER_ASSETS , CRA_PLAYER_ASSETS]] select (_this > CRA_PLAYER_ASSETS))};
 };
-CRA_PlayerGreet = {
-	[[], [false, [], date, [CRA_TEXT_GENERIC_DICT,[CRA_DICT_PROTAGONIST_MAIL]], [CRA_TEXT_MAIL_SUBJECT_GREET,[-1]], [CRA_TEXT_MAIL_TEXT_GREET,[-1,CRA_DICT_ANTAGONIST_SHORT,-1,CRA_DICT_PROTAGONIST_FULL]]]] call CRA_PlayerMailSend;
+CRA_fnc_PL_GetUnit = {
+	params [["_side", -1], ["_index", -1]];
+	if (_side < 0 || {_index < 0}) exitWith {objNull};
+	missionNamespace getVariable [gRA_PL_MapVars#_side#_index, objNull]
 };
-CRA_PlayerHide = {
-	gRA_PL_Dist set [_this call CRA_PlayerGetIndex, false];
+CRA_fnc_PL_GetIndex = {
+	(gRA_PL_MapIndex getOrDefault [toLowerANSI vehicleVarName _this, [-1, -1]])
+};
+CRA_fnc_PL_GetData = {
+	(_this call CRA_fnc_PL_GetIndex) params ["_side", "_index"];
+	if (_side < 0 || {_index < 0}) exitWith {createHashMap};
+	(gRA_PL_Data#_side#_index)
+};
+CRA_fnc_PL_Hide = {
 	_this hideObjectGlobal true;
+	(_this call CRA_fnc_PL_GetData) set ["_stExec", false];
 };
-CRA_PlayerShow = {
-	private _index = _this call CRA_PlayerGetIndex;
-	gRA_PL_Init set [_index, true];
-	gRA_PL_Dist set [_index, true];
+CRA_fnc_PL_Show = {
 	_this hideObjectGlobal false;
+	(_this call CRA_fnc_PL_GetData) set ["_stExec", true];
 };
-CRA_PlayerRegister = { // Sometimes spawn before connect, sometimes other way around
-	
+CRA_fnc_PL_MailRead = {
+	params ["_unit", "_mlIndex", ["_mlRead", true]];
+	private _mlBox = (_unit call CRA_fnc_PL_GetData) getOrDefault ["_mail", []];
+	if (_mlIndex < 0 || {!(_mlIndex < count _mlBox)}) exitWith {};
+	(_mlBox#_mlIndex) set [0, _mlRead];
 };
-CRA_PlayerConnect = {
-//systemChat "CRA_PlayerConnect";
+CRA_fnc_PL_MailSend = {
+	params ["_recipient", "_mlData"];
+	//_mlData params ["_read", "_attachment", "_date", "_sender", "_subject", "_text"];
+	{
+		_x params ["_side", "_index"];
+		if (!(_side < 0 || {_index < 0})) then {
+			private _mlBox = (gRA_PL_Data#_side#_index) getOrDefault ["_mail", []];
+			private _mlIndex = count _mlBox;
+			_mlBox pushBack (+_mlData);
+			private _owner = owner (_x call CRA_fnc_PL_GetUnit);
+			if (_owner > 0) then {[CRA_PVAR_PLAYER_MAILBOX, _mlIndex, _mlData, _owner] call CRQ_SyncArrayIndex;};
+		};
+	} forEach _recipient;
+};
+CRA_fnc_PL_Connect = {
+//systemChat "CRA_fnc_PL_Connect";
 	params ["_unit", "_id", "_uid", "_name", "_jip"];
-	private _index = _unit call CRA_PlayerGetIndex;
-	if (_index == -1) exitWith {};
-	gRA_PL_Init set [_index, false];
-	gRA_PL_Dist set [_index, false];
-	[CRA_PVAR_PLAYER_MAILBOX, gRA_PL_Mail#_index, owner _unit] call CRQ_SyncArrayFull;
+	private _data = _unit call CRA_fnc_PL_GetData;
+	_data set ["_unit", _unit];
+	_data set ["_stInit", false];
+	_data set ["_stTrvl", false];
+	_data set ["_stExec", false];
+	[CRA_PVAR_PLAYER_MAILBOX, _data getOrDefault ["_mail", []], owner _unit] call CRQ_SyncArrayFull;
 };
-CRA_PlayerDisconnect = {
+CRA_fnc_PL_Disconnect = {
 	params ["_unit", "_id", "_uid", "_name"];
 	private _loadout = getUnitLoadout _unit;
-	private _index = _unit call CRA_PlayerGetIndex;
+	private _data = _unit call CRA_fnc_PL_GetData;
 	_unit call CRQ_UnitDelete;
-	if (_index == -1) exitWith {};
-	gRA_PL_Init set [_index, false];
-	gRA_PL_Dist set [_index, false];
-	gRA_PL_Inventory set [_index, _loadout];
+	_data set ["_unit", objNull];
+	_data set ["_stInit", false];
+	_data set ["_stTrvl", false];
+	_data set ["_stExec", false];
+	_data set ["_inv", _loadout];
 };
-CRA_PlayerSpawn = {
-//systemChat "CRA_PlayerSpawn";
+CRA_fnc_PL_Spawn = {
+//systemChat "CRA_fnc_PL_Spawn";
 	params ["_unit", "_respawn"];
-	_unit call CRA_PlayerHide;
-	_unit call CRA_PlayerLoadout;
-	_unit call CRA_fnc_PL_RQI_Spawn;
-	// remoteExec ["CRA_LocalPlayerRequestSpawn", owner _unit];
+	_unit call CRA_fnc_PL_Hide;
+	_unit call CRA_fnc_PL_Loadout;
+	_unit call CRA_fnc_PL_RQT_Spawn;
 };
-CRA_fnc_PL_RQI_Spawn = {
-	remoteExec ["CRA_LocalPlayerRequestSpawn", owner _this];
+CRA_fnc_PL_Register = { // TODO(?): Sometimes spawn before connect, sometimes other way around
+	
+};
+CRA_fnc_PL_Teleport = {
+	params ["_unit", "_location"];
+	private _vec = _location getVariable [CRA_SVAR_LC_SPAWN_PLAYER, []];
+	if (_vec isEqualTo []) then {_vec = [locationPosition _location, random 360];};
+	[_unit, _vec] remoteExec ["CRA_fnc_PLL_Teleport", owner _unit]; // setting Dir only works locally
+	[_unit, _vec] call CRA_fnc_PL_Travel;
+};
+CRA_fnc_PL_Paradrop = {
+	// params ["_unit", "_vec"];
+	_this remoteExec ["CRA_fnc_PLL_Paradrop", owner _unit];
+	_this call CRA_fnc_PL_Travel;
+};
+CRA_fnc_PL_Travel = {
+	params ["_unit", "_vec"];
+	private _data = _unit call CRA_fnc_PL_GetData;
+	_data set ["_stTrvl", true];
+	_data set ["_cache", _vec];
+};
+CRA_fnc_PL_RQT_Spawn = {
+	remoteExec ["CRA_fnc_PLL_RQR_Spawn", owner _this];
+};
+CRA_fnc_PL_RQT_Teleport = {
+	remoteExec ["CRA_fnc_PLL_RQR_Teleport", owner _this];
+};
+CRA_fnc_PL_RQT_Paradrop = {
+	remoteExec ["CRA_fnc_PLL_RQR_Paradrop", owner _this];
 };
 CRA_fnc_PL_RQR_Spawn = {
 	params ["_unit", "_index", ["_vec", []]];
 	private _valid = true; // TODO
-	if (_index < 0) then {
-		[_unit, _vec] call CRA_PlayerParadrop;
-	} else {
-		[_unit, (gRA_LC_List#_index)] call CRA_PlayerTeleport;
-	};
 	if (_valid) exitWith {
-		_unit call CRA_PlayerShow;
+		if (_index < 0) then {
+			[_unit, _vec] call CRA_fnc_PL_Paradrop;
+		} else {
+			[_unit, (gRA_LC_List#_index)] call CRA_fnc_PL_Teleport;
+		};
+		(_unit call CRA_fnc_PL_GetData) set ["_stInit", true];
 		_unit call CRQ_fnc_CL_Restore;
 	};
-	_unit call CRA_fnc_PL_RQI_Spawn;
+	_unit call CRA_fnc_PL_RQT_Spawn;
 };
 CRA_fnc_PL_RQR_Teleport = {
 	params ["_unit", "_index"];
 	if (_index == -1) exitWith {};
-	if (gRA_LC_Safe getOrDefault [_index, false]) exitWith {[_unit, gRA_LC_List#_index] call CRA_PlayerTeleport;};
-	[CRA_TEXT_EVENT_LOCATION_INSECURE, [_index], owner _unit] call CRA_PlayerInfoMessage;
+	if (gRA_LC_Safe getOrDefault [_index, false]) exitWith {[_unit, gRA_LC_List#_index] call CRA_fnc_PL_Teleport;};
+	[CRA_TEXT_EVENT_LOCATION_INSECURE, [_index], owner _unit] call CRA_fnc_PL_InfoMessage;
 };
 CRA_fnc_PL_RQR_Paradrop = {
 	params ["_unit", "_vec"];
 	private _valid = true; // TODO
-	if (_valid) exitWith {[_unit, _vec] call CRA_PlayerParadrop;};
+	if (_valid) exitWith {[_unit, _vec] call CRA_fnc_PL_Paradrop;};
 };
-CRA_PlayerTeleport = {
-	params ["_unit", "_location"];
-	private _vec = _location getVariable [CRA_SVAR_LC_SPAWN_PLAYER, []];
-	if (_vec isEqualTo []) then {_vec = [locationPosition _location, random 360];};
-	[_unit, _vec] remoteExec ["CRA_Teleport", owner _unit]; // setting Dir only works locally
-};
-CRA_PlayerParadrop = {
-	params ["_unit", "_vec"];
-	_this remoteExec ["CRA_Paradrop", owner _unit];
-	//[_vector#0, [0,0,0], CRA_PARADROP_HEIGHT + 20, "FULL", "B_CTRG_Heli_Transport_01_tropic_F", west] call BIS_fnc_ambientFlyBy;
-};
-/*
-CRA_PlayerInRange = {
-	params ["_pos", "_range"];
-	private _trigger = false;
-	{if (_pos distance2D _x <= _range) exitWith {_trigger = true;};} forEach gRA_PL_Pos;
-	_trigger
-};
-*/
-CRA_PlayerActivity = {
+CRA_fnc_PL_Activity = {
 	params ["_vec", "_range", ["_prev", 0], ["_min", -1e10], ["_max", 1e10]];
 	private _pos = _vec#0;
-	private _dist = 1e10;
-	{_dist = _dist min (_pos distance2D _x);} forEach gRA_PL_Pos;
-	private _activity = (CRA_ACTIVITY_COEF * _range / (1 max _dist)) max _prev;
-	private _decay = CRA_ACTIVITY_COEF * _dist / (_range + CRA_ACTIVITY_HYSTERESIS);
+	if (gRA_PL_SYS_Pos isEqualTo []) exitWith {_min};
+	private _dist = gRA_PL_SYS_Pos apply {_pos distance2D _x};
+	if (_dist isEqualTo []) exitWith {_min};
+	private _closest = selectMin _dist;
+	private _activity = (CRA_ACTIVITY_COEF * _range / (1 max _closest)) max _prev;
+	private _decay = CRA_ACTIVITY_COEF * _closest / (_range + CRA_ACTIVITY_HYSTERESIS);
 	(((_activity - _decay) max _min) min _max)
 };
-CRA_PlayerLoadout = {
-	private _index = _this call CRA_PlayerGetIndex;
-	private _identity = if (gRA_PM_PL_Identity && {_index != -1}) then {dCRA_PLAYER_IDENTITY#_index} else {[]};
+CRA_fnc_PL_Loadout = {
+	(_this call CRA_fnc_PL_GetIndex) params ["_side", "_index"];
 	private _loadout = [];
-	if (_index != -1) then {
-		_loadout = +(gRA_PL_Inventory#_index);
+	if (_side < 0 || {_index < 0}) then {
+		_loadout = (CRA_UNIT_PLAYER_DEFAULT call CRA_UnitGenerate)#1;
+	} else {
+		private _data = (gRA_PL_Data#_side#_index);
+		_loadout = +(_data getOrDefault ["_inv", []]);
 		if (_loadout isNotEqualTo []) then {
-			gRA_PL_Inventory set [_index, []];
+			_data set ["_inv", []];
 		} else {
 			_loadout = (_index call CRA_UnitGenerate)#1;
 		};
-	} else {
-		_loadout = (CRA_UNIT_PLAYER_DEFAULT call CRA_UnitGenerate)#1;
 	};
+	private _identity = if (gRA_PM_PL_Identity && {_index != -1}) then {dCRA_PLAYER_IDENTITY#_index} else {[]};
 	[_this, _identity, _loadout] remoteExec ["CRQ_fnc_PLL_IdentityLoadout", owner _this];
 };
-CRA_PlayerInfoMessage = {
+CRA_fnc_PL_InfoMessage = {
 	params ["_message", "_arg", ["_target", gCS_MP_Broadcast]];
-	[_message, _arg] remoteExec ["CRA_LocalPlayerInfoMessage", _target];
+	[_message, _arg] remoteExec ["CRA_fnc_PLL_InfoMessage", _target];
 };
-CRA_PlayerInfoNotify = {
+CRA_fnc_PL_InfoNotify = {
 	params ["_message", "_arg", ["_target", gCS_MP_Broadcast]];
-	[_message, _arg] remoteExec ["CRA_LocalPlayerInfoNotify", _target];
+	[_message, _arg] remoteExec ["CRA_fnc_PLL_InfoNotify", _target];
 };
 CRA_PlayerActionBase = {
 	private _location = gRA_LC_List#(_this#1);
@@ -336,12 +385,12 @@ CRA_PlayerActionBase = {
 		switch (_this#0) do {
 			case CRA_ACTION_ID_INVENTORY_SORT: {
 				_location call CRA_LocationInventorySort;
-				[CRA_TEXT_INFO_BASE_INVENTORY_SORT,[_this#1]] call CRA_PlayerInfoMessage;
+				[CRA_TEXT_INFO_BASE_INVENTORY_SORT,[_this#1]] call CRA_fnc_PL_InfoMessage;
 			};
 			case CRA_ACTION_ID_INVENTORY_GATHER: {
 				([_location, _this#2] call CRA_LocationInventoryGather) params ["_countItems", "_countMags", "_countWeapons", "_countContainers"];
-				[CRA_TEXT_INFO_BASE_INVENTORY_GATHER,[_this#1, _this#2]] call CRA_PlayerInfoMessage;
-				[CRA_TEXT_INFO_BASE_INVENTORY_GATHER_RESULT,[_this#1, _countWeapons, _countMags, _countContainers, _countItems]] call CRA_PlayerInfoMessage;
+				[CRA_TEXT_INFO_BASE_INVENTORY_GATHER,[_this#1, _this#2]] call CRA_fnc_PL_InfoMessage;
+				[CRA_TEXT_INFO_BASE_INVENTORY_GATHER_RESULT,[_this#1, _countWeapons, _countMags, _countContainers, _countItems]] call CRA_fnc_PL_InfoMessage;
 			};
 			case CRA_ACTION_ID_INTEL_GATHER: {
 				(_location call CRA_LocationIntelGather) params [["_range", 0], ["_intel", []]];
@@ -352,15 +401,15 @@ CRA_PlayerActionBase = {
 					if (_forEachIndex > 0) then {_info = _info + ", " + _label;} else {_info = _label;};
 				} forEach _intel;
 				if (_info isNotEqualTo "") then {
-					[CRA_TEXT_INFO_INTEL_GATHER,[_this#1, _range, _info]] call CRA_PlayerInfoMessage;
+					[CRA_TEXT_INFO_INTEL_GATHER,[_this#1, _range, _info]] call CRA_fnc_PL_InfoMessage;
 				} else {
-					[CRA_TEXT_INFO_INTEL_NONE,[_this#1, _range]] call CRA_PlayerInfoMessage;
+					[CRA_TEXT_INFO_INTEL_NONE,[_this#1, _range]] call CRA_fnc_PL_InfoMessage;
 				};
 			};
 			default {};
 		};
 	} else {
-		[CRA_TEXT_EVENT_LOCATION_INSECURE,[_this#1]] call CRA_PlayerInfoMessage;
+		[CRA_TEXT_EVENT_LOCATION_INSECURE,[_this#1]] call CRA_fnc_PL_InfoMessage;
 	};
 };
 CRA_PlayerLocationSafe = {
@@ -380,12 +429,11 @@ CRA_PlayerLocationSafe = {
 CRA_PlayerLocationEnter = {
 	private _index = _this getVariable [CRA_SVAR_LC_INDEX, -1];
 	if (_index == -1) exitWith {};
-	private _type = _this getVariable [CRA_SVAR_LOCATION_TYPE, CRA_LC_TYPE_OUTPOST];
-	if ([CRA_LC_TYPE_OUTPOST, CRA_LC_TYPE_ROADBLOCK] find _type == -1) then {
-		[CRA_TEXT_EVENT_LOCATION_ANNOUNCE_FULL, [_index, _this call CRA_fnc_LC_Owner]] call CRA_PlayerInfoMessage;
+	(if ([CRA_LC_TYPE_OUTPOST, CRA_LC_TYPE_ROADBLOCK] find (_this getVariable [CRA_SVAR_LOCATION_TYPE, CRA_LC_TYPE_OUTPOST]) != -1) then {
+		[CRA_TEXT_EVENT_LOCATION_ANNOUNCE_SHORT, [_index]]
 	} else {
-		[CRA_TEXT_EVENT_LOCATION_ANNOUNCE_SHORT, [_index]] call CRA_PlayerInfoMessage;
-	};
+		[CRA_TEXT_EVENT_LOCATION_ANNOUNCE_FULL, [_index, _this call CRA_fnc_LC_Owner]]
+	}) call CRA_fnc_PL_InfoMessage;
 };
 CRA_PlayerLocationCapture = {
 	private _index = _this getVariable [CRA_SVAR_LC_INDEX, -1];
@@ -401,14 +449,13 @@ CRA_PlayerLocationCapture = {
 	} else {
 		[CRA_TEXT_EVENT_LOCATION_LOST, [_index, _ownerPrev]]
 	};
-	_message call CRA_PlayerInfoMessage;
+	_message call CRA_fnc_PL_InfoMessage;
 	private _player = false;
 	if (_ownerPrev isEqualTo CRA_PLAYER_SIDE) then {_this call CRA_PlayerLocationLost; _player = true;};
 	if (_owner isEqualTo CRA_PLAYER_SIDE) then {_this call CRA_PlayerLocationWin; _player = true;};
 	if (_player) then {[] call CRA_PlayerLocationSafe;};
 };
 CRA_PlayerLocationWin = {
-	remoteExec ["CRA_LocalPlayerLocationWin", gCS_MP_Broadcast];
 	if (_this getVariable [CRA_SVAR_LOCATION_UNCAPTURED, false]) then {
 		(_this getVariable [CRA_SVAR_LC_VALUE, 0]) call CRA_fnc_PG_Award;
 		_this setVariable [CRA_SVAR_LOCATION_UNCAPTURED, false];
@@ -416,17 +463,18 @@ CRA_PlayerLocationWin = {
 	};
 	private _index = _this getVariable [CRA_SVAR_LC_INDEX, -1];
 	if (_index == -1) exitWith {};
-	[CRA_TEXT_NOTIFY_LOCATION_GAIN, [_index]] call CRA_PlayerInfoNotify;
+	[CRA_TEXT_NOTIFY_LOCATION_GAIN, [_index]] call CRA_fnc_PL_InfoNotify;
+	remoteExec ["CRA_fnc_PLL_LocationWin", gCS_MP_Broadcast];
 };
 CRA_PlayerLocationLost = {
-	remoteExec ["CRA_LocalPlayerLocationLost", gCS_MP_Broadcast];
 	private _index = _this getVariable [CRA_SVAR_LC_INDEX, -1];
 	if (_index == -1) exitWith {};
-	[CRA_TEXT_NOTIFY_LOCATION_LOST, [_index]] call CRA_PlayerInfoNotify;
+	[CRA_TEXT_NOTIFY_LOCATION_LOST, [_index]] call CRA_fnc_PL_InfoNotify;
+	remoteExec ["CRA_fnc_PLL_LocationLost", gCS_MP_Broadcast];
 };
 CRA_LocationPersonnelSpawn = {
 	private _owner = _this call CRA_fnc_LC_Owner;
-	private _factions = switch (_owner) do { // TODO does this -1 fix really fix it?
+	private _factions = switch (_owner) do { // TODO does this -1 fix really fix it? D338: I think it does and is correct?
 		case CRQ_SD_OPF: {CRA_FACTION_OPFOR#(floor (gRA_PG_Mission * (count CRA_FACTION_OPFOR - 1)))};
 		case CRQ_SD_IND: {CRA_FACTION_IDFOR#(floor (gRA_PG_Mission * (count CRA_FACTION_IDFOR - 1)))};
 		default {[]};
@@ -658,7 +706,7 @@ CRA_CivilianAssetActive = {
 			private _path = _group getVariable [CRA_SVAR_GP_PATH, []];
 			if (_path isEqualTo []) exitWith {_disembark = true;};
 			_active = !(_group call CRA_fnc_GP_TSK_AI_Terminate); // returns true if forced terminated from timeout
-			if ([[(_path#-1) call CRQ_Pos2D, 0], gRA_PG_Activation, 0, CRA_ACTIVITY_MIN, CRA_ACTIVITY_MAX] call CRA_PlayerActivity > 0) exitWith {
+			if ([[(_path#-1) call CRQ_Pos2D, 0], gRA_PG_Activation, 0, CRA_ACTIVITY_MIN, CRA_ACTIVITY_MAX] call CRA_fnc_PL_Activity > 0) exitWith {
 				[_group, CRA_GP_TSK_WH_CRUISE_FIND, CRA_fnc_GP_TSK_WH_CRUISE_FIND] call CRA_fnc_GP_TSK_AI_Spawn;
 			};
 		};
@@ -668,7 +716,7 @@ CRA_CivilianAssetActive = {
 			(_group call CRQ_fnc_WP_Status) params ["_waypoints", "_wpNow", "_wpLast"];
 			
 			_active = !(_group call CRA_fnc_GP_TSK_AI_Terminate); // returns true if forced terminated from timeout
-			if (_wpNow < _wpLast && {[[waypointPosition [_group, _wpLast], 0], _actBase, 0, CRA_ACTIVITY_MIN, CRA_ACTIVITY_MAX] call CRA_PlayerActivity <= 0}) exitWith {};
+			if (_wpNow < _wpLast && {[[waypointPosition [_group, _wpLast], 0], _actBase, 0, CRA_ACTIVITY_MIN, CRA_ACTIVITY_MAX] call CRA_fnc_PL_Activity <= 0}) exitWith {};
 			[_group, CRA_GP_TSK_FW_CRUISE_FIND, CRA_fnc_GP_TSK_FW_CRUISE_FIND] call CRA_fnc_GP_TSK_AI_Spawn;
 		};
 	} else {
@@ -770,14 +818,14 @@ CRA_CivilianAssetCreate = {
 };
 CRA_CivilianLoop = {
 	[] call CRA_fnc_GP_Loop;
-	if (!(gRA_PL_Count > 0)) exitWith {};
+	if (!(gRA_PL_SYS_Count > 0)) exitWith {};
 	
 	{
 		private _type = _x;
 		if (([gRA_CivilianAssetTime#_type, gCS_TM_Now] call CRQ_fnc_TimeDelta) >= CRA_CIVILIAN_SPAWN_TIMER) then {
 			if ((gRA_CivilianAssetCount#_type) < (gRA_CivilianAssetLimit#_type) && {random 1 < (gRA_CivilianAssetProb#_type)}) then {
 				if ((gRA_CivilianAssetSpawn#_type) isNotEqualTo scriptNull) exitWith {}; // TODO error-handling
-				gRA_CivilianAssetSpawn set [_type, [selectRandom gRA_PL_Pos, _type] spawn CRA_CivilianAssetSpawn];
+				gRA_CivilianAssetSpawn set [_type, [selectRandom gRA_PL_SYS_Pos, _type] spawn CRA_CivilianAssetSpawn];
 			};
 			gRA_CivilianAssetTime set [_type, gCS_TM_Now];
 		};
@@ -862,7 +910,7 @@ CRA_fnc_MN_InitLoad = {
 	[] call CRA_fnc_PG_InitMain;
 	missionNamespace setVariable ["pRA_Initializing", false, true];
 	// gRA_TickInitPost = diag_tickTime - _tickInitPost;
-	[] call CRA_PlayerGreet;
+	[] call CRA_fnc_PL_InitMain;
 };
 CRA_fnc_MN_InitMain = {
 	if (!gRA_PM_SystemHotLoad) exitWith {};
@@ -871,7 +919,7 @@ CRA_fnc_MN_InitMain = {
 CRA_fnc_MN_InitZero = {
 	// private _tickInitPre = diag_tickTime;
 	[true] call CRQ_CatalogInit;
-	[] call CRA_PlayerInit;
+	[] call CRA_fnc_PL_InitZero;
 	[] call CRA_fnc_SD_InitZero;
 	[] call CRA_fnc_IT_InitZero;
 	[] call CRA_fnc_AS_InitZero;

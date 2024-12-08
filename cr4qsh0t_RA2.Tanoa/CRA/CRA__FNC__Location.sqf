@@ -516,7 +516,7 @@ CRA_fnc_LC_Loop = {
 			private _vec = _this getVariable [CRA_SVAR_VEC, []];
 			if (_vec isEqualTo []) exitWith {};
 			
-			private _act = [_vec, gRA_PG_Activation, _this getVariable [CRA_SVAR_ACT_NOW, 0], CRA_ACTIVITY_MIN, CRA_ACTIVITY_MAX] call CRA_PlayerActivity;
+			private _act = [_vec, gRA_PG_Activation, _this getVariable [CRA_SVAR_ACT_NOW, 0], CRA_ACTIVITY_MIN, CRA_ACTIVITY_MAX] call CRA_fnc_PL_Activity;
 			_this setVariable [CRA_SVAR_ACT_NOW, _act];
 			
 			private _fncMain = _this getVariable [CRA_SVAR_FNC_MAIN, CRA_LC_FNC_MAIN_NONE];
@@ -627,6 +627,20 @@ CRA_LocationOwnerInit = {
 	params ["_location", ["_side", CRQ_SD_UNKNOWN]];
 	_location setVariable [CRA_SVAR_LC_OWNER, [[_side], [_side, CRA_GV_OW_MAX], (dCRA_SD_INDEX) apply {if (_x isEqualTo _side) then {CRA_GV_OW_MAX} else {CRA_GV_OW_MIN}}]];
 };
+CRA_fnc_LC_UnitCapture = {
+	alive _this && {
+		!(isPlayer _this) || {
+			!(captive _this) && {
+				(_this call CRA_fnc_PL_GetIndex) params ["_side", "_index"];
+				if (_side < 0 || {_index < 0}) then {
+					false
+				} else {
+					(gRA_PL_Data#_side#_index) getOrDefault ["_stExec", false]
+				}
+			}
+		}
+	}
+};
 CRA_LocationCaptureLoop = {
 	
 	private _allowed = _this getVariable [CRA_SVAR_LOCATION_CAPTUREABLE, [CRQ_SD_CIV]];
@@ -635,14 +649,13 @@ CRA_LocationCaptureLoop = {
 	private _ownerPresent = _ownerLog select -1;
 	if (_ownerPresent == CRQ_SD_CIV && {_allowed isEqualTo CRA_LC_CAPT_NONE}) exitWith {};
 	
-	
 	private _pos = (_this getVariable [CRA_SVAR_VEC, [[]]])#0;
 	if (_pos isEqualTo []) then {_pos = locationPosition _this;};
 	private _radius = ((size _this)#0) + CRA_LC_CAPT_RANGE;
 	
-	private _fnc_unitInclude = {alive _this && {!(isPlayer _this) || {!(captive _this) && {gRA_PL_Dist#(_this call CRA_PlayerGetIndex)}}}};
-	private _units = (_pos nearEntities [["Man"], _radius]) select {_x call _fnc_unitInclude};
-	{{if (_x call _fnc_unitInclude) then {_units pushBack _x;};} forEach (crew _x);} forEach (_pos nearEntities [["Car", "Tank"], _radius]);
+	private _units = (_pos nearEntities [["Man"], _radius]) select {_x call CRA_fnc_LC_UnitCapture};
+	{{if (_x call CRA_fnc_LC_UnitCapture) then {_units pushBack _x;};} forEach (crew _x);} forEach (_pos nearEntities [["Car", "Tank"], _radius]);
+	// {_units append ((crew _x) select {_x call CRA_fnc_LC_UnitCapture});} forEach (_pos nearEntities [["Car", "Tank"], _radius]); // TODO this optimization instead of above?
 	
 	private _unitCount = +dCRA_SD_COUNT;
 	{(_x call CRQ_Side) call {if (_this isNotEqualTo CRQ_SD_UNKNOWN) exitWith {_unitCount set [_this, (_unitCount#_this) + 1];};};} forEach _units;

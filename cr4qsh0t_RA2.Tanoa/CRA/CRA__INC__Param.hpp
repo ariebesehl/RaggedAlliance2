@@ -1,15 +1,15 @@
 
 class CRA_PM_SystemHotloading {
-	title = " ------  System | Hot-Loading";
-	texts[] = {"Enable", "Disable"};
+	title = " ------  System | Loading Mode";
+	texts[] = {"Limited [Hot-Load]", "Full [Cold-Load]"};
 	values[] = {1,0};
-	default = 1;
+	default = 0;
 };
 class CRA_PM_SystemClutterDetect {
 	title = " ------  System | Clutter Detection";
-	texts[] = {"Bounding Box [Faster Loading]","Collision [More Accurate]"};
+	texts[] = {"Bounding Box [Faster]","Collision [More Accurate]"};
 	values[] = {0,1};
-	default = 0;
+	default = 1;
 };
 class CRA_PM_LC_RB_Mode {
 	title = " ------  Location | Checkpoint Mode";

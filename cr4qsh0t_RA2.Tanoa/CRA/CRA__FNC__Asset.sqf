@@ -1,4 +1,8 @@
 
+CRA_fnc_AS_Player = {
+	private _asset = objectParent _this;
+	gRA_AS_SYS_Types getOrDefault [toLowerANSI typeOf _asset, _asset]
+};
 CRA_fnc_AS_Available = {
 	params ["_args", ["_bounds", [0,1]]];
 	private _vehicles = [];
@@ -102,7 +106,7 @@ CRA_fnc_AS_Log = {
 	
 	private _actNow = [_this, CRA_SVAR_ACT_NOW, 0] call _fnc_get;
 	private _actBase = [_this, CRA_SVAR_ACT_BASE, gRA_PG_Activation] call _fnc_get;
-	[_this, CRA_SVAR_ACT_NOW, [_vec, (if (_actBase < 0) then {-_actBase * gRA_PG_Activation} else {_actBase}), _actNow, CRA_ACTIVITY_MIN, CRA_ACTIVITY_MAX] call CRA_PlayerActivity] call _fnc_set;
+	[_this, CRA_SVAR_ACT_NOW, [_vec, (if (_actBase < 0) then {-_actBase * gRA_PG_Activation} else {_actBase}), _actNow, CRA_ACTIVITY_MIN, CRA_ACTIVITY_MAX] call CRA_fnc_PL_Activity] call _fnc_set;
 	
 	private _empty = _this call _fnc_empty;
 	if (!_empty) then {[_this, CRA_SVAR_TIME, gCS_TM_Now] call _fnc_set;};
@@ -211,52 +215,46 @@ CRA_fnc_AS_InitZero = {
 	]#gRA_PM_AS_AbandonMode;
 };
 CRA_fnc_AS_Loop = {
-	private _fnc_wrecked = {
-		{private _data = (_x call CRQ_fnc_LNK_Get)#1#_y; _data set [0, true]; _data set [1, gCS_TM_Now];} forEach ((_this#0) call CRQ_fnc_LNK_Get);
-	};
-	private _fnc_abandon = {
-		{private _data = (_x call CRQ_fnc_LNK_Get)#1#_y; _data set [0, true]; _data set [2, gCS_TM_Now];} forEach ((_this#0) call CRQ_fnc_LNK_Get);
-	};
-	private _fnc_suspend = {
-		{((_x call CRQ_fnc_LNK_Get)#0) set [_y, _this#1];} forEach ((_this#0) call CRQ_fnc_LNK_Get);
-	};
+	private _fnc_wrecked = {{private _data = (_x call CRQ_fnc_LNK_Get)#1#_y; _data set [0, true]; _data set [1, gCS_TM_Now];} forEach ((_this#0) call CRQ_fnc_LNK_Get);};
+	private _fnc_abandon = {{private _data = (_x call CRQ_fnc_LNK_Get)#1#_y; _data set [0, true]; _data set [2, gCS_TM_Now];} forEach ((_this#0) call CRQ_fnc_LNK_Get);};
+	private _fnc_suspend = {{((_x call CRQ_fnc_LNK_Get)#0) set [_y, _this#1];} forEach ((_this#0) call CRQ_fnc_LNK_Get);};
 	private _remove = [];
 	{
-		if (_x isEqualType objNull) then {
-			if (_x isEqualTo objNull) exitWith {_remove pushBack _forEachIndex};
+		if (if (_x isEqualType objNull) then {
+			if (_x isEqualTo objNull) exitWith {true};
 			if (alive _x) exitWith {
 				_x call CRA_fnc_AS_Log;
-				if (gRA_PL_Asset find _x != -1) exitWith {};
+				if (gRA_PL_SYS_Asset find _x != -1) exitWith {false};
 				if (_x call CRA_fnc_AS_Abandon) exitWith {
 					[_x, _x] call _fnc_abandon;
 					_x call CRQ_VehicleDelete;
-					_remove pushBack _forEachIndex;
+					true
 				};
-				if (_x getVariable [CRA_SVAR_VEHICLE_HIBERNATE, false]) exitWith {
-					if (_x getVariable [CRA_SVAR_ACT_NOW, 0] <= 0) then {
-						private _hibernated = _x call CRQ_VehicleHibernate;
-						//[_x, _hibernated#1, _x, [_hibernated#1, objNull] call CRQ_LinkVars] call _fnc_suspend;
-						[_x, _hibernated#1] call _fnc_suspend;
-						gRA_AS_List set [_forEachIndex, _hibernated];
-						_x call CRQ_VehicleDelete;
-					};
+				if (_x getVariable [CRA_SVAR_VEHICLE_HIBERNATE, false] && {_x getVariable [CRA_SVAR_ACT_NOW, 0] <= 0}) then {
+					private _hibernated = _x call CRQ_VehicleHibernate;
+					[_x, _hibernated#1] call _fnc_suspend;
+					gRA_AS_List set [_forEachIndex, _hibernated];
+					_x call CRQ_VehicleDelete;
 				};
+				false
 			};
 			[_x, _x] call _fnc_wrecked;
-			_remove pushBack _forEachIndex;
+			true
 		} else {
 			_x params ["_data", "_vars"];
 			_vars call CRA_fnc_AS_Log;
 			if (_vars call CRA_fnc_AS_Abandon) exitWith {
 				[_vars] call _fnc_abandon;
-				_remove pushBack _forEachIndex;
+				true
 			};
-			if ([_vars, CRA_SVAR_ACT_NOW, 0] call CRQ_VarGet < 1) exitWith {};
-			private _vehicle = _x call CRQ_VehicleThaw;
-			[_vars, _vehicle] call _fnc_suspend;
-			gRA_AS_List set [_forEachIndex, _vehicle];
+			if ([_vars, CRA_SVAR_ACT_NOW, 0] call CRQ_VarGet >= 1) then {
+				private _asset = _x call CRQ_VehicleThaw;
+				[_vars, _asset] call _fnc_suspend;
+				gRA_AS_List set [_forEachIndex, _asset];
+			};
+			false
+		}) then {
+			_remove pushBack (gRA_AS_List deleteAt _forEachIndex);
 		};
-	} forEach gRA_AS_List;
-	reverse _remove;
-	{gRA_AS_List deleteAt _x;} forEach _remove;
+	} forEachReversed gRA_AS_List;
 };

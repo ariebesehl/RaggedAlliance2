@@ -31,6 +31,7 @@
 #define CRA_ACTION_ID_INVENTORY_GATHER 32
 #define CRA_ACTION_ID_INTEL_GATHER 41
 
+#define CRA_PLAYER_ASSETS 32
 #define CRA_PLAYER_SIDE CRQ_SD_BLU // Not yet fully implemented
 #define CRA_PLAYER_VAR "gU_Player_"
 #define CRA_PLAYER_IDENTITY [\

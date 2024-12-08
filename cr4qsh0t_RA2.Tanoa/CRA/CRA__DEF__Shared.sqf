@@ -8,9 +8,12 @@
 // #define CRA_DBG_ENABLE // TODO undefine me
 #endif
 
-#define CRA_VERSION [2024,11,11]
+#define CRA_VERSION [2024,12,02]
 
 #define CRA_PARADROP_HEIGHT 42
+#define CRA_PARADROP_ASSET "Steerable_Parachute_F"
+
+#define CRA_ASSET_SYSTEM [CRA_PARADROP_ASSET]
 
 #define CRA_TEXT_PARAM_PASS 0
 #define CRA_TEXT_PARAM_NUMBER 1

@@ -32,8 +32,8 @@ CRA_LocalClientIntro = {
 	sleep 2.4;
 	["CRA_RES_MUSIC_ORIG_INTRO"] call CRA_LocalMusicForce;
 	sleep 2.4;
-	[CRA_TEXT_PLAYER_GREET, [-1]] call CRA_LocalPlayerInfoMessage;
-	[CRA_TEXT_PLAYER_VERSION, [[CRA_VERSION,"",false]]] call CRA_LocalPlayerInfoMessage;
+	[CRA_TEXT_PLAYER_GREET, [-1]] call CRA_fnc_PLL_InfoMessage;
+	[CRA_TEXT_PLAYER_VERSION, [[CRA_VERSION,"",false]]] call CRA_fnc_PLL_InfoMessage;
 };
 CRA_LocalClientLoading = {
 	if (!pRA_Initializing) exitWith {};
@@ -80,35 +80,35 @@ CRA_LocalMusicForce = {
 		lRA_MusicPlayer = addMusicEventHandler ["MusicStop", {removeMusicEventHandler ["MusicStop", _this#1]; scriptNull call CRA_LocalMusicRestore;}];
 	};
 };
-CRA_LocalPlayerDeath = {
+CRA_fnc_PLL_Death = {
 	["CRA_RES_MUSIC_ORIG_LOSS"] call CRA_LocalMusicForce;
 };
-CRA_LocalPlayerLocationWin = {
+CRA_fnc_PLL_LocationWin = {
 	["CRA_RES_MUSIC_ORIG_WIN"] call CRA_LocalMusicForce;
 };
-CRA_LocalPlayerLocationLost = {
+CRA_fnc_PLL_LocationLost = {
 	["CRA_RES_MUSIC_ORIG_LOSS"] call CRA_LocalMusicForce;
 };
-CRA_LocalPlayerInfoMessage = {
+CRA_fnc_PLL_InfoMessage = {
 	systemChat (_this call CRA_LocalTextParam);
 	["CRA_RES_SOUND_UI_MESSAGE"] call CRA_LocalSoundUI;
 };
-CRA_LocalPlayerInfoNotify = {
+CRA_fnc_PLL_InfoNotify = {
 	(_this call CRA_LocalTextParam) call CRQ_fnc_HUD_InfoText;
 	["CRA_RES_SOUND_UI_NOTIFY"] call CRA_LocalSoundUI;
 };
-CRA_LocalPlayerMailRead = {
+CRA_fnc_PLL_MailRead = {
 	private _mailbox = missionNamespace getVariable [CRA_PVAR_PLAYER_MAILBOX, []];
 	(_mailbox#_this) set [0, true];
 	[player, _this] remoteExec ["CRA_fnc_PL_MailRead", 2];
 };
-CRA_LocalPlayerRequestSpawn = {
+CRA_fnc_PLL_RQR_Spawn = {
 	CRA_DISPLAY_MAP_MODE_SPAWN call CRA_DisplayMapCreate;
 };
-CRA_LocalPlayerRequestTeleport = {
+CRA_fnc_PLL_RQR_Teleport = {
 	CRA_DISPLAY_MAP_MODE_TELEPORT call CRA_DisplayMapCreate;
 };
-CRA_LocalPlayerRequestParadrop = {
+CRA_fnc_PLL_RQR_Paradrop = {
 	CRA_DISPLAY_MAP_MODE_PARADROP call CRA_DisplayMapCreate;
 };
 CRA_DisplayInit = {
@@ -197,7 +197,7 @@ CRA_DisplayLaptopMessageCreate = {
 	_list lnbAddRow ["Sender:", _sender];
 	_list lnbAddRow ["Subject:", _subject];
 	(_display displayCtrl CRA_GUI_ID_MESSAGE_TEXT) ctrlSetText _text;
-	(count _mail - 1 - _index) call CRA_LocalPlayerMailRead;
+	(count _mail - 1 - _index) call CRA_fnc_PLL_MailRead;
 };
 CRA_DisplayLaptopMessageExit = {
 	params ["_display", "_type"];
@@ -230,7 +230,7 @@ CRA_DisplayMapCreate = {
 			private _labelList = _destinations apply {pRA_Locations#_x#0};
 			private _pos = pRA_Locations#(_destinations#0)#1;
 			["tele", CRA_PATH_UI_TELEPORT, [_pos, 0], CRA_DISPLAY_MAP_ICON_SHOW] call CRQ_fnc_UI_MapIconAdd;
-			[CRA_DISPLAY_MAP_MODE_TELEPORT, _destinations, CRA_DISPLAY_MAP_TITLE_TELEPORT, _labelList, -1, _pos, "tele", ""]
+			[CRA_DISPLAY_MAP_MODE_TELEPORT, _destinations, CRA_DISPLAY_MAP_TITLE_TELEPORT, _labelList, -1, _pos, ["tele", ""]]
 		};
 		case CRA_DISPLAY_MAP_MODE_PARADROP: {
 			[] call CRQ_fnc_PLL_UI_Enter;
@@ -239,7 +239,7 @@ CRA_DisplayMapCreate = {
 		};
 		default {[]};
 	}) params [["_mode", -1], ["_data", []], ["_labelCtrl", []], ["_labelList", []], ["_index", -1], ["_pos", []], ["_iconMap", []]];
-	if (_mode == -1) exitWith {};
+	if (_mode < 0) exitWith {};
 	uiNamespace setVariable [CRA_CVAR_DISPLAY_MAP_MODE, _mode];
 	uiNamespace setVariable [CRA_CVAR_DISPLAY_MAP_DATA, _data];
 	uiNamespace setVariable [CRA_CVAR_DISPLAY_MAP_ICON, _iconMap];

@@ -17,6 +17,6 @@
 #define CQM_fnc_EN_LightsOn {true call CRA_fnc_EN_LightSwitch}
 #define CQM_fnc_EN_LightsOff {false call CRA_fnc_EN_LightSwitch}
 
-#define CQM_fnc_CL_Connect CRA_PlayerConnect //params ["_unit", "_id", "_uid", "_name", "_jip"];
-#define CQM_fnc_CL_Disconnect CRA_PlayerDisconnect //params ["_unit", "_id", "_uid", "_name"];
-#define CQM_fnc_CL_Spawn CRA_PlayerSpawn //params ["_unit","_isRespawn"];
+#define CQM_fnc_CL_Connect CRA_fnc_PL_Connect //params ["_unit", "_id", "_uid", "_name", "_jip"];
+#define CQM_fnc_CL_Disconnect CRA_fnc_PL_Disconnect //params ["_unit", "_id", "_uid", "_name"];
+#define CQM_fnc_CL_Spawn CRA_fnc_PL_Spawn //params ["_unit","_isRespawn"];

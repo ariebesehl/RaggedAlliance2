@@ -209,18 +209,14 @@ gRA_PG_EnemySkillVariance = missionNamespace getVariable ["gRA_PG_EnemySkillVari
 
 gRA_SD_Matrix = missionNamespace getVariable ["gRA_SD_Matrix", call CRQ_fnc_SD_Matrix];
 
-gRA_PL_Reg = missionNamespace getVariable ["gRA_PL_Reg", []];
-gRA_PL_Init = missionNamespace getVariable ["gRA_PL_Init", []];
-gRA_PL_Dist = missionNamespace getVariable ["gRA_PL_Dist", []];
-gRA_PL_Index = missionNamespace getVariable ["gRA_PL_Index", createHashMap];
-gRA_PL_Var = missionNamespace getVariable ["gRA_PL_Var", []];
-gRA_PL_Inventory = missionNamespace getVariable ["gRA_PL_Inventory", []];
-gRA_PL_Asset = missionNamespace getVariable ["gRA_PL_Asset", []];
-gRA_PL_Mail = missionNamespace getVariable ["gRA_PL_Mail", []];
-gRA_PL_Units = [];
-gRA_PL_Count = 0;
-gRA_PL_Pos = [];
-gRA_PL_PrePos = [];
+gRA_PL_MapIndex = missionNamespace getVariable ["gRA_PL_MapIndex", createHashMap];
+gRA_PL_MapVars = missionNamespace getVariable ["gRA_PL_MapVars", CRQ_SD_TYPES apply {[]}];
+gRA_PL_Data = missionNamespace getVariable ["gRA_PL_Data", CRQ_SD_TYPES apply {[]}];
+gRA_PL_SYS_Asset = [];
+gRA_PL_SYS_UnitInit = [];
+gRA_PL_SYS_UnitExec = [];
+gRA_PL_SYS_Pos = [];
+gRA_PL_SYS_Count = 0;
 
 
 gRA_MAP_Grid = missionNamespace getVariable ["gRA_MAP_Grid", createHashMap];
@@ -246,10 +242,12 @@ gRA_CivilianAssetProb = missionNamespace getVariable ["gRA_CivilianAssetProb", C
 gRA_CivilianAssetTime = missionNamespace getVariable ["gRA_CivilianAssetTime", CRA_ASSET_CLASSES apply {-1}];
 gRA_CivilianAssetSpawn = missionNamespace getVariable ["gRA_CivilianAssetSpawn", CRA_ASSET_CLASSES apply {scriptNull}];
 
-gRA_AS_List = [];
-gRA_AS_FuncAbandonMode = missionNamespace getVariable ["gRA_AS_FuncAbandonMode", {true}];
+gRA_AS_SYS_Types = missionNamespace getVariable ["gRA_AS_SYS_Types", createHashMapFromArray (CRA_ASSET_SYSTEM apply {[toLowerANSI _x, objNull]})];
 gRA_AS_Catalog = missionNamespace getVariable ["gRA_AS_Catalog", []];
 gRA_AS_Dimensions = missionNamespace getVariable ["gRA_AS_Dimensions", []];
+gRA_AS_FuncAbandonMode = missionNamespace getVariable ["gRA_AS_FuncAbandonMode", {true}];
+gRA_AS_List = [];
+
 gRA_IT_Catalog = missionNamespace getVariable ["gRA_IT_Catalog", []];
 
 gRA_Temp = missionNamespace getVariable ["gRA_Temp", []];

@@ -65,7 +65,8 @@ CRQ_fnc_CLL_SpawnMonitor = {
 	if (player getVariable ["CRQL_NAK", false]) then {[true, true] call CRQ_fnc_CLL_SpawnResolve;}; // TODO write an actual error resolver
 };
 CRQ_fnc_CLL_SpawnInit = {
-	[] call CRQ_fnc_CLL_Suspend;
+	params [["_suspend", CQM_CL_SUSPEND]];
+	if (_suspend) then {[] call CRQ_fnc_CLL_Suspend;};
 	[] call CRQ_fnc_PLL_Traits;
 	player setVariable ["CRQL_NAK", true];
 	terminate gCC_SpawnMonitor;

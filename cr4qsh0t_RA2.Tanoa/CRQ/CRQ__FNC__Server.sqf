@@ -50,7 +50,7 @@ CRQ_SyncArrayFull = {
 	[_name] remoteExec ["CRQ_LocalSyncArrayClear", _target];
 	_this spawn {
 		params ["_name", "_array", ["_target", gCS_MP_Broadcast]];
-		{[_name, _forEachIndex, _x] remoteExec ["CRQ_LocalSyncArrayIndex", _target]; sleep 0.004;} forEach _array;
+		{sleep 0.004; [_name, _forEachIndex, _x] remoteExec ["CRQ_LocalSyncArrayIndex", _target];} forEach _array;
 	};
 };
 
@@ -187,6 +187,9 @@ CRQ_fnc_CL_Init = {
 	} forEach CRQ_SD_TYPES;
 	[] call CRQ_fnc_CL_SyncConnect;
 	[] call CRQ_fnc_CL_Sync;
+};
+CRQ_fnc_CL_Suspend = {
+	remoteExec ["CRQ_fnc_CLL_Suspend", owner _this];
 };
 CRQ_fnc_CL_Restore = {
 	remoteExec ["CRQ_fnc_CLL_Restore", owner _this];
