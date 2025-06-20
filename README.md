@@ -18,9 +18,9 @@ And after you finally defeat those, you'll start encountering the armed forces, 
 - A great tool to effectively learn to use and operate all of the game's assets
 
 ## Limitations
-- The mission has been a steady on/off work-in-progress since late 2021, but is definitely enjoyably playable for hours-on-end, due to the inherent randomness and the progress system
-- Originally **developed on Tanoa**, the mission has been expanded to accomodate other maps and terrains (currently **experimentally testing Malden**)
-- It has been **tested with assets from all official expansion packs and DLCs**
+- The mission has been a steady on/off work-in-progress since late 2021, but is definitely enjoyably **playable for hours-on-end**, due to the inherent randomness and the progress system
+- Originally **developed on Tanoa**, the mission has been expanded to accomodate other maps and terrains (**currently experimentally testing Malden**)
+- It is currently being **tested with assets from all official expansion packs and DLCs**
 - Compatibility with popular community-mods is intended, in the current design paradigm, but unimplemented (*"Using RHS/CUP/etc. assets is on the (distant) road-map, but vanilla should be done for that first..."*)
 - Otherwise, *specific* mod-compatibilities are unknown, but generally not improbable
 - There is no saving yet, the current workaround is a (dedicated) **server with persistency** (saving for this mission in itself has just only recently been made feasibly possible by the updates to the game's engine)
