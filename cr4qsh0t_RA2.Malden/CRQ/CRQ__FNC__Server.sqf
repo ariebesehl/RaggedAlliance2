@@ -289,7 +289,7 @@ CRQ_fnc_DT_Loop = {
 };
 CRQ_fnc_EN_LightsLoop = {
 	if (gCS_EN_Light isEqualTo ([] call CRQ_Lights)) exitWith {};
-	if (gCS_EN_Light) then {[] call CQM_fnc_EN_LightsOff; gCS_EN_Light = false;} else {[] call CQM_fnc_EN_LightsOn; gCS_EN_Light = true;};
+	if (gCS_EN_Light) then {[] call CQM_fnc_EN_LightsOff; gCS_EN_Light = false;} else {[] call CQM_fnc_EN_LightsOn; gCS_EN_Light = true;}; // TODO 25D171: sure not set var first?
 };
 
 CRQ_fnc_AI_Init = {
