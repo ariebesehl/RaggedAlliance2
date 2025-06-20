@@ -19,7 +19,7 @@ And after you finally defeat those, you'll start encountering the armed forces, 
 - Drop-in/-out gaming and join-in-progress (JIP) supported (for example, dynamically adjusted enemy forces based on number of players)
 
 ## Limitations
-- The mission has been a steady on/off work-in-progress since late 2021, but is definitely enjoyably **playable for hours-on-end**, due to the inherent randomness and the progress system
+- The mission is in a steady on/off work-in-progress since late 2021, but is **playable for hours-on-end** due to the randomness and progress system creating a virtually infinite amount unique playthroughs
 - Originally **developed on Tanoa**, the mission has been expanded to accomodate other maps and terrains (**currently experimentally testing Malden**)
 - It is currently being **tested with assets from all official expansion packs and DLCs**
 - Compatibility with popular community-mods is intended, in the current design paradigm, but unimplemented (*"Using RHS/CUP/etc. assets is on the (distant) road-map, but vanilla should be done for that first..."*)
