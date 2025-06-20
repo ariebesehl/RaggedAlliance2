@@ -34,7 +34,7 @@ And after you finally defeat those, you'll start encountering the armed forces, 
 
 ## Instructions (dedicated servers)
 - The official BI instructions on how to set up dedicated servers apply the same
-- The command-line parameters I use: `./arma3server_x64 -cfg="./serverconfig/basic.cfg" -config="./serverconfig/CONFIG_RA2_Tanoa.cfg" -world=empty -port=2902 -noSound -hugePages -loadMissionToMemory -autoInit`
+- On a dedicated server running *Linux*, the command-line I use is: `./arma3server_x64 -cfg="./serverconfig/basic.cfg" -config="./serverconfig/CONFIG_RA2_Tanoa.cfg" -world=empty -port=2902 -noSound -hugePages -loadMissionToMemory -autoInit`
 - The variable names and default/possible values for `class Params {NAME=VALUE;}` can be found in `CRQ/CRQ__INC__Param.hpp` and `CRA/CRA__INC__Param.hpp`
     
 ## Known Issues
