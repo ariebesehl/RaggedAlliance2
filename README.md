@@ -16,6 +16,7 @@ And after you finally defeat those, you'll start encountering the armed forces, 
 - Great care and delicate consideration to ensure sane and balanced defaults
 - Extreme customizability (optional)
 - A great tool to effectively learn to use and operate all of the game's assets
+- Drop-in/-out gaming and join-in-progress (JIP) supported (for example, dynamically adjusted enemy forces based on number of players)
 
 ## Limitations
 - The mission has been a steady on/off work-in-progress since late 2021, but is definitely enjoyably **playable for hours-on-end**, due to the inherent randomness and the progress system
@@ -24,7 +25,7 @@ And after you finally defeat those, you'll start encountering the armed forces, 
 - Compatibility with popular community-mods is intended, in the current design paradigm, but unimplemented (*"Using RHS/CUP/etc. assets is on the (distant) road-map, but vanilla should be done for that first..."*)
 - Otherwise, *specific* mod-compatibilities are unknown, but generally not improbable
 - There is no saving yet, the current workaround is a (dedicated) **server with persistency** (saving for this mission in itself has just only recently been made feasibly possible by the updates to the game's engine)
-- (As with many other Arma 3 missions) Single-player is only 'quasi-supported' via self-hosting a LAN multiplayer game
+- (As with many other Arma 3 missions) Single-player is only 'quasi-supported' via self-hosting a LAN multiplayer game (but it is *actually* supported in that the mission becomes harder with two players than one player)
 
 
 ## Instructions (non-dedicated)
