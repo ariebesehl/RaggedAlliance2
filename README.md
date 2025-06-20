@@ -47,7 +47,7 @@ And after you finally defeat those, you'll start encountering the armed forces, 
 
 ## Screenshots
 
-**Note (2025-06-20):** These are somewhat outdated now
+**Note (2025-06-20):** The screenshots below are from late 2024 and may not reflect the current development version
 
 ![20240906164941_1](https://github.com/user-attachments/assets/14547ebc-3986-4dab-9f77-a07774f60e97)
 >*The map after liberating Imuri Island, Koumac and Bala Airstrip, and using the "Gather Intel" action on Bala Airstrip's map, revealing the surrounding area's locations (in the case of an airport, a lot of intel is secured). Half-transparent markers are inactive locations, for which simulation runs suspended. The distance of this defaults to a flat 700m, but it can be adjusted to a higher/lower value and grow or shrink with progress. Locations are kept in an unknown state to decide at the very last moment (to mirror the current progress as closely as possible) what equipment, units, faction, etc. the location is spawned with/as.*
