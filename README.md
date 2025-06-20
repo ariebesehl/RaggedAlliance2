@@ -21,79 +21,21 @@ And after you finally defeat those, you'll start encountering the armed forces, 
 - The mission has been a steady on/off work-in-progress since late 2021, but is definitely enjoyably playable for hours-on-end, due to the inherent randomness and the progress system
 - Originally **developed on Tanoa**, the mission has been expanded to accomodate other maps and terrains (currently **experimentally testing Malden**)
 - It has been **tested with assets from all official expansion packs and DLCs**
-- Compatibility with popular community-mods is intended, in the current design paradigm, but unimplemented (*"Using RHS/CUP/etc. assets in on (distant) the road-map, but vanilla has to be done for that first."*)
+- Compatibility with popular community-mods is intended, in the current design paradigm, but unimplemented (*"Using RHS/CUP/etc. assets is on the (distant) road-map, but vanilla should be done for that first..."*)
 - Otherwise, *specific* mod-compatibilities are unknown, but generally not improbable
 - There is no saving yet, the current workaround is a (dedicated) **server with persistency** (saving for this mission in itself has just only recently been made feasibly possible by the updates to the game's engine)
 - (As with many other Arma 3 missions) Single-player is only 'quasi-supported' via self-hosting a LAN multiplayer game
 
 
-## Instructions
+## Instructions (non-dedicated)
 - Download the latest release [here](https://github.com/ariebesehl/RaggedAlliance2/releases)
-- To **play single-player**, place the PBO file in your `MPMissions` folder in your Arma directory and **host a local LAN multiplayer** game; this is effectively de facto single-player ("lone multiplayer").
+- To **play single-player,** place the PBO file in your `MPMissions` folder in your Arma directory and **host a local LAN multiplayer** game; this is effectively single-player ("lone multiplayer")
 
 ## Instructions (dedicated servers)
-This is the command I use to spawn a dedicated server on a Linux shell I've SSH'ed into with the Arma 3 directory as the working directory  
-
-    nohup ./RA2_Tanoa.sh >stdout.log 2>stderr.log &
-
-These are the contents of `RA2_Tanoa.sh`  
+- The official BI instructions on how to set up dedicated servers apply the same
+- The command-line parameters I use: `./arma3server_x64 -cfg="./serverconfig/basic.cfg" -config="./serverconfig/CONFIG_RA2_Tanoa.cfg" -world=empty -port=2902 -noSound -hugePages -loadMissionToMemory -autoInit`
+- The variable names and default/possible values for `class Params {NAME=VALUE;}` can be found in `CRQ/CRQ__INC__Param.hpp` and `CRA/CRA__INC__Param.hpp`
     
-    #!/bin/sh    
-    ./arma3server_x64 -cfg="./serverconfig/basic.cfg" -config="./serverconfig/CONFIG_RA2_Tanoa.cfg" -world=empty -port=2902 -noSound -hugePages -loadMissionToMemory -autoInit
-
-These are the (brevity- and privacy-redacted) contents of `CONFIG_RA2_Tanoa.cfg`  
-    
-    hostname       = "YOUR_SERER_NAME";
-    //password     = "YOUR_SERVER_PASSWORD";
-    passwordAdmin  = "YOUR_ADMIN_PASSWORD"; 
-    maxPlayers     = 8;
-    persistent     = 1; 
-    disableVoN       = 0;     // If set to 1, voice chat will be disabled
-    vonCodecQuality  = 10;    // Supports range 1-30
-    voteMissionPlayers  = 1;
-    voteThreshold       = 9999;
-    allowedVoteCmds[] =            // Voting commands allowed to players
-    {
-    	{"admin", false, false}, // vote admin
-    	{"kick", false, true, 0.51}, // vote kick
-    	{"missions", false, false}, // mission change
-    	{"mission", false, false}, // mission selection
-    	{"restart", false, false}, // mission restart
-    	{"reassign", false, false} // mission restart with roles unassigned
-    };
-    motd[] = {""};
-    motdInterval = 0;
-    autoSelectMission = true; // fix for battleyequerytimeout // idk if still required; used to be an issue around 2021/2022
-    class Missions
-    {
-    	class Mission1
-    	{
-    		template = "cr4qsh0t_RA2.Tanoa"; // Filename of pbo in MPMissions folder
-    		difficulty = "Regular"; // "Recruit", "Regular", "Veteran", "Custom"
-    		class Params { // find variable names and their default/possible values in `CRQ/CRQ__INC__Param.hpp` and `CRA/CRA__INC__Param.hpp` files
-    			CRA_PM_MN_Clutter = 0; // clutter detection mode, default 1 (slow but accurate)
-    			CRA_PM_PG_Factor = 4000; // progress factor, default 4000 == 4x
-    			CRA_PM_PG_Init = 0; // starting progress, sane custom value is e.g. 25 == 25%
-    		};
-    	};
-    };
-    timeStampFormat  = "short";
-    logFile          = "server_console.log";
-    BattlEye             = 0;
-    verifySignatures     = 2;
-    kickDuplicate        = 1;
-    allowedFilePatching  = 1;
-    allowedLoadFileExtensions[] =       {"hpp","sqs","sqf","fsm","cpp","paa","txt","xml","inc","ext","sqm","ods","fxy","lip","csv","kb","bik","bikb","html","htm","biedi"}; // only allow files with those extensions to be loaded via loadFile command (since Arma 3 v1.19.124216) 
-    allowedPreprocessFileExtensions[] = {"hpp","sqs","sqf","fsm","cpp","paa","txt","xml","inc","ext","sqm","ods","fxy","lip","csv","kb","bik","bikb","html","htm","biedi"}; // only allow files with those extensions to be loaded via preprocessFile / preprocessFileLineNumbers commands (since Arma 3 v1.19.124323)
-    allowedHTMLLoadExtensions[] =       {"htm","html","php","xml","txt"}; // only allow files and URLs with those extensions to be loaded via htmlLoad command (since Arma 3 v1.27.126715)
-    onUserConnected     = "";    // command to run when a player connects
-    onUserDisconnected  = "";    // command to run when a player disconnects
-    doubleIdDetected    = "";    // command to run if a player has the same ID as another player in the server
-    onUnsignedData      = "kick (_this select 0)";    // command to run if a player has unsigned files
-    onHackedData        = "kick (_this select 0)";    // command to run if a player has tampered files
-    headlessClients[]  = {""};
-    localClient[]      = {"127.0.0.1"};
-
 ## Known Issues
 - ~~Spawning in the first time is a bit buggy.~~ ~~May have been fixed.~~ ~~Probably has.~~ Not sure, but it seems so.
 - The **Teleport** system is an early-stage QOL feature, and it's far from perfect, especially if the location you're spawning into is also unspawned
