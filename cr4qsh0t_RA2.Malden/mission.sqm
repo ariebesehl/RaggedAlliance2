@@ -1,0 +1,261 @@
+version=54;
+class EditorData
+{
+	moveGridStep=1;
+	angleGridStep=0.2617994;
+	scaleGridStep=1;
+	autoGroupingDist=10;
+	toggles=513;
+	class ItemIDProvider
+	{
+		nextID=9;
+	};
+	class Camera
+	{
+		pos[]={1017.567,79.421989,11872.075};
+		dir[]={-0.58079898,-0.4220376,0.69610113};
+		up[]={-0.27037817,0.90657824,0.32405457};
+		aside[]={0.76783335,-1.4901161e-08,0.6406495};
+	};
+};
+binarizationWanted=0;
+sourceName="cr4qsh0t_RA2";
+addons[]=
+{
+	"A3_Characters_F"
+};
+class AddonsMetaData
+{
+	class List
+	{
+		items=1;
+		class Item0
+		{
+			className="A3_Characters_F";
+			name="Arma 3 Alpha - Characters and Clothing";
+			author="Bohemia Interactive";
+			url="https://www.arma3.com";
+		};
+	};
+};
+randomSeed=15532348;
+class ScenarioData
+{
+	author="cr4qsh0t";
+	class Header
+	{
+		gameType="Coop";
+		minPlayers=1;
+		maxPlayers=8;
+	};
+};
+class Mission
+{
+	class Intel
+	{
+		briefingName="co08 Ragged Alliance 2";
+		resistanceWest=0;
+		timeOfChanges=1800.0002;
+		startWeather=0.30000001;
+		startWind=0.1;
+		startWaves=0.1;
+		forecastWeather=0;
+		forecastWind=0.1;
+		forecastWaves=0.1;
+		forecastLightnings=0.1;
+		year=2035;
+		month=6;
+		day=24;
+		hour=12;
+		minute=0;
+		startFogDecay=0.014;
+		forecastFogDecay=0.014;
+	};
+	class Entities
+	{
+		items=1;
+		class Item0
+		{
+			dataType="Group";
+			side="West";
+			class Entities
+			{
+				items=8;
+				class Item0
+				{
+					dataType="Object";
+					class PositionInfo
+					{
+						position[]={1233.8724,4.4890776,11571.726};
+						angles[]={6.1930304,5.5632195,6.1144066};
+					};
+					side="West";
+					flags=6;
+					class Attributes
+					{
+						skill=1;
+						rank="LIEUTENANT";
+						name="gU_Player_0";
+						isPlayer=1;
+					};
+					id=1;
+					type="B_Soldier_TL_F";
+					atlOffset=-9.5367432e-07;
+				};
+				class Item1
+				{
+					dataType="Object";
+					class PositionInfo
+					{
+						position[]={1235.5209,4.0427275,11569.896};
+						angles[]={6.1930304,5.5632195,6.1144066};
+					};
+					side="West";
+					flags=4;
+					class Attributes
+					{
+						skill=1;
+						rank="SERGEANT";
+						name="gU_Player_1";
+						isPlayable=1;
+					};
+					id=2;
+					type="B_soldier_LAT_F";
+					atlOffset=-7.0095062e-05;
+				};
+				class Item2
+				{
+					dataType="Object";
+					class PositionInfo
+					{
+						position[]={1237.1692,3.5919795,11568.017};
+						angles[]={6.1930304,5.5632195,6.1144066};
+					};
+					side="West";
+					flags=4;
+					class Attributes
+					{
+						skill=1;
+						rank="CORPORAL";
+						name="gU_Player_2";
+						isPlayable=1;
+					};
+					id=3;
+					type="B_soldier_M_F";
+					atlOffset=-7.1525574e-07;
+				};
+				class Item3
+				{
+					dataType="Object";
+					class PositionInfo
+					{
+						position[]={1238.8176,3.2402296,11566.137};
+						angles[]={6.1930308,5.5632195,6.188272};
+					};
+					side="West";
+					flags=4;
+					class Attributes
+					{
+						skill=1;
+						rank="CORPORAL";
+						name="gU_Player_3";
+						isPlayable=1;
+					};
+					id=4;
+					type="B_engineer_F";
+					atlOffset=-7.1525574e-07;
+				};
+				class Item4
+				{
+					dataType="Object";
+					class PositionInfo
+					{
+						position[]={1240.4661,2.9133589,11564.257};
+						angles[]={6.1930308,5.5632195,6.188272};
+					};
+					side="West";
+					flags=4;
+					class Attributes
+					{
+						skill=1;
+						rank="CORPORAL";
+						name="gU_Player_4";
+						isPlayable=1;
+					};
+					id=5;
+					type="B_medic_F";
+					atlOffset=2.3841858e-07;
+				};
+				class Item5
+				{
+					dataType="Object";
+					class PositionInfo
+					{
+						position[]={1242.1144,2.5791168,11562.378};
+						angles[]={6.1503725,5.5632195,6.188272};
+					};
+					side="West";
+					flags=5;
+					class Attributes
+					{
+						skill=1;
+						rank="CORPORAL";
+						name="gU_Player_5";
+						isPlayable=1;
+					};
+					id=6;
+					type="B_soldier_AR_F";
+					atlOffset=2.3841858e-07;
+				};
+				class Item6
+				{
+					dataType="Object";
+					class PositionInfo
+					{
+						position[]={1243.7628,2.1710343,11560.498};
+						angles[]={6.1503725,5.5632195,6.188272};
+					};
+					side="West";
+					flags=4;
+					class Attributes
+					{
+						skill=1;
+						rank="CORPORAL";
+						name="gU_Player_6";
+						isPlayable=1;
+					};
+					id=7;
+					type="B_soldier_M_F";
+					atlOffset=2.3841858e-07;
+				};
+				class Item7
+				{
+					dataType="Object";
+					class PositionInfo
+					{
+						position[]={1245.4113,1.7629519,11558.618};
+						angles[]={6.1503725,5.5632195,6.188272};
+					};
+					side="West";
+					flags=4;
+					class Attributes
+					{
+						skill=1;
+						rank="CORPORAL";
+						name="gU_Player_7";
+						isPlayable=1;
+					};
+					id=8;
+					type="B_Soldier_GL_F";
+					atlOffset=2.3841858e-07;
+				};
+			};
+			class Attributes
+			{
+				formation="FILE";
+			};
+			id=0;
+			atlOffset=-9.5367432e-07;
+		};
+	};
+};
